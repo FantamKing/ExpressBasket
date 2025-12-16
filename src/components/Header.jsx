@@ -45,16 +45,25 @@ const Header = () => {
             </NavLink>
           </nav>
 
-          <button 
-            className="theme-toggle-btn"
-            onClick={toggleTheme}
-            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-          >
-            <div className={`theme-icon ${theme === 'light' ? 'moon' : 'sun'}`}></div>
-          </button>
+          <div className="theme-toggle-container">
+            <button
+              className={`theme-toggle-switch ${theme === 'dark' ? 'dark' : ''}`}
+              onClick={toggleTheme}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              aria-label="Toggle theme"
+            >
+              <div className="toggle-track">
+                <div className="toggle-icons">
+                  <span className="icon-moon">🌙</span>
+                  <span className="icon-sun">☀️</span>
+                </div>
+                <div className="toggle-thumb"></div>
+              </div>
+            </button>
+          </div>
 
           {/* Mobile Menu Button */}
-          <button 
+          <button
             className="mobile-menu-btn"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >

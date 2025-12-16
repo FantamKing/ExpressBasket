@@ -40,7 +40,7 @@
   --primary-light-text: #004085;
   --avatar-bg: #e9ecef;
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --hero-overlay: rgba(0,0,0,0.7);
+  --hero-overlay: rgba(0, 0, 0, 0.7);
   --moon-crater: #c0c0c0;
 }
 
@@ -48,19 +48,39 @@
   /* Dark theme variables */
   --bg-color: #1a1a1a;
   --text-color: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-muted: #888;
+  --text-light: #666;
   --header-bg: #2d2d2d;
   --sidebar-bg: #2d2d2d;
-  --card-bg: #333;
-  --border-color: #555;
+  --card-bg: #2a2a2a;
+  --border-color: #444;
+  --border-light: #3a3a3a;
   --btn-primary: #28a745;
   --btn-primary-hover: #218838;
   --btn-secondary: #6c757d;
   --btn-secondary-hover: #5a6268;
-  --input-bg: #444;
+  --btn-danger: #dc3545;
+  --btn-danger-hover: #c82333;
+  --input-bg: #333;
   --input-border: #555;
   --input-focus-border: #28a745;
-  --nav-link-hover: #444;
-  --shadow: rgba(0, 0, 0, 0.3);
+  --nav-link-hover: #3a3a3a;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --shadow-dark: rgba(0, 0, 0, 0.7);
+  --success-bg: #1e4620;
+  --success-text: #7dce82;
+  --error-bg: #4a1a1f;
+  --error-text: #f5a3a3;
+  --warning-bg: #4a3f1a;
+  --warning-text: #f5d576;
+  --info-bg: #1a3a4a;
+  --info-text: #76c7f5;
+  --primary-light-bg: #2a3a4a;
+  --primary-light-text: #76c7f5;
+  --avatar-bg: #3a3a3a;
+  --gradient-primary: linear-gradient(135deg, #4a5f9a 0%, #5a3b72 100%);
+  --hero-overlay: rgba(0, 0, 0, 0.85);
   --moon-crater: #888;
 }
 

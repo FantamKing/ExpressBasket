@@ -18,7 +18,10 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 // Configure CORS to allow the frontend origin (set ALLOWED_ORIGIN in Render envs)
-const allowedOrigins = process.env.ALLOWED_ORIGIN ? process.env.ALLOWED_ORIGIN.split(',').map(s => s.trim()) : [];
+const allowedOrigins = process.env.ALLOWED_ORIGIN
+  ? process.env.ALLOWED_ORIGIN.split(',').map(s => s.trim())
+  : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5000'];
+
 const corsOptions = {
   origin: (origin, callback) => {
     // allow requests with no origin (like curl, server-to-server)
@@ -28,8 +31,8 @@ const corsOptions = {
   },
   credentials: true,
   optionsSuccessStatus: 200,
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));

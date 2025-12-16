@@ -103,88 +103,95 @@
   background-color: var(--nav-link-hover);
 }
 
-/* Theme Toggle Button */
-.theme-toggle-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: var(--text-color);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  transition: all 0.3s ease;
+/* Theme Toggle Switch */
+.theme-toggle-container {
   margin-left: 15px;
 }
 
-.theme-toggle-btn:hover {
-  background-color: var(--nav-link-hover);
-  color: var(--btn-primary);
+.theme-toggle-switch {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
-.theme-toggle-btn i {
-  font-size: 18px;
-}
-
-/* Animated Theme Icons */
-.theme-icon {
-  width: 24px;
-  height: 24px;
+.toggle-track {
   position: relative;
-  transition: all 0.5s ease;
+  width: 60px;
+  height: 30px;
+  background: var(--border-color);
+  border-radius: 15px;
+  transition: background-color 0.3s ease;
+  overflow: hidden;
 }
 
-.theme-icon.sun {
-  background: radial-gradient(circle at 30% 30%, var(--sun-1, #ffd700), var(--sun-2, #ffed4e), var(--sun-3, #ffa500));
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-  animation: sunGlow 2s ease-in-out infinite alternate;
+.theme-toggle-switch:hover .toggle-track {
+  background: var(--text-secondary);
 }
 
-.theme-icon.sun::before {
-  content: '';
+.theme-toggle-switch.dark .toggle-track {
+  background: var(--btn-primary);
+}
+
+.toggle-icons {
   position: absolute;
-  top: -8px;
-  left: -8px;
-  right: -8px;
-  bottom: -8px;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: sunRays 3s ease-in-out infinite;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  z-index: 1;
 }
 
-.theme-icon.moon {
-  background: radial-gradient(circle at 25% 25%, var(--moon-1, #ffffff), var(--moon-2, #e0e0e0), var(--moon-3, #c0c0c0));
-  border-radius: 50%;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-  animation: moonGlow 2s ease-in-out infinite alternate;
+.icon-moon,
+.icon-sun {
+  font-size: 16px;
+  transition: opacity 0.3s ease;
 }
 
-.theme-icon.moon::before {
-  content: '';
+.theme-toggle-switch .icon-moon {
+  opacity: 1;
+}
+
+.theme-toggle-switch .icon-sun {
+  opacity: 0.3;
+}
+
+.theme-toggle-switch.dark .icon-moon {
+  opacity: 0.3;
+}
+
+.theme-toggle-switch.dark .icon-sun {
+  opacity: 1;
+}
+
+.toggle-thumb {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 6px;
-  height: 6px;
-  background: var(--moon-crater);
+  width: 24px;
+  height: 24px;
+  background: white;
   border-radius: 50%;
-  box-shadow: 8px 0 0 var(--moon-crater), 4px 6px 0 var(--moon-crater), 12px 4px 0 var(--moon-crater);
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 2;
 }
 
-@keyframes sunGlow {
-  0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-  100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.4); }
+.theme-toggle-switch.dark .toggle-thumb {
+  transform: translateX(30px);
 }
 
-@keyframes sunRays {
-  0% { transform: rotate(0deg) scale(1); opacity: 0.3; }
-  50% { transform: rotate(180deg) scale(1.1); opacity: 0.6; }
-  100% { transform: rotate(360deg) scale(1); opacity: 0.3; }
+/* Remove old theme button styles */
+.theme-toggle-btn {
+  display: none;
 }
 
-@keyframes moonGlow {
-  0% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
-  100% { box-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 0 0 35px rgba(255, 255, 255, 0.2); }
+.theme-icon {
+  display: none;
 }
 
 /* Mobile Navigation */

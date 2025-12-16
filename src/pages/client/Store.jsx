@@ -34,11 +34,17 @@ const FilterSelect = styled.select`
   border: 1px solid var(--border-color);
   border-radius: 5px;
   background: var(--input-bg);
+  color: var(--text-color);
   font-size: 16px;
   
   &:focus {
     outline: none;
     border-color: var(--input-focus-border);
+  }
+  
+  option {
+    background: var(--input-bg);
+    color: var(--text-color);
   }
 `;
 
@@ -52,6 +58,8 @@ const SearchBox = styled.div`
     padding: 10px 15px;
     border: 1px solid var(--border-color);
     border-radius: 5px 0 0 5px;
+    background: var(--input-bg);
+    color: var(--text-color);
     font-size: 16px;
     
     &:focus {
@@ -162,7 +170,7 @@ const Store = () => {
 
     // Filter by search term (case-insensitive)
     const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         description.toLowerCase().includes(searchTerm.toLowerCase());
+      description.toLowerCase().includes(searchTerm.toLowerCase());
 
     // Filter by category. `product.category` may be populated object or an id string.
     const categoryId = product.category && (product.category._id ? product.category._id : product.category);
@@ -212,24 +220,27 @@ const Store = () => {
     <StoreContainer>
       <StoreHeader>
         <StoreTitle>All Products</StoreTitle>
-        
+
         <Filters>
           <SearchBox onSubmit={handleSearch}>
             <form onSubmit={handleSearch} style={{ display: 'flex', flex: 1 }}>
-              <input 
-                type="text" 
-                placeholder="Search products..." 
+              <input
+                type="text"
+                placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               <button type="submit">
-                <i className="expDel_search"></i>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </svg>
               </button>
             </form>
           </SearchBox>
-          
-          <FilterSelect 
-            value={selectedCategory} 
+
+          <FilterSelect
+            value={selectedCategory}
             onChange={(e) => {
               setSelectedCategory(e.target.value);
               setCurrentPage(1);
@@ -242,9 +253,9 @@ const Store = () => {
               </option>
             ))}
           </FilterSelect>
-          
-          <FilterSelect 
-            value={sortBy} 
+
+          <FilterSelect
+            value={sortBy}
             onChange={(e) => {
               setSortBy(e.target.value);
               setCurrentPage(1);
@@ -257,7 +268,7 @@ const Store = () => {
           </FilterSelect>
         </Filters>
       </StoreHeader>
-      
+
       {filteredProducts.length === 0 ? (
         <NoProducts>
           <i className="expDel_search" style={{ fontSize: '40px', marginBottom: '20px' }}></i>
@@ -271,18 +282,18 @@ const Store = () => {
               <ProductCard key={product._id} product={product} />
             ))}
           </ProductGrid>
-          
+
           {totalPages > 1 && (
             <Pagination>
-              <PageButton 
+              <PageButton
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
                 Previous
               </PageButton>
-              
+
               {[...Array(totalPages)].map((_, index) => (
-                <PageButton 
+                <PageButton
                   key={index + 1}
                   active={currentPage === index + 1}
                   onClick={() => setCurrentPage(index + 1)}
@@ -290,8 +301,8 @@ const Store = () => {
                   {index + 1}
                 </PageButton>
               ))}
-              
-              <PageButton 
+
+              <PageButton
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
