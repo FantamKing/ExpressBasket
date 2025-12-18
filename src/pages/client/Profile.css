@@ -683,16 +683,17 @@
 }
 
 .order-card {
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(102, 126, 234, 0.15);
   border-radius: 14px;
   padding: 18px;
-  background: var(--card-bg);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.08);
 }
 
 .order-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
   border-color: rgba(102, 126, 234, 0.3);
 }
 
@@ -705,27 +706,51 @@
 
 .order-id {
   font-weight: 700;
-  color: var(--text-color);
-  font-size: 14px;
+  color: #333;
+  font-size: 15px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .order-status {
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .order-status.delivered {
-  background: linear-gradient(135deg, #43a047, #2e7d32);
+  background: linear-gradient(135deg, #10b981, #059669);
   color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.order-status.confirmed {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.order-status.pending {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
 }
 
 .order-status.processing {
-  background: linear-gradient(135deg, #ffa726, #f57c00);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   color: white;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.order-status.cancelled {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
 .order-details {
@@ -1368,5 +1393,143 @@
 
   .bar-label {
     color: rgba(255, 255, 255, 0.6);
+  }
+
+  /* Profile Details Dark Mode Fix */
+  .profile-details {
+    background: rgba(30, 30, 40, 0.95);
+  }
+
+  .detail-item {
+    background: rgba(50, 50, 65, 0.8);
+    border-color: rgba(102, 126, 234, 0.2);
+  }
+
+  .detail-item:hover {
+    background: rgba(60, 60, 80, 0.9);
+  }
+
+  .detail-label {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .detail-value {
+    color: #fff;
+  }
+
+  /* Stats Section Dark Mode */
+  .stats-section {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .stat-card {
+    background: rgba(40, 40, 55, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .stat-card:nth-child(1),
+  .stat-card:nth-child(2),
+  .stat-card:nth-child(3) {
+    background: rgba(40, 40, 55, 0.9) !important;
+  }
+
+  .stat-value {
+    color: #fff;
+  }
+
+  .stat-label {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Profile Card Dark Mode */
+  .profile-card {
+    background: rgba(25, 25, 35, 0.95);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Orders Section Dark Mode */
+  .orders-section {
+    background: rgba(25, 25, 35, 0.95);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .orders-section h3 {
+    color: #fff;
+  }
+
+  .order-card {
+    background: rgba(40, 40, 55, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .order-id {
+    color: #fff;
+  }
+
+  .order-date,
+  .order-items {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Activities Section Dark Mode */
+  .activities-section h3 {
+    color: #fff;
+  }
+
+  .summary-value {
+    color: #fff;
+  }
+
+  .summary-label {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* View Activities and Order History buttons row */
+  .right-column>div {
+    background: rgba(25, 25, 35, 0.95);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Stats section titles and values in dark mode */
+  .stats-section h3,
+  .right-column h3 {
+    color: #fff;
+  }
+
+  /* Auth Section Dark Mode */
+  .auth-section {
+    background: rgba(25, 25, 35, 0.95);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .auth-tabs {
+    background: rgba(40, 40, 55, 0.8);
+  }
+
+  /* Forgot Password Link */
+  .forgot-password-link {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .forgot-password-link:hover {
+    color: #667eea;
+  }
+
+  /* No orders text */
+  .no-orders {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  /* Wallet and other card sections */
+  .wallet-card,
+  .mails-section {
+    background: rgba(25, 25, 35, 0.95);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .wallet-card h4,
+  .mails-section h4 {
+    color: #fff;
   }
 }
