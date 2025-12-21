@@ -1,12 +1,18 @@
 const nodemailer = require('nodemailer');
 
 // Create email transporter
-const transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransporter({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
-    }
+    },
+    tls: {
+        rejectUnauthorized: false
+    },
+    connectionTimeout: 60000, // 60 seconds
+    greetingTimeout: 30000,   // 30 seconds
+    socketTimeout: 60000      // 60 seconds
 });
 
 // Verify connection
