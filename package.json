@@ -27,6 +27,7 @@
     "@vitejs/plugin-react-swc": "^3.3.0",
     "concurrently": "^8.2.0",
     "nodemon": "^3.0.0",
+    "terser": "^5.44.1",
     "vite": "^5.0.0"
   },
   "type": "module"
