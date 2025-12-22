@@ -26,7 +26,7 @@ const server = http.createServer(app);
 // Configure CORS to allow the frontend origin (set ALLOWED_ORIGIN in Render envs)
 const allowedOrigins = process.env.ALLOWED_ORIGIN
   ? process.env.ALLOWED_ORIGIN.split(',').map(s => s.trim())
-  : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5000', 'https://expressbasket.vercel.app'];
+  : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5000', 'https://expressbasket.vercel.app', 'https://expressbasket1.vercel.app', 'https://expressbasket-saqp.onrender.com'];
 
 // Log allowed origins at startup for Render debugging
 console.log('CORS allowedOrigins:', allowedOrigins);
