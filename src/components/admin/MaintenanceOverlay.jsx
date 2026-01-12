@@ -1,48 +1,109 @@
 import React from 'react';
+import { Rocket, Mail } from 'lucide-react';
 import './MaintenanceOverlay.css';
 
 const MaintenanceOverlay = () => {
     return (
-        <div className="maintenance-overlay">
-            <div className="maintenance-content">
-                <div className="maintenance-icon">
-                    <svg className="wrench-icon" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                    </svg>
-                    <svg className="gear-icon" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                    </svg>
+        <div className="mn-page">
+            {/* Animated grid background */}
+            <div className="mn-grid"></div>
+
+            {/* Floating particles */}
+            <div className="mn-particles">
+                {[...Array(15)].map((_, i) => (
+                    <div key={i} className="mn-particle" style={{
+                        left: `${5 + i * 6}%`,
+                        animationDelay: `${i * 0.5}s`
+                    }}></div>
+                ))}
+            </div>
+
+            {/* Server racks illustration */}
+            <div className="mn-scene">
+                <div className="mn-server-rack">
+                    <div className="mn-server">
+                        <div className="mn-server-lights">
+                            <span className="mn-light mn-light-1"></span>
+                            <span className="mn-light mn-light-2"></span>
+                            <span className="mn-light mn-light-3"></span>
+                        </div>
+                        <div className="mn-server-lines">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <div className="mn-server">
+                        <div className="mn-server-lights">
+                            <span className="mn-light mn-light-1"></span>
+                            <span className="mn-light mn-light-2"></span>
+                            <span className="mn-light mn-light-3"></span>
+                        </div>
+                        <div className="mn-server-lines">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <div className="mn-server mn-server-fixing">
+                        <div className="mn-server-lights">
+                            <span className="mn-light mn-light-warning"></span>
+                            <span className="mn-light mn-light-warning"></span>
+                            <span className="mn-light mn-light-warning"></span>
+                        </div>
+                        <div className="mn-fixing-indicator">
+                            <span>🔧</span>
+                        </div>
+                    </div>
                 </div>
 
-                <h1 className="maintenance-title">
-                    THE SERVER IS CURRENTLY IN MAINTENANCE
-                </h1>
+                {/* Connection lines */}
+                <div className="mn-connections">
+                    <div className="mn-conn-line"></div>
+                    <div className="mn-conn-line"></div>
+                    <div className="mn-conn-line"></div>
+                </div>
+            </div>
 
-                <p className="maintenance-subtitle">
-                    We're working hard to improve your experience
-                </p>
+            {/* Progress section */}
+            <div className="mn-progress-section">
+                <div className="mn-progress-item">
+                    <span className="mn-progress-label">Database</span>
+                    <div className="mn-progress-bar"><div className="mn-progress-fill mn-fill-1"></div></div>
+                </div>
+                <div className="mn-progress-item">
+                    <span className="mn-progress-label">Services</span>
+                    <div className="mn-progress-bar"><div className="mn-progress-fill mn-fill-2"></div></div>
+                </div>
+                <div className="mn-progress-item">
+                    <span className="mn-progress-label">Cache</span>
+                    <div className="mn-progress-bar"><div className="mn-progress-fill mn-fill-3"></div></div>
+                </div>
+            </div>
 
-                <div className="maintenance-divider">
-                    <span className="divider-line"></span>
-                    <span className="divider-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                    </span>
-                    <span className="divider-line"></span>
+            {/* Text content */}
+            <div className="mn-content">
+                <div className="mn-badge">
+                    <span className="mn-badge-dot"></span>
+                    System Maintenance
                 </div>
 
-                <p className="maintenance-contact">
-                    Contact the <span className="highlight">SUPER ADMIN</span> for more info
+                <h1 className="mn-title">We're Upgrading Our Servers</h1>
+
+                <p className="mn-desc">
+                    Our engineers are working to improve your experience.
+                    <br />We'll be back online shortly.
                 </p>
 
-                <div className="maintenance-dots">
-                    <span className="dot"></span>
-                    <span className="dot"></span>
-                    <span className="dot"></span>
+                <p className="mn-contact">
+                    Need urgent help? Contact <strong>Super Admin</strong>
+                </p>
+
+                <div className="mn-footer">
+                    <div className="mn-brand">
+                        <Rocket size={20} />
+                        Express Basket
+                    </div>
+                    <a href="mailto:expressbasket.help@gmail.com" className="mn-email">
+                        <Mail size={14} />
+                        expressbasket.help@gmail.com
+                    </a>
                 </div>
             </div>
         </div>
