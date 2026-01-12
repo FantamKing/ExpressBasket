@@ -2612,3 +2612,469 @@
 [data-theme="light"] .date-input-group input[type="date"]:focus {
   border-color: #10b981;
 }
+
+/* ===================== RESPONSIVE STYLES ===================== */
+
+/* Tablet Breakpoint */
+@media (max-width: 1024px) {
+  .profile-content {
+    grid-template-columns: 1fr !important;
+    gap: 20px;
+  }
+
+  .profile-card {
+    position: static;
+    max-width: 100%;
+  }
+
+  .right-column {
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .activities-section {
+    max-width: 100%;
+  }
+}
+
+/* Mobile Breakpoint */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 16px 12px;
+  }
+
+  .profile-header-actions {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .profile-title {
+    font-size: 22px;
+  }
+
+  .profile-header {
+    padding: 24px 18px;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 36px;
+  }
+
+  .profile-info h2 {
+    font-size: 18px;
+  }
+
+  .profile-email {
+    font-size: 12px;
+  }
+
+  .profile-details {
+    padding: 14px;
+    gap: 8px;
+  }
+
+  .detail-item {
+    padding: 12px;
+  }
+
+  .stats-section {
+    padding: 16px;
+  }
+
+  .stats-section h3 {
+    font-size: 14px;
+  }
+
+  .stats-grid {
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 14px 12px;
+    min-height: 60px;
+  }
+
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .stat-value {
+    font-size: 16px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .activities-section {
+    padding: 16px;
+  }
+
+  .date-range-selector {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .date-input-group {
+    min-width: 100%;
+  }
+
+  /* Auth Form Mobile */
+  .auth-section {
+    padding: 20px 16px;
+  }
+
+  .auth-form {
+    padding: 20px;
+  }
+
+  .auth-form h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .auth-btn {
+    padding: 14px;
+    font-size: 15px;
+  }
+
+  /* Modals Mobile */
+  .orders-modal,
+  .badge-modal,
+  .topup-modal,
+  .transaction-modal,
+  .mails-modal,
+  .mail-detail-modal,
+  .reordered-modal,
+  .tracking-modal,
+  .support-modal {
+    width: 95% !important;
+    max-width: none !important;
+    max-height: 85vh !important;
+    margin: 20px auto !important;
+    border-radius: 16px !important;
+  }
+
+  .orders-section {
+    max-height: 60vh;
+  }
+
+  .order-item {
+    padding: 14px;
+  }
+
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .order-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .order-actions button {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  /* Support Chat Mobile */
+  .support-messages-container {
+    max-height: 50vh;
+  }
+
+  .support-input-container {
+    padding: 12px;
+  }
+
+  /* Wallet and Transaction Modals */
+  .wallet-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .topup-btn,
+  .history-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Small Mobile Breakpoint */
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 12px 8px;
+  }
+
+  .profile-header {
+    padding: 20px 14px;
+  }
+
+  .profile-avatar {
+    width: 70px;
+    height: 70px;
+    font-size: 32px;
+  }
+
+  .profile-info h2 {
+    font-size: 16px;
+  }
+
+  .profile-email {
+    font-size: 11px;
+  }
+
+  .loyalty-badge-display {
+    font-size: 10px;
+    padding: 5px 12px;
+  }
+
+  .edit-btn,
+  .profile-logout-btn {
+    padding: 8px 16px !important;
+    font-size: 11px !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stat-card {
+    padding: 12px 10px;
+  }
+
+  .stat-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .stat-value {
+    font-size: 14px;
+  }
+
+  .profile-details {
+    padding: 12px;
+  }
+
+  .detail-item {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .detail-label {
+    font-size: 9px;
+  }
+
+  .detail-value {
+    font-size: 12px;
+  }
+
+  /* Auth Form Small Mobile */
+  .auth-section {
+    padding: 16px 12px;
+  }
+
+  .auth-tabs {
+    gap: 4px;
+  }
+
+  .auth-tab {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .auth-form {
+    padding: 16px;
+  }
+
+  .auth-form h2 {
+    font-size: 18px;
+  }
+
+  .form-group label {
+    font-size: 11px;
+  }
+
+  .form-group input {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .auth-btn {
+    padding: 14px;
+    font-size: 14px;
+  }
+
+  .forgot-password-link {
+    font-size: 12px;
+  }
+
+  /* Activities Small Mobile */
+  .activities-section {
+    padding: 14px;
+  }
+
+  .activities-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .view-activities-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .activity-chart {
+    padding: 14px;
+  }
+
+  .chart-summary {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chart-bars {
+    gap: 4px;
+  }
+
+  .bar-group {
+    min-width: 40px;
+  }
+
+  /* Order Items Small Mobile */
+  .order-item {
+    padding: 12px;
+  }
+
+  .order-id {
+    font-size: 12px;
+  }
+
+  .order-total,
+  .order-date {
+    font-size: 11px;
+  }
+
+  .order-products-list {
+    font-size: 11px;
+  }
+
+  .order-actions {
+    flex-direction: column;
+  }
+
+  .order-actions button {
+    width: 100%;
+    padding: 10px;
+  }
+
+  /* Modal Headers Small Mobile */
+  .orders-modal h2,
+  .mails-modal h2,
+  .badge-modal h2,
+  .transaction-modal h2 {
+    font-size: 16px;
+  }
+
+  .close-modal {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Mail Items Small Mobile */
+  .mail-item {
+    padding: 12px;
+  }
+
+  .mail-subject {
+    font-size: 13px;
+  }
+
+  .mail-preview {
+    font-size: 11px;
+  }
+
+  /* Support Chat Small Mobile */
+  .support-modal-header h3 {
+    font-size: 14px;
+  }
+
+  .support-message {
+    padding: 10px 12px;
+    font-size: 13px;
+    max-width: 90%;
+  }
+
+  .support-input {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  .support-send-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Extra Small Devices */
+@media (max-width: 360px) {
+  .profile-container {
+    padding: 10px 6px;
+  }
+
+  .profile-header {
+    padding: 16px 12px;
+  }
+
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+
+  .auth-form {
+    padding: 14px;
+  }
+
+  .auth-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .stats-section {
+    padding: 12px;
+  }
+
+  .stat-card {
+    padding: 10px 8px;
+    min-height: 50px;
+  }
+
+  .stat-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .stat-value {
+    font-size: 13px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+  }
+}
