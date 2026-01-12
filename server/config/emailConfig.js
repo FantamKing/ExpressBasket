@@ -159,72 +159,100 @@ const sendPasswordResetEmail = async (email, resetToken, userName) => {
     }
 };
 
-// ============ BROADCAST EMAILS (via Gmail SMTP) ============
+// ============ BROADCAST EMAILS (via Brevo HTTP API) ============
 const sendBroadcastEmail = async (email, userName, subject, message) => {
-    const mailOptions = {
-        from: `Express Basket <${GMAIL_FROM}>`,
-        to: email,
-        subject: `${subject} - Express Basket`,
-        html: `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                    .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
-                    .message-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea; }
-                    .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-                    .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>🛒 Express Basket</h1>
-                        <p>System Notification</p>
-                    </div>
-                    <div class="content">
-                        <p>Hello <strong>${userName}</strong>,</p>
-                        
-                        <div class="message-box">
-                            <h3 style="margin-top: 0; color: #667eea;">${subject}</h3>
-                            <p style="white-space: pre-wrap; margin: 0;">${message}</p>
-                        </div>
-                        
-                        <div class="warning">
-                            <strong>📢 Important Notice:</strong>
-                            <p style="margin: 5px 0 0;">This is an official system notification from Express Basket. Please read it carefully.</p>
-                        </div>
-                        
-                        <p>Best regards,<br><strong>Express Basket Team</strong></p>
-                    </div>
-                    <div class="footer">
-                        <p>This is an automated email. Please do not reply.</p>
-                        <p>&copy; 2025 Express Basket. All rights reserved.</p>
-                    </div>
+    if (!process.env.BREVO_API_KEY) {
+        return { success: false, error: 'Email service not configured. Please set BREVO_API_KEY.' };
+    }
+
+    const emailContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+                .message-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea; }
+                .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+                .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🛒 Express Basket</h1>
+                    <p>System Notification</p>
                 </div>
-            </body>
-            </html>
-        `
-    };
+                <div class="content">
+                    <p>Hello <strong>${userName}</strong>,</p>
+                    
+                    <div class="message-box">
+                        <h3 style="margin-top: 0; color: #667eea;">${subject}</h3>
+                        <p style="white-space: pre-wrap; margin: 0;">${message}</p>
+                    </div>
+                    
+                    <div class="warning">
+                        <strong>📢 Important Notice:</strong>
+                        <p style="margin: 5px 0 0;">This is an official system notification from Express Basket. Please read it carefully.</p>
+                    </div>
+                    
+                    <p>Best regards,<br><strong>Express Basket Team</strong></p>
+                </div>
+                <div class="footer">
+                    <p>This is an automated email. Please do not reply.</p>
+                    <p>&copy; 2025 Express Basket. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
 
     try {
-        console.log('📧 Sending broadcast email via Gmail to:', email);
-        const info = await gmailTransporter.sendMail(mailOptions);
-        console.log('✅ Broadcast email sent:', info.messageId);
-        return { success: true, messageId: info.messageId };
+        console.log('📧 Sending broadcast email via Brevo to:', email);
+
+        const response = await axios.post(
+            BREVO_API_URL,
+            {
+                sender: {
+                    name: BREVO_FROM_NAME,
+                    email: BREVO_FROM_EMAIL
+                },
+                to: [
+                    {
+                        email: email,
+                        name: userName
+                    }
+                ],
+                subject: `${subject} - Express Basket`,
+                htmlContent: emailContent
+            },
+            {
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': process.env.BREVO_API_KEY,
+                    'content-type': 'application/json'
+                },
+                timeout: 30000
+            }
+        );
+
+        console.log('✅ Broadcast email sent via Brevo!');
+        console.log('📧 Message ID:', response.data.messageId);
+        return { success: true, messageId: response.data.messageId };
     } catch (error) {
-        console.error(`❌ Gmail SMTP error for ${email}:`, error.message);
+        console.error('❌ Brevo API error for broadcast:', error.response?.data || error.message);
 
         let errorMessage = 'Failed to send broadcast email. ';
-        if (error.code === 'ETIMEDOUT') {
-            errorMessage += 'Connection timeout - Gmail SMTP may be blocked on this server.';
-        } else if (error.code === 'EAUTH') {
-            errorMessage += 'Authentication failed. Check EMAIL_USER and EMAIL_PASSWORD.';
+        if (error.response?.status === 401) {
+            errorMessage += 'Authentication failed. Check BREVO_API_KEY.';
+        } else if (error.response?.data?.message) {
+            errorMessage += error.response.data.message;
+        } else if (error.code === 'ECONNABORTED') {
+            errorMessage += 'Request timeout. Please try again.';
         } else {
-            errorMessage += error.message;
+            errorMessage += error.message || 'Unknown error occurred.';
         }
 
         return { success: false, error: errorMessage };
