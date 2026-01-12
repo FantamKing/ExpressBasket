@@ -24,13 +24,16 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* Mirror effect - flip horizontally so movements are natural */
+    transform: scaleX(-1);
 }
 
 .ffc-captured-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scaleX(-1); /* Mirror to match webcam */
+    transform: scaleX(-1);
+    /* Mirror to match webcam */
 }
 
 /* Face Guide Overlay */
@@ -56,10 +59,13 @@
 }
 
 @keyframes pulse-oval {
-    0%, 100% {
+
+    0%,
+    100% {
         border-color: rgba(74, 222, 128, 0.6);
         transform: scale(1);
     }
+
     50% {
         border-color: rgba(74, 222, 128, 0.9);
         transform: scale(1.02);
@@ -132,9 +138,11 @@
         transform: scale(0.5);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.2);
     }
+
     100% {
         transform: scale(1);
         opacity: 1;

@@ -2544,13 +2544,4 @@
 }
 
 /* ===================== ACCESSIBILITY ===================== */
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+/* NOTE: prefers-reduced-motion rule removed - all users will see animations */

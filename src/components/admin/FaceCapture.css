@@ -81,9 +81,11 @@
     height: 100%;
     object-fit: cover;
     filter: brightness(1.1);
+    /* Mirror effect - flip horizontally so movements are natural */
+    transform: scaleX(-1);
 }
 
-/* Face overlay - subtle grid, no animation */
+/* Face overlay - mirrored to match video */
 .face-overlay {
     position: absolute;
     top: 0;
@@ -91,6 +93,8 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
+    /* Mirror effect - must match webcam flip */
+    transform: scaleX(-1);
 }
 
 /* ============== STATUS INDICATOR - CLEAN ============== */

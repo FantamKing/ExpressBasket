@@ -18,7 +18,7 @@ const { sendPasswordResetEmail, sendBroadcastEmail } = require('../config/emailC
 // User Registration
 router.post('/signup', async (req, res) => {
     try {
-        const { name, email, password, phone } = req.body;
+        const { name, email, password, phone, address } = req.body;
 
         // Check if user exists
         const existingUser = await User.findOne({ email });
@@ -29,12 +29,18 @@ router.post('/signup', async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create new user
+        // Create new user with all fields including address
         const newUser = new User({
             name,
             email,
             password: hashedPassword,
-            phone
+            phone,
+            address: address || {
+                street: '',
+                city: '',
+                state: '',
+                pincode: ''
+            }
         });
 
         await newUser.save();
@@ -1961,7 +1967,7 @@ router.post('/admin/mails', authenticateAdminToken, async (req, res) => {
         if (deliveryType === 'email' || deliveryType === 'both') {
             // Send actual email to user's registered email
             emailResult = await sendBroadcastEmail(user.email, user.name, subject, message);
-            
+
             if (mail && emailResult.success) {
                 mail.emailSent = true;
                 await mail.save();
@@ -1969,9 +1975,9 @@ router.post('/admin/mails', authenticateAdminToken, async (req, res) => {
 
             // If only email delivery and it failed
             if (deliveryType === 'email' && !emailResult.success) {
-                return res.status(500).json({ 
+                return res.status(500).json({
                     message: 'Failed to send email: ' + (emailResult.error || 'Unknown error'),
-                    error: emailResult.error 
+                    error: emailResult.error
                 });
             }
         }
@@ -1983,7 +1989,7 @@ router.post('/admin/mails', authenticateAdminToken, async (req, res) => {
         } else if (deliveryType === 'email') {
             responseMessage = 'Email sent to user\'s registered email';
         } else if (deliveryType === 'both') {
-            responseMessage = emailResult.success 
+            responseMessage = emailResult.success
                 ? 'Mail sent to inbox and email successfully'
                 : 'Mail sent to inbox, but email delivery failed';
         }

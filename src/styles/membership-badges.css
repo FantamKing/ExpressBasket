@@ -303,21 +303,4 @@
 }
 
 /* ====================== */
-/* RESPONSIVE */
-/* ====================== */
-
-@media (prefers-reduced-motion: reduce) {
-
-    .badge-silver,
-    .badge-gold,
-    .badge-platinum,
-    .platinum-icon,
-    .gold-icon,
-    .silver-icon,
-    .member-card-silver,
-    .member-card-gold,
-    .member-card-platinum {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-    }
-}
+/* NOTE: prefers-reduced-motion rule removed - all users will see animations */

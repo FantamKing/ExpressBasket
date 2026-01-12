@@ -2659,18 +2659,66 @@
     padding: 24px 18px;
   }
 
+  /* Force larger avatar on mobile */
   .profile-avatar {
-    width: 80px;
-    height: 80px;
-    font-size: 36px;
+    width: 85px !important;
+    height: 85px !important;
+    font-size: 38px !important;
+    min-width: 85px !important;
+    min-height: 85px !important;
+  }
+
+  /* Ensure profile info is visible */
+  .profile-info {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 4px !important;
   }
 
   .profile-info h2 {
-    font-size: 18px;
+    font-size: 18px !important;
+    display: block !important;
   }
 
   .profile-email {
     font-size: 12px;
+    display: block !important;
+  }
+
+  .profile-meta {
+    display: block !important;
+  }
+
+  /* Ensure membership badge is visible */
+  [class^="badge-"],
+  [class*=" badge-"] {
+    display: inline-flex !important;
+    font-size: 11px !important;
+    padding: 6px 14px !important;
+    margin-top: 8px !important;
+  }
+
+  /* Ensure logout button is visible */
+  .profile-logout-btn {
+    display: inline-flex !important;
+    margin-top: 12px !important;
+    padding: 10px 20px !important;
+    font-size: 13px !important;
+    background: linear-gradient(135deg, #f97316, #ef4444) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  /* Edit button visibility */
+  .edit-btn {
+    display: inline-flex !important;
+    margin-top: 10px !important;
   }
 
   .profile-details {
@@ -2821,32 +2869,47 @@
   }
 
   .profile-header {
-    padding: 20px 14px;
+    padding: 24px 16px;
   }
 
+  /* Larger avatar on mobile */
   .profile-avatar {
-    width: 70px;
-    height: 70px;
-    font-size: 32px;
+    width: 90px !important;
+    height: 90px !important;
+    font-size: 40px !important;
   }
 
   .profile-info h2 {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .profile-email {
-    font-size: 11px;
+    font-size: 12px;
   }
 
+  /* Visible membership badge on mobile */
   .loyalty-badge-display {
-    font-size: 10px;
-    padding: 5px 12px;
+    display: inline-flex !important;
+    font-size: 11px;
+    padding: 6px 14px;
+    margin-top: 8px;
   }
 
-  .edit-btn,
-  .profile-logout-btn {
-    padding: 8px 16px !important;
-    font-size: 11px !important;
+  /* Visible logout and edit buttons on mobile */
+  .edit-btn {
+    display: inline-flex !important;
+    padding: 10px 20px !important;
+    font-size: 12px !important;
+    margin-top: 8px;
+  }
+
+  .profile-logout-btn,
+  .profile-header .profile-logout-btn {
+    display: inline-flex !important;
+    padding: 10px 20px !important;
+    font-size: 12px !important;
+    margin-top: 8px;
+    width: auto !important;
   }
 
   .stats-grid {

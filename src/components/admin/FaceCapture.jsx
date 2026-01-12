@@ -4,19 +4,20 @@ import * as faceapi from 'face-api.js';
 import { User, Lightbulb, Camera, Clock, CheckCircle, Shield, AlertCircle, Eye } from 'lucide-react';
 import './FaceCapture.css';
 
-// OPTIMIZED MODE: 15-20 FPS + Eye Detection configuration (optimized for deployed environments)
+// SPEED-OPTIMIZED: Fast face recognition for mobile and desktop
+// Goal: Faster than manual login - instant detection!
 const CONFIG = {
-    MIN_CONFIDENCE: 0.3,
-    STABILITY_FRAMES: 2,
-    DEBOUNCE_TIME: 600,
-    MIN_FACE_SIZE: 50,
-    MAX_FACE_SIZE: 550,
-    CENTER_TOLERANCE: 0.4,
+    MIN_CONFIDENCE: 0.2,         // Lower threshold for faster detection
+    STABILITY_FRAMES: 1,          // INSTANT - no waiting for stability
+    DEBOUNCE_TIME: 300,           // Fast retry on fail (was 600)
+    MIN_FACE_SIZE: 30,            // Detect smaller faces
+    MAX_FACE_SIZE: 700,           // Allow larger faces
+    CENTER_TOLERANCE: 0.55,       // Very forgiving centering
     MULTI_CAPTURE_COUNT: 1,
-    DESCRIPTOR_SIMILARITY: 0.45,
-    INPUT_SIZE: 128,
-    EYE_OPEN_THRESHOLD: 0.2,
-    REQUIRE_EYES_OPEN: true,
+    DESCRIPTOR_SIMILARITY: 0.55,  // More tolerant matching
+    INPUT_SIZE: 160,              // Slightly larger for better accuracy (was 128)
+    EYE_OPEN_THRESHOLD: 0.15,     // Lower threshold
+    REQUIRE_EYES_OPEN: false,     // Don't require eyes check for speed
 };
 
 // Multi-angle capture positions for registration
@@ -401,8 +402,8 @@ const FaceCapture = ({ onFaceDetected, onError, onMultiAngleComplete, mode = 'lo
         }
     }, [mode, onFaceDetected, validateFacePosition, euclideanDistance, averageDescriptors, calculateEyeAspectRatio]);
 
-    // Optimized 15-20 FPS detection using setInterval for better deployed performance
-    // This reduces CPU/GPU load while maintaining smooth auto-detection
+    // SPEED-OPTIMIZED: ~30 FPS detection for fast face recognition
+    // Goal: Detect face faster than typing password!
     const detectionIntervalRef = useRef(null);
 
     useEffect(() => {
@@ -410,11 +411,10 @@ const FaceCapture = ({ onFaceDetected, onError, onMultiAngleComplete, mode = 'lo
 
         setStatus('Scanning...');
 
-        // Use setInterval at 50ms (20 FPS) instead of requestAnimationFrame (60 FPS)
-        // This significantly reduces load on deployed environments (Vercel/Render)
+        // 33ms = ~30 FPS - fast detection for instant login
         detectionIntervalRef.current = setInterval(() => {
             detectFace();
-        }, 50); // 50ms = 20 FPS max, actual FPS will depend on detection speed
+        }, 33); // 33ms interval = fast scanning
 
         return () => {
             if (detectionIntervalRef.current) {
@@ -449,14 +449,19 @@ const FaceCapture = ({ onFaceDetected, onError, onMultiAngleComplete, mode = 'lo
                     audio={false}
                     screenshotFormat="image/jpeg"
                     videoConstraints={{
-                        width: 480,  // Reduced from 640 for better performance
-                        height: 360, // Reduced from 480 for better performance
+                        // Use ideal constraints for mobile compatibility
+                        // Mobile cameras may not support exact resolutions
+                        width: { min: 240, ideal: 480, max: 640 },
+                        height: { min: 180, ideal: 360, max: 480 },
                         facingMode: 'user',
-                        frameRate: { ideal: 20, max: 20 } // Limit camera FPS to match detection
+                        // Lower frame rate for mobile battery/CPU
+                        frameRate: { ideal: 15, max: 20 }
                     }}
                     onUserMedia={handleCameraReady}
                     onUserMediaError={handleCameraError}
                     className="webcam"
+                    // Force mirrored rendering for mobile consistency
+                    mirrored={false} // We handle mirroring in CSS
                 />
                 <canvas
                     ref={canvasRef}
