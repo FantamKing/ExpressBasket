@@ -1,5 +1,5 @@
 import React from 'react';
-import { Rocket, Mail } from 'lucide-react';
+import { Rocket, Mail, Wrench, Cog, Settings2 } from 'lucide-react';
 import './MaintenanceOverlay.css';
 
 const MaintenanceOverlay = () => {
@@ -48,13 +48,22 @@ const MaintenanceOverlay = () => {
                             <span className="mn-light mn-light-warning"></span>
                         </div>
                         <div className="mn-fixing-indicator">
-                            <span>🔧</span>
+                            <Wrench size={16} className="mn-wrench-icon" />
                         </div>
                     </div>
                 </div>
 
                 {/* Connection lines */}
                 <div className="mn-connections">
+                    {/* Fixing tools - positioned above connections area */}
+                    <div className="mn-fixing-tools">
+                        <div className="mn-tool-gear">
+                            <Cog size={28} className="mn-gear-icon" />
+                        </div>
+                        <div className="mn-tool-wrench">
+                            <Settings2 size={20} className="mn-settings-icon" />
+                        </div>
+                    </div>
                     <div className="mn-conn-line"></div>
                     <div className="mn-conn-line"></div>
                     <div className="mn-conn-line"></div>
@@ -62,45 +71,45 @@ const MaintenanceOverlay = () => {
             </div>
 
             {/* Progress section */}
-            <div className="mn-progress-section">
-                <div className="mn-progress-item">
-                    <span className="mn-progress-label">Database</span>
+            <div className="mn-progress-section mn-status-override">
+                <div className="mn-progress-item mn-status-item">
+                    <span className="mn-progress-label mn-progress-label mn-status-label" style={{ color: '#a1a1aa' }}>DATABASE</span>
                     <div className="mn-progress-bar"><div className="mn-progress-fill mn-fill-1"></div></div>
                 </div>
-                <div className="mn-progress-item">
-                    <span className="mn-progress-label">Services</span>
+                <div className="mn-progress-item mn-status-item">
+                    <span className="mn-progress-label mn-progress-label mn-status-label" style={{ color: '#a1a1aa' }}>SERVICES</span>
                     <div className="mn-progress-bar"><div className="mn-progress-fill mn-fill-2"></div></div>
                 </div>
-                <div className="mn-progress-item">
-                    <span className="mn-progress-label">Cache</span>
+                <div className="mn-progress-item mn-status-item">
+                    <span className="mn-progress-label mn-progress-label mn-status-label" style={{ color: '#a1a1aa' }}>CACHE</span>
                     <div className="mn-progress-bar"><div className="mn-progress-fill mn-fill-3"></div></div>
                 </div>
             </div>
 
             {/* Text content */}
-            <div className="mn-content">
-                <div className="mn-badge">
+            <div className="mn-content mn-status-content">
+                <div className="mn-badge mn-badge mn-status-badge">
                     <span className="mn-badge-dot"></span>
                     System Maintenance
                 </div>
 
-                <h1 className="mn-title">We're Upgrading Our Servers</h1>
+                <h1 className="mn-title mn-title mn-status-title" style={{ color: '#fafafa' }}>We're Upgrading Our Servers</h1>
 
-                <p className="mn-desc">
+                <p className="mn-desc mn-desc mn-status-desc" style={{ color: '#a1a1aa' }}>
                     Our engineers are working to improve your experience.
                     <br />We'll be back online shortly.
                 </p>
 
-                <p className="mn-contact">
-                    Need urgent help? Contact <strong>Super Admin</strong>
+                <p className="mn-contact mn-contact mn-status-contact" style={{ color: '#a1a1aa' }}>
+                    Need urgent help? Contact <strong style={{ color: '#10b981' }}>Super Admin</strong>
                 </p>
 
-                <div className="mn-footer">
-                    <div className="mn-brand">
-                        <Rocket size={20} />
+                <div className="mn-footer mn-status-footer">
+                    <div className="mn-brand mn-brand mn-status-brand" style={{ color: '#fafafa' }}>
+                        <Rocket size={20} style={{ color: '#10b981' }} />
                         Express Basket
                     </div>
-                    <a href="mailto:expressbasket.help@gmail.com" className="mn-email">
+                    <a href="mailto:expressbasket.help@gmail.com" className="mn-email mn-status-email">
                         <Mail size={14} />
                         expressbasket.help@gmail.com
                     </a>
