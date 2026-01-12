@@ -230,26 +230,17 @@ const Home = () => {
       >
         <div className="hp-hero-bg">
           <div className="hp-hero-gradient"></div>
-          <div className="hp-hero-pattern"></div>
           <div className="hp-hero-orb hp-orb-1"></div>
           <div className="hp-hero-orb hp-orb-2"></div>
-          <div className="hp-hero-orb hp-orb-3"></div>
-          {/* Animated particles */}
-          <div className="hp-particles">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className={`hp-particle hp-particle-${i + 1}`}></div>
-            ))}
-          </div>
         </div>
 
         <div className="hp-hero-inner">
           <div className="hp-hero-content">
-            <div className="hp-hero-badge">
-              <div className="hp-badge-pulse"></div>
+            <Link to="/store" className="hp-hero-badge">
               <Zap size={14} />
               <span>Express Delivery Available</span>
               <ArrowRight size={12} />
-            </div>
+            </Link>
 
             <h1 className="hp-hero-title">
               <span className="hp-title-line">Fresh Groceries,</span>
@@ -412,10 +403,6 @@ const Home = () => {
 
       {/* Promo Banner */}
       <section className="hp-promo" id="promo" data-animate>
-        <div className="hp-promo-bg">
-          <div className="hp-promo-shape hp-shape-1"></div>
-          <div className="hp-promo-shape hp-shape-2"></div>
-        </div>
         <div className="hp-promo-content">
           <div className="hp-promo-badge">
             <Sparkles size={14} />

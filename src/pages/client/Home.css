@@ -332,38 +332,28 @@
   opacity: 0.4;
 }
 
+/* Simplified orb styles - reduced blur for better performance */
 .hp-hero-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(60px);
-  animation: orbMove 20s ease-in-out infinite;
+  filter: blur(40px);
+  opacity: 0.6;
 }
 
 .hp-orb-1 {
-  width: 300px;
-  height: 300px;
-  background: rgba(16, 185, 129, 0.2);
-  top: -100px;
-  right: -50px;
-  animation-delay: 0s;
+  width: 200px;
+  height: 200px;
+  background: rgba(16, 185, 129, 0.25);
+  top: -80px;
+  right: -40px;
 }
 
 .hp-orb-2 {
-  width: 200px;
-  height: 200px;
-  background: rgba(99, 102, 241, 0.15);
-  bottom: -50px;
-  left: 20%;
-  animation-delay: -5s;
-}
-
-.hp-orb-3 {
   width: 150px;
   height: 150px;
-  background: rgba(236, 72, 153, 0.12);
-  top: 50%;
-  right: 30%;
-  animation-delay: -10s;
+  background: rgba(99, 102, 241, 0.2);
+  bottom: -40px;
+  left: 20%;
 }
 
 .hp-hero-inner {
@@ -381,44 +371,29 @@
   gap: 20px;
 }
 
+/* Simple clickable badge - no bouncing/pulsing animations */
 .hp-hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.04));
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.08));
   color: #10b981;
   font-size: 13px;
   font-weight: 600;
   padding: 10px 18px;
   border-radius: 50px;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  border: 1px solid rgba(16, 185, 129, 0.3);
   width: fit-content;
-  position: relative;
-  overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
   animation: fadeInLeft 0.6s ease 0.1s backwards;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .hp-hero-badge:hover {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.08));
-  border-color: rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.12));
+  border-color: rgba(16, 185, 129, 0.5);
   transform: translateX(4px);
-}
-
-/* Subtle static indicator dot */
-.hp-badge-pulse {
-  position: relative;
-  width: 8px;
-  height: 8px;
-  background: #10b981;
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
-}
-
-/* Remove the pulsing animation, just keep a subtle glow */
-.hp-badge-pulse::before {
-  display: none;
 }
 
 
@@ -587,7 +562,6 @@
   width: 100%;
   max-width: 280px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-  animation: float 6s ease-in-out infinite;
 }
 
 [data-theme="dark"] .hp-visual-card {
@@ -611,7 +585,7 @@
   height: 10px;
   background: linear-gradient(135deg, #10b981, #059669);
   border-radius: 50%;
-  animation: pulse 2s ease-in-out infinite;
+  /* Removed pulse animation for better performance */
 }
 
 .hp-visual-stats {
@@ -1461,7 +1435,7 @@
   border-radius: 16px;
   color: #10b981;
   flex-shrink: 0;
-  animation: pulse 2s ease-in-out infinite;
+  /* Removed pulse animation for better performance */
 }
 
 .hp-cta-text h3 {
@@ -2082,26 +2056,15 @@
   }
 }
 
+/* Removed heavy background particles effect for better performance */
 .hp-hero-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.15) 2px, transparent 2px),
-    radial-gradient(circle at 90% 30%, rgba(99, 102, 241, 0.12) 2px, transparent 2px),
-    radial-gradient(circle at 30% 80%, rgba(236, 72, 153, 0.1) 2px, transparent 2px),
-    radial-gradient(circle at 70% 60%, rgba(16, 185, 129, 0.1) 1px, transparent 1px),
-    radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.08) 1px, transparent 1px);
-  background-size: 100px 100px, 150px 150px, 200px 200px, 80px 80px, 120px 120px;
-  animation: particleFloat 20s ease-in-out infinite;
-  pointer-events: none;
+  display: none;
 }
 
-/* Enhanced Orbs with Glow */
+/* Simplified orbs - no continuous animations */
 .hp-orb-1,
-.hp-orb-2,
-.hp-orb-3 {
-  animation: orbMove 20s ease-in-out infinite, particleGlow 3s ease-in-out infinite;
+.hp-orb-2 {
+  /* Static - no animation for better performance */
 }
 
 /* Text Reveal Animation */
@@ -2130,7 +2093,7 @@
 }
 
 .hp-title-highlight {
-  animation: fadeInUp 0.6s ease 0.3s backwards, gradient 6s ease infinite, textGlow 4s ease-in-out infinite;
+  animation: fadeInUp 0.6s ease 0.3s backwards, gradient 6s ease infinite;
 }
 
 /* 3D Card Tilt Effect */
@@ -2185,10 +2148,11 @@
   }
 }
 
+/* Hover effects - simplified for performance */
 .hp-category-card:hover,
 .hp-feature:hover,
 .hp-trust-card:hover {
-  animation: borderGlow 2s ease-in-out infinite;
+  /* Simple transform only, no continuous animations */
 }
 
 /* Ripple Effect for Buttons */
@@ -2271,19 +2235,9 @@
   }
 }
 
+/* Removed shine animation for better performance */
 .hp-promo::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent);
-  animation: shineMove 4s ease-in-out infinite;
-  pointer-events: none;
+  display: none;
 }
 
 /* Enhanced Gradient Animation for Promo */
@@ -2301,10 +2255,9 @@
   }
 }
 
+/* Static promo gradient - no animation for better performance */
 .hp-promo {
-  background: linear-gradient(135deg, #10b981 0%, #059669 25%, #047857 50%, #059669 75%, #10b981 100%);
-  background-size: 400% 400%;
-  animation: promoGradient 8s ease infinite;
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
 }
 
 /* Magnetic Hover Effect */
@@ -2330,27 +2283,9 @@
   }
 }
 
+/* Removed wave animation for better performance */
 .hp-section::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg,
-      transparent,
-      rgba(16, 185, 129, 0.3),
-      transparent,
-      rgba(99, 102, 241, 0.2),
-      transparent);
-  background-size: 200px 4px;
-  animation: waveMove 10s linear infinite;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-
-.hp-section:hover::before {
-  opacity: 1;
+  display: none;
 }
 
 /* Enhanced Product Card Animations */
@@ -2378,12 +2313,13 @@
   }
 }
 
+/* Simplified badge - no pulsing animation */
 .hp-hero-badge {
-  animation: fadeInLeft 0.6s ease 0.1s backwards, badgePulse 2s ease-in-out infinite;
+  /* Already styled above - no animation */
 }
 
 .hp-feature-badge {
-  animation: badgePulse 2s ease-in-out infinite;
+  /* Static badge - no animation */
 }
 
 /* Enhanced Loading Animation */
@@ -2438,9 +2374,10 @@
   }
 }
 
+/* Icons - no continuous floating animation */
 .hp-section-icon svg,
 .hp-trust-icon-wrap svg {
-  animation: iconFloat 3s ease-in-out infinite;
+  /* Static - no animation for better performance */
 }
 
 /* Scroll Indicator Bounce */
@@ -2601,8 +2538,9 @@
   }
 }
 
+/* Simplified hero gradient - no aurora animation */
 .hp-hero-gradient {
-  animation: aurora 15s ease-in-out infinite;
+  /* Static gradient - no animation */
 }
 
 /* ===================== ACCESSIBILITY ===================== */
