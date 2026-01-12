@@ -1,20 +1,11 @@
 const nodemailer = require('nodemailer');
+const axios = require('axios');
 
-// ============ BREVO SMTP (for Password Reset - works on Render!) ============
-const brevoTransporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.BREVO_EMAIL,      // Your Brevo login email
-        pass: process.env.BREVO_API_KEY     // Your Brevo SMTP key
-    },
-    connectionTimeout: 30000,
-    greetingTimeout: 30000,
-    socketTimeout: 30000
-});
+// ============ BREVO HTTP API (for Password Reset - works on Render!) ============
+// Render blocks SMTP ports (25, 465, 587), so we use Brevo's HTTP API instead
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
-// ============ GMAIL SMTP (for Broadcast Emails) ============
+// ============ GMAIL SMTP (for Broadcast Emails - local development only) ============
 const gmailTransporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -29,19 +20,7 @@ const gmailTransporter = nodemailer.createTransport({
     socketTimeout: 60000
 });
 
-// Verify connections
-if (process.env.BREVO_API_KEY) {
-    brevoTransporter.verify((error, success) => {
-        if (error) {
-            console.error('⚠️ Brevo SMTP error:', error.message);
-        } else {
-            console.log('✅ Brevo SMTP ready (for password reset)');
-        }
-    });
-} else {
-    console.warn('⚠️ BREVO_API_KEY not set - password reset emails disabled');
-}
-
+// Verify Gmail connection (for local development)
 if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
     gmailTransporter.verify((error, success) => {
         if (error) {
@@ -52,12 +31,19 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
     });
 }
 
-// Email sender addresses - BREVO_FROM must be a verified sender in Brevo
-// Use environment variable for flexibility, fallback to verified sender
-const BREVO_FROM = process.env.BREVO_FROM_EMAIL || 'expressbasket.help@gmail.com';  // Verified sender in Brevo
+// Check Brevo API key
+if (process.env.BREVO_API_KEY) {
+    console.log('✅ Brevo HTTP API configured (for password reset)');
+} else {
+    console.warn('⚠️ BREVO_API_KEY not set - password reset emails disabled');
+}
+
+// Email sender addresses
+const BREVO_FROM_EMAIL = process.env.BREVO_FROM_EMAIL || 'expressbasket.help@gmail.com';
+const BREVO_FROM_NAME = 'Express Basket';
 const GMAIL_FROM = process.env.EMAIL_USER || 'expressbasket.help@gmail.com';
 
-// ============ PASSWORD RESET (via Brevo) ============
+// ============ PASSWORD RESET (via Brevo HTTP API) ============
 const sendPasswordResetEmail = async (email, resetToken, userName) => {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
@@ -66,89 +52,110 @@ const sendPasswordResetEmail = async (email, resetToken, userName) => {
         return { success: false, error: 'Email service not configured. Please set BREVO_API_KEY.' };
     }
 
-    const mailOptions = {
-        from: `Express Basket <${BREVO_FROM}>`,
-        to: email,
-        subject: 'Password Reset Request - Express Basket',
-        html: `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                    .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
-                    .button { display: inline-block; padding: 15px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
-                    .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-                    .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>🛒 Express Basket</h1>
-                        <p>Password Reset Request</p>
-                    </div>
-                    <div class="content">
-                        <p>Hello <strong>${userName}</strong>,</p>
-                        
-                        <p>You requested to reset your password. Click the button below to proceed:</p>
-                        
-                        <div style="text-align: center;">
-                            <a href="${resetUrl}" class="button">Reset Password</a>
-                        </div>
-                        
-                        <p>Or copy and paste this link into your browser:</p>
-                        <p style="background: white; padding: 10px; border-radius: 5px; word-break: break-all;">
-                            ${resetUrl}
-                        </p>
-                        
-                        <div class="warning">
-                            <strong>⚠️ Important:</strong>
-                            <ul>
-                                <li>This link will expire in <strong>1 hour</strong></li>
-                                <li>If you didn't request this, please ignore this email</li>
-                                <li>Your password won't change until you create a new one</li>
-                            </ul>
-                        </div>
-                        
-                        <p>Best regards,<br><strong>Express Basket Team</strong></p>
-                    </div>
-                    <div class="footer">
-                        <p>This is an automated email. Please do not reply.</p>
-                        <p>&copy; 2025 Express Basket. All rights reserved.</p>
-                    </div>
+    const emailContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+                .button { display: inline-block; padding: 15px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+                .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+                .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🛒 Express Basket</h1>
+                    <p>Password Reset Request</p>
                 </div>
-            </body>
-            </html>
-        `
-    };
+                <div class="content">
+                    <p>Hello <strong>${userName}</strong>,</p>
+                    
+                    <p>You requested to reset your password. Click the button below to proceed:</p>
+                    
+                    <div style="text-align: center;">
+                        <a href="${resetUrl}" class="button">Reset Password</a>
+                    </div>
+                    
+                    <p>Or copy and paste this link into your browser:</p>
+                    <p style="background: white; padding: 10px; border-radius: 5px; word-break: break-all;">
+                        ${resetUrl}
+                    </p>
+                    
+                    <div class="warning">
+                        <strong>⚠️ Important:</strong>
+                        <ul>
+                            <li>This link will expire in <strong>1 hour</strong></li>
+                            <li>If you didn't request this, please ignore this email</li>
+                            <li>Your password won't change until you create a new one</li>
+                        </ul>
+                    </div>
+                    
+                    <p>Best regards,<br><strong>Express Basket Team</strong></p>
+                </div>
+                <div class="footer">
+                    <p>This is an automated email. Please do not reply.</p>
+                    <p>&copy; 2025 Express Basket. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
 
     try {
         console.log('📧 Attempting to send password reset email to:', email);
-        console.log('📧 Using Brevo SMTP');
+        console.log('📧 Using Brevo HTTP API (bypasses SMTP port blocking)');
         console.log('📧 Reset URL:', resetUrl);
 
-        const info = await brevoTransporter.sendMail(mailOptions);
+        const response = await axios.post(
+            BREVO_API_URL,
+            {
+                sender: {
+                    name: BREVO_FROM_NAME,
+                    email: BREVO_FROM_EMAIL
+                },
+                to: [
+                    {
+                        email: email,
+                        name: userName
+                    }
+                ],
+                subject: 'Password Reset Request - Express Basket',
+                htmlContent: emailContent
+            },
+            {
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': process.env.BREVO_API_KEY,
+                    'content-type': 'application/json'
+                },
+                timeout: 30000
+            }
+        );
 
         console.log('✅ Password reset email sent successfully!');
-        console.log('📧 Message ID:', info.messageId);
+        console.log('📧 Message ID:', response.data.messageId);
 
-        return { success: true, messageId: info.messageId };
+        return { success: true, messageId: response.data.messageId };
     } catch (error) {
-        console.error('❌ Brevo email error:', error);
+        console.error('❌ Brevo API error:', error.response?.data || error.message);
 
         let errorMessage = 'Failed to send email. ';
-        if (error.code === 'EAUTH') {
-            errorMessage += 'Authentication failed. Check BREVO_EMAIL and BREVO_API_KEY.';
-        } else if (error.code === 'ETIMEDOUT') {
-            errorMessage += 'Connection timeout. Please try again.';
+        if (error.response?.status === 401) {
+            errorMessage += 'Authentication failed. Check BREVO_API_KEY.';
+        } else if (error.response?.data?.message) {
+            errorMessage += error.response.data.message;
+        } else if (error.code === 'ECONNABORTED') {
+            errorMessage += 'Request timeout. Please try again.';
         } else {
             errorMessage += error.message || 'Unknown error occurred.';
         }
 
-        return { success: false, error: errorMessage, details: error.message };
+        return { success: false, error: errorMessage, details: error.response?.data || error.message };
     }
 };
 
