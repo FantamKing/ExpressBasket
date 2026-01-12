@@ -249,6 +249,14 @@ const Store = () => {
     }
   }, [searchParams]);
 
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, [currentPage]);
+
   // Socket listeners for real-time updates
   useEffect(() => {
     if (!socket) return;

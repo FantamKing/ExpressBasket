@@ -59,6 +59,7 @@ import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute.jsx';
 import PartnerLayout from './components/partner/PartnerLayout.jsx';
 import PartnerProtectedRoute from './components/partner/PartnerProtectedRoute.jsx';
 import MaintenanceOverlay from './components/admin/MaintenanceOverlay.jsx';
+import ScrollToTop from './components/ScrollToTop.jsx';
 
 // Global Styles
 import './global.css';
@@ -116,6 +117,7 @@ function App() {
           <CartProvider>
             <ToastProvider>
               <AppContainer>
+                <ScrollToTop />
                 <Routes>
                   {/* Client Routes - wrapped with maintenance check */}
                   <Route path="/" element={<ClientRoute maintenanceMode={maintenanceMode}><Layout><Home /></Layout></ClientRoute>} />
