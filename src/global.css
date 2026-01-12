@@ -139,6 +139,30 @@ a:hover {
   color: var(--link-hover);
 }
 
+/* Mobile nav active links must be white on green background */
+.mobile-nav a.active,
+.mobile-nav a.active span,
+.mobile-nav a.active svg,
+.mobile-nav a.active i {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Light theme override - MUST beat [data-theme="light"] a selector */
+[data-theme="light"] .mobile-nav a.active,
+[data-theme="light"] .mobile-nav a.active span,
+[data-theme="light"] .mobile-nav a.active svg,
+[data-theme="light"] .mobile-nav a.active i,
+html[data-theme="light"] .mobile-nav a.active,
+html[data-theme="light"] .mobile-nav a.active span,
+html[data-theme="light"] .mobile-nav a.active svg,
+html[data-theme="light"] .mobile-nav a.active i {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
 p {
   color: var(--text-color);
   margin: 0;
@@ -761,6 +785,7 @@ input:-webkit-autofill:active {
     transform: translateX(-50%) translateY(100px);
     opacity: 0;
   }
+
   100% {
     transform: translateX(-50%) translateY(0);
     opacity: 1;
@@ -869,12 +894,13 @@ input:-webkit-autofill:active {
     min-width: unset;
     bottom: 20px;
   }
-  
+
   @keyframes cartPopupSlideIn {
     0% {
       transform: translateY(100px);
       opacity: 0;
     }
+
     100% {
       transform: translateY(0);
       opacity: 1;

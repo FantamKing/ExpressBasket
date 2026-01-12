@@ -9,12 +9,27 @@ import { Ticket, Gift } from 'lucide-react';
 const CartContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 0;
+    background: var(--bg-color);
+    min-height: 100vh;
+  }
 `;
 
 const CartTitle = styled.h1`
   font-size: 36px;
   margin-bottom: 30px;
   color: var(--text-color);
+
+  @media (max-width: 768px) {
+    font-size: 22px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--card-bg);
+    margin: 0;
+    border-bottom: 1px solid var(--border-color);
+  }
 `;
 
 const CartContent = styled.div`
@@ -24,6 +39,7 @@ const CartContent = styled.div`
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 0;
   }
 `;
 
@@ -32,6 +48,13 @@ const CartItems = styled.div`
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 6px var(--shadow);
+
+  @media (max-width: 768px) {
+    background: transparent;
+    padding: 12px;
+    box-shadow: none;
+    border-radius: 0;
+  }
 `;
 
 const CartItem = styled.div`
@@ -43,8 +66,18 @@ const CartItem = styled.div`
   border-bottom: 1px solid var(--border-light);
   
   @media (max-width: 768px) {
-    grid-template-columns: 80px 1fr;
-    gap: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    padding-right: 36px; /* Space for delete button */
+    margin-bottom: 10px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px var(--shadow);
   }
 `;
 
@@ -53,25 +86,66 @@ const ItemImage = styled.img`
   height: 100px;
   object-fit: cover;
   border-radius: 5px;
+
+  @media (max-width: 768px) {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    object-fit: contain;
+    background: var(--bg-color);
+    padding: 4px;
+  }
 `;
 
-const ItemDetails = styled.div``;
+const ItemDetails = styled.div`
+  @media (max-width: 768px) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+`;
 
 const ItemName = styled.h3`
   font-size: 18px;
   margin-bottom: 5px;
   color: var(--text-color);
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 `;
 
 const ItemPrice = styled.p`
   color: var(--btn-primary);
   font-weight: 500;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-color);
+  }
 `;
 
 const QuantityControl = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+
+  @media (max-width: 768px) {
+    gap: 0;
+    border: 1px solid var(--btn-primary);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
 `;
 
 const QuantityButton = styled.button`
@@ -87,6 +161,21 @@ const QuantityButton = styled.button`
   &:hover {
     background: var(--border-light);
   }
+
+  @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--btn-primary);
+    font-size: 18px;
+    font-weight: 600;
+
+    &:active {
+      background: rgba(40, 167, 69, 0.1);
+    }
+  }
 `;
 
 const QuantityDisplay = styled.span`
@@ -94,6 +183,13 @@ const QuantityDisplay = styled.span`
   min-width: 30px;
   text-align: center;
   color: var(--text-color);
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 28px;
+    color: var(--btn-primary);
+  }
 `;
 
 const RemoveButton = styled.button`
@@ -106,6 +202,14 @@ const RemoveButton = styled.button`
   &:hover {
     color: #c82333;
   }
+
+  @media (max-width: 768px) {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px;
+    opacity: 0.7;
+  }
 `;
 
 const CartSummary = styled.div`
@@ -114,6 +218,15 @@ const CartSummary = styled.div`
   padding: 25px;
   box-shadow: 0 4px 6px var(--shadow);
   height: fit-content;
+
+  @media (max-width: 768px) {
+    background: var(--card-bg);
+    border-radius: 0;
+    padding: 16px;
+    box-shadow: none;
+    margin-top: 16px;
+    margin-bottom: 80px; /* Space for bottom bar */
+  }
 `;
 
 const SummaryTitle = styled.h2`
@@ -122,6 +235,12 @@ const SummaryTitle = styled.h2`
   padding-bottom: 15px;
   border-bottom: 1px solid var(--border-light);
   color: var(--text-color);
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
 `;
 
 const SummaryRow = styled.div`
@@ -131,6 +250,11 @@ const SummaryRow = styled.div`
   font-size: ${props => props.$total ? '18px' : '16px'};
   font-weight: ${props => props.$total ? '600' : '400'};
   color: ${props => props.$total ? 'var(--text-color)' : 'var(--text-secondary)'};
+
+  @media (max-width: 768px) {
+    margin-bottom: ${props => props.$total ? '12px' : '10px'};
+    font-size: ${props => props.$total ? '16px' : '14px'};
+  }
 `;
 
 const EmptyCart = styled.div`
@@ -147,6 +271,16 @@ const EmptyCart = styled.div`
   p {
     margin-bottom: 20px;
     color: var(--text-secondary);
+  }
+
+  @media (max-width: 768px) {
+    padding: 40px 20px;
+    margin: 16px;
+    border-radius: 16px;
+
+    h3 {
+      font-size: 20px;
+    }
   }
 `;
 
@@ -165,6 +299,14 @@ const CheckoutButton = styled.button`
   &:hover {
     background-color: var(--btn-primary-hover);
   }
+
+  @media (max-width: 768px) {
+    margin-top: 12px;
+    padding: 14px;
+    font-size: 15px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
 `;
 
 const ContinueButton = styled.button`
@@ -181,6 +323,13 @@ const ContinueButton = styled.button`
   
   &:hover {
     background-color: var(--btn-secondary-hover);
+  }
+
+  @media (max-width: 768px) {
+    margin-top: 8px;
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 10px;
   }
 `;
 
@@ -519,6 +668,33 @@ const Cart = () => {
           icon: 'error'
         });
       }
+    } else if (paymentMethod === 'cod') {
+      // Cash on Delivery - Place order directly
+      try {
+        await placeOrder(user.address, 'cod', appliedGiftCode);
+
+        setShowPaymentModal(false);
+
+        Swal.fire({
+          title: 'Order Placed! 🎉',
+          html: `
+            <p>Your order of <strong>₹${grandTotal.toFixed(2)}</strong> has been placed successfully!</p>
+            <p style="color: #666; margin-top: 15px; font-size: 14px;">
+              Payment will be collected at the time of delivery.
+            </p>
+            <p style="color: #28a745; margin-top: 10px; font-size: 14px; font-weight: 600;">
+              Please keep exact change ready!
+            </p>
+          `,
+          icon: 'success'
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Order Failed',
+          text: error.response?.data?.message || 'Failed to place order',
+          icon: 'error'
+        });
+      }
     }
   };
 
@@ -665,21 +841,22 @@ const Cart = () => {
 
               <ItemDetails>
                 <ItemName>{item.name}</ItemName>
-                <ItemPrice>₹{item.price}</ItemPrice>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+                  <ItemPrice>₹{item.price * item.quantity}</ItemPrice>
+                  <QuantityControl>
+                    <QuantityButton onClick={() => handleQuantityChange(item._id, item.quantity - 1)}>
+                      -
+                    </QuantityButton>
+                    <QuantityDisplay>{item.quantity}</QuantityDisplay>
+                    <QuantityButton onClick={() => handleQuantityChange(item._id, item.quantity + 1)}>
+                      +
+                    </QuantityButton>
+                  </QuantityControl>
+                </div>
               </ItemDetails>
 
-              <QuantityControl>
-                <QuantityButton onClick={() => handleQuantityChange(item._id, item.quantity - 1)}>
-                  -
-                </QuantityButton>
-                <QuantityDisplay>{item.quantity}</QuantityDisplay>
-                <QuantityButton onClick={() => handleQuantityChange(item._id, item.quantity + 1)}>
-                  +
-                </QuantityButton>
-              </QuantityControl>
-
               <RemoveButton onClick={() => removeFromCart(item._id)}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
@@ -1013,6 +1190,22 @@ const Cart = () => {
               <div style={{ flex: 1 }}>
                 <p style={{ fontWeight: '600', color: 'var(--text-color)', marginBottom: '4px' }}>Pay via Friend</p>
                 <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Let a friend pay from their wallet</p>
+              </div>
+            </PaymentOption>
+
+            {/* Cash on Delivery Option */}
+            <PaymentOption
+              selected={paymentMethod === 'cod'}
+              onClick={() => setPaymentMethod('cod')}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={paymentMethod === 'cod' ? 'var(--btn-primary)' : 'currentColor'} strokeWidth="2">
+                <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M6 12h.01M18 12h.01"></path>
+              </svg>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontWeight: '600', color: 'var(--text-color)', marginBottom: '4px' }}>Cash on Delivery</p>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Pay when your order arrives</p>
               </div>
             </PaymentOption>
 

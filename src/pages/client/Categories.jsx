@@ -7,10 +7,28 @@ import ProductCard from '../../components/ProductCard.jsx';
 const CategoriesContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 16px;
 `;
 
+const PageTitle = styled.h1`
+  font-size: 36px;
+  margin-bottom: 30px;
+  color: var(--text-color);
+  
+  @media (max-width: 768px) {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+`;
+
+/* Desktop version - shows products */
 const CategorySection = styled.section`
   margin-bottom: 50px;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const CategoryHeader = styled.div`
@@ -62,6 +80,90 @@ const NoProducts = styled.div`
   font-size: 18px;
 `;
 
+/* Mobile version - shows category cards grid */
+const MobileCategoriesGrid = styled.div`
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+const MobileCategoryGroup = styled.div`
+  margin-bottom: 28px;
+`;
+
+const MobileGroupTitle = styled.h2`
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 16px;
+  padding-left: 4px;
+`;
+
+const MobileGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+`;
+
+const MobileCategoryCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
+const MobileCategoryImage = styled.div`
+  width: 100%;
+  height: 65px;
+  background: #f9fafb;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 6px;
+  
+  [data-theme="dark"] & {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  
+  svg {
+    width: 32px;
+    height: 32px;
+    color: #10b981;
+  }
+`;
+
+const MobileCategoryName = styled.span`
+  font-size: 10px;
+  font-weight: 600;
+  color: #374151;
+  text-align: center;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  
+  [data-theme="dark"] & {
+    color: #e5e7eb;
+  }
+`;
+
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [categoryProducts, setCategoryProducts] = useState({});
@@ -76,13 +178,13 @@ const Categories = () => {
       const response = await axios.get('/categories');
       setCategories(response.data);
 
-      // Fetch products for each category
+      // Fetch products for each category (for desktop view)
       response.data.forEach(async (category) => {
         try {
           const productsResponse = await axios.get(`/products/category/${category._id}`);
           setCategoryProducts(prev => ({
             ...prev,
-            [category._id]: productsResponse.data.slice(0, 4) // Show only 4 products per category
+            [category._id]: productsResponse.data.slice(0, 4)
           }));
         } catch (error) {
           console.error(`Error fetching products for category ${category.name}:`, error);
@@ -93,9 +195,14 @@ const Categories = () => {
     }
   };
 
+  const handleCategoryClick = (categoryId) => {
+    navigate(`/store?category=${categoryId}`);
+  };
+
   const handleViewAll = (categoryId) => {
     navigate(`/store?category=${categoryId}`);
   };
+
   const categoryIcons = {
     'Fruits & Vegetables': 'expDel_fruits',
     'Dairy & Eggs': 'expDel_dairy',
@@ -109,10 +216,58 @@ const Categories = () => {
     'Household': 'expDel_household',
   };
 
+  // Group categories for mobile display
+  const groupedCategories = categories.reduce((acc, category) => {
+    // Simple grouping - you can customize this based on your category structure
+    const group = 'All Categories';
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(category);
+    return acc;
+  }, {});
+
   return (
     <CategoriesContainer>
-      <h1 style={{ fontSize: '36px', marginBottom: '30px', color: 'var(--text-color)' }}>All Categories</h1>
+      <PageTitle>All Categories</PageTitle>
 
+      {/* Mobile View - Clean Category Grid */}
+      <MobileCategoriesGrid>
+        {Object.entries(groupedCategories).map(([groupName, groupCategories]) => (
+          <MobileCategoryGroup key={groupName}>
+            {groupName !== 'All Categories' && (
+              <MobileGroupTitle>{groupName}</MobileGroupTitle>
+            )}
+            <MobileGrid>
+              {groupCategories.map(category => (
+                <MobileCategoryCard
+                  key={category._id}
+                  onClick={() => handleCategoryClick(category._id)}
+                >
+                  <MobileCategoryImage>
+                    {category.image ? (
+                      <img
+                        src={category.image.startsWith('http') ? category.image : `${category.image.startsWith('/') ? '' : '/'}${category.image}`}
+                        alt={category.name}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
+                      </svg>
+                    )}
+                  </MobileCategoryImage>
+                  <MobileCategoryName>{category.name}</MobileCategoryName>
+                </MobileCategoryCard>
+              ))}
+            </MobileGrid>
+          </MobileCategoryGroup>
+        ))}
+      </MobileCategoriesGrid>
+
+      {/* Desktop View - Categories with Products */}
       {categories.map(category => (
         <CategorySection key={category._id}>
           <CategoryHeader>

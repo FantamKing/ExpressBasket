@@ -9,6 +9,12 @@ import { Sparkles } from 'lucide-react';
 const StoreContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 0;
+    background: var(--bg-color);
+    min-height: 100vh;
+  }
 `;
 
 const StoreHeader = styled.div`
@@ -18,17 +24,40 @@ const StoreHeader = styled.div`
   margin-bottom: 30px;
   flex-wrap: wrap;
   gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+  }
 `;
 
 const StoreTitle = styled.h1`
   font-size: 36px;
   color: var(--text-color);
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+  }
 `;
 
 const Filters = styled.div`
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
 `;
 
 const FilterSelect = styled.select`
@@ -47,6 +76,27 @@ const FilterSelect = styled.select`
   option {
     background: var(--input-bg);
     color: var(--text-color);
+  }
+
+  @media (max-width: 768px) {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    width: 100%;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 36px;
+
+    option {
+      background: var(--input-bg);
+      color: var(--text-color);
+    }
   }
 `;
 
@@ -78,6 +128,30 @@ const SearchBox = styled.div`
     border-radius: 0 5px 5px 0;
     font-weight: 500;
   }
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    width: 100%;
+
+    input {
+      padding: 12px 14px;
+      border-radius: 8px 0 0 8px;
+      font-size: 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+
+      &::placeholder {
+        color: var(--input-placeholder);
+      }
+    }
+
+    button {
+      padding: 0 16px;
+      border-radius: 0 8px 8px 0;
+      background-color: var(--btn-primary);
+    }
+  }
 `;
 
 const ProductGrid = styled.div`
@@ -85,6 +159,13 @@ const ProductGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 30px;
   margin-bottom: 50px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 0 10px;
+    margin-bottom: 30px;
+  }
 `;
 
 const Pagination = styled.div`
