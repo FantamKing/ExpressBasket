@@ -51,8 +51,13 @@ const ChatContainer = styled.div`
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 9998;
+  z-index: 99999;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  @media (max-width: 480px) {
+    bottom: 15px;
+    right: 15px;
+  }
 `;
 
 const ChatButton = styled.button`
@@ -92,6 +97,7 @@ const ChatWindow = styled.div`
   flex-direction: column;
   overflow: hidden;
   animation: ${props => props.$isClosing ? fadeOut : fadeIn} 0.3s ease forwards;
+  user-select: none;
   
   @media (max-width: 480px) {
     width: 95vw;
@@ -106,6 +112,8 @@ const ChatHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 15px;
+  cursor: move;
+  user-select: none;
 `;
 
 const BotAvatar = styled.div`
@@ -464,6 +472,11 @@ const ChatBot = () => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
+  // Drag state
+  const [position, setPosition] = useState({ x: null, y: null });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+
   // Get user context and location
   const { user } = useUser();
   const { cart } = useCart();
@@ -473,6 +486,128 @@ const ChatBot = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Drag handlers
+  const startPos = useRef({ x: 0, y: 0 });
+  const hasDragged = useRef(false);
+  const dragLocked = useRef(false);
+
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+    hasDragged.current = false;
+    dragLocked.current = false;
+    startPos.current = { x: e.clientX, y: e.clientY };
+    // Get container position for correct offset calculation
+    const containerEl = document.querySelector('[data-chatbot-container]');
+    if (containerEl) {
+      const rect = containerEl.getBoundingClientRect();
+      dragOffset.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    // Check if mouse moved more than 5px (threshold for drag vs click)
+    const dx = Math.abs(e.clientX - startPos.current.x);
+    const dy = Math.abs(e.clientY - startPos.current.y);
+    if (dx > 5 || dy > 5) {
+      hasDragged.current = true;
+      dragLocked.current = true;
+      // Only update position if threshold crossed
+      const newX = e.clientX - dragOffset.current.x;
+      const newY = e.clientY - dragOffset.current.y;
+      // Keep within viewport bounds
+      const maxX = window.innerWidth - 70;
+      const maxY = window.innerHeight - 70;
+      setPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY))
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    const wasDragged = hasDragged.current;
+    setIsDragging(false);
+    // Only open if there was NO drag at all
+    if (!wasDragged && !isOpen) {
+      setIsOpen(true);
+    }
+    // Reset after a short delay
+    setTimeout(() => {
+      dragLocked.current = false;
+    }, 100);
+  };
+
+  // Touch handlers for mobile
+  const handleTouchStart = (e) => {
+    e.stopPropagation();
+    const touch = e.touches[0];
+    setIsDragging(true);
+    hasDragged.current = false;
+    dragLocked.current = false;
+    startPos.current = { x: touch.clientX, y: touch.clientY };
+    const containerEl = document.querySelector('[data-chatbot-container]');
+    if (containerEl) {
+      const rect = containerEl.getBoundingClientRect();
+      dragOffset.current = {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+      };
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - startPos.current.x);
+    const dy = Math.abs(touch.clientY - startPos.current.y);
+    if (dx > 5 || dy > 5) {
+      hasDragged.current = true;
+      dragLocked.current = true;
+      // Only update position if threshold crossed
+      const newX = touch.clientX - dragOffset.current.x;
+      const newY = touch.clientY - dragOffset.current.y;
+      const maxX = window.innerWidth - 70;
+      const maxY = window.innerHeight - 70;
+      setPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY))
+      });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    const wasDragged = hasDragged.current;
+    setIsDragging(false);
+    if (!wasDragged && !isOpen) {
+      setIsOpen(true);
+    }
+    setTimeout(() => {
+      dragLocked.current = false;
+    }, 100);
+  };
+
+  // Add mouse event listeners for dragging
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('touchmove', handleTouchMove);
+      window.addEventListener('touchend', handleTouchEnd);
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener('touchmove', handleTouchMove);
+        window.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
+  }, [isDragging]);
 
   useEffect(() => {
     scrollToBottom();
@@ -626,9 +761,22 @@ I know everything about this website and can guide you around!`);
   };
 
   return (
-    <ChatContainer>
+    <ChatContainer
+      data-chatbot-container
+      style={position.x !== null ? {
+        left: position.x,
+        top: position.y,
+        right: 'auto',
+        bottom: 'auto'
+      } : {}}
+    >
       {isOpen && (
-        <ChatWindow $isClosing={isClosing}>
+        <ChatWindow
+          $isClosing={isClosing}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+        >
           <ChatHeader>
             <BotAvatar>
               <BotIcon />
@@ -744,7 +892,14 @@ I know everything about this website and can guide you around!`);
         </ChatWindow>
       )}
 
-      <ChatButton onClick={() => !isOpen && setIsOpen(true)} style={{ display: isOpen ? 'none' : 'flex' }}>
+      <ChatButton
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        style={{
+          display: isOpen ? 'none' : 'flex',
+          cursor: isDragging ? 'grabbing' : 'grab'
+        }}
+      >
         <BotIcon />
       </ChatButton>
     </ChatContainer>
