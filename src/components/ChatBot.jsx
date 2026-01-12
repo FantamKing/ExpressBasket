@@ -54,8 +54,8 @@ const ChatContainer = styled.div`
   z-index: 99999;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   
-  @media (max-width: 480px) {
-    bottom: 15px;
+  @media (max-width: 768px) {
+    bottom: 120px; /* Above mobile navigation bar */
     right: 15px;
   }
 `;

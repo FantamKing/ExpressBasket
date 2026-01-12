@@ -221,11 +221,11 @@ const CartSummary = styled.div`
 
   @media (max-width: 768px) {
     background: var(--card-bg);
-    border-radius: 0;
+    border-radius: 12px;
     padding: 16px;
-    box-shadow: none;
-    margin-top: 16px;
-    margin-bottom: 80px; /* Space for bottom bar */
+    box-shadow: 0 2px 8px var(--shadow);
+    margin: 16px 12px;
+    margin-bottom: 100px; /* Space for mobile bottom nav */
   }
 `;
 

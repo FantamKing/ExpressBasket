@@ -48,6 +48,7 @@ export const ToastProvider = ({ children }) => {
             {children}
             <ToastContainer toasts={toasts} removeToast={removeToast} />
             <CartNotificationPopup lastAddedProduct={lastAddedProduct} />
+            <MobileCartBadge />
         </ToastContext.Provider>
     );
 };
@@ -97,7 +98,7 @@ const ToastContainer = ({ toasts, removeToast }) => {
     );
 };
 
-// Cart Notification Popup Component - Only visible on client pages when cart has items
+// Cart Notification Popup Component - Only visible on client pages when cart has items (hidden on mobile via CSS)
 const CartNotificationPopup = ({ lastAddedProduct }) => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -152,4 +153,83 @@ const CartNotificationPopup = ({ lastAddedProduct }) => {
     );
 };
 
+// Mobile Floating Cart Badge - Small floating icon for mobile devices
+const MobileCartBadge = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { getCartCount } = useCart();
+    const cartCount = getCartCount();
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Check if mobile on resize
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Only show on these specific pages
+    const allowedPages = ['/', '/categories', '/store'];
+    const shouldShow = allowedPages.includes(location.pathname) || location.pathname.startsWith('/store');
+
+    // Don't show if not mobile, cart is empty, or not on allowed pages
+    if (!isMobile || cartCount === 0 || !shouldShow) return null;
+
+    const handleClick = () => {
+        navigate('/cart');
+    };
+
+    return (
+        <button
+            onClick={handleClick}
+            className="mobile-cart-badge"
+            style={{
+                position: 'fixed',
+                top: '80px',
+                right: '15px',
+                zIndex: 9999,
+                width: '50px',
+                height: '50px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #28a745, #20c997)',
+                border: 'none',
+                boxShadow: '0 4px 15px rgba(40, 167, 69, 0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+            }}
+        >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span
+                style={{
+                    position: 'absolute',
+                    top: '-5px',
+                    right: '-5px',
+                    background: '#dc3545',
+                    color: 'white',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    width: '22px',
+                    height: '22px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid white'
+                }}
+            >
+                {cartCount > 9 ? '9+' : cartCount}
+            </span>
+        </button>
+    );
+};
+
 export default ToastContext;
+

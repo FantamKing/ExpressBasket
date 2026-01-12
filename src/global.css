@@ -885,26 +885,10 @@ input:-webkit-autofill:active {
   stroke: white;
 }
 
-/* Mobile responsive */
-@media (max-width: 480px) {
+/* Mobile responsive - hide on mobile, use floating cart badge instead */
+@media (max-width: 768px) {
   .cart-notification-popup {
-    left: 15px;
-    right: 15px;
-    transform: none;
-    min-width: unset;
-    bottom: 20px;
-  }
-
-  @keyframes cartPopupSlideIn {
-    0% {
-      transform: translateY(100px);
-      opacity: 0;
-    }
-
-    100% {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    display: none !important;
   }
 }
 
