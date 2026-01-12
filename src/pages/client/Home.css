@@ -438,7 +438,7 @@
 
 .hp-title-highlight {
   display: block;
-  background: linear-gradient(135deg, #10b981 0%, #059669 30%, #6366f1 70%, #ec4899 100%);
+  background: linear-gradient(135deg, #10b981 0%, #039466 30%, #6366f1 70%, #ec4899 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

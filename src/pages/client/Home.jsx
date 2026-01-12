@@ -484,7 +484,7 @@ const Home = () => {
 
         <div className="hp-trust-grid">
           {[
-            { icon: Truck, title: 'Express Delivery', desc: 'Get your groceries delivered within 30 minutes. Fast, reliable service every time.', tag: '30 MIN', color: '#10b981' },
+            { icon: Truck, title: 'Express Delivery', desc: 'Get your groceries delivered within 30 minutes. Fast, reliable service every time.', tag: '30 MIN', color: '#14b881ff' },
             { icon: CreditCard, title: 'Secure Payments', desc: 'Multiple payment options including UPI, cards & COD with 100% secure transactions.', tag: '100% SAFE', color: '#6366f1' },
             { icon: CheckCircle2, title: 'Quality Assured', desc: 'Every product is quality-checked before delivery. Farm-fresh guaranteed.', tag: 'CERTIFIED', color: '#f59e0b' },
             { icon: Headphones, title: '24/7 Support', desc: 'Our support team is available round the clock to assist you with any queries.', tag: 'ALWAYS ON', color: '#ec4899' }
