@@ -43,6 +43,17 @@ const mailSchema = new mongoose.Schema({
     readAt: {
         type: Date,
         default: null
+    },
+    // Delivery type - where the mail is sent
+    deliveryType: {
+        type: String,
+        enum: ['app', 'email', 'both'],
+        default: 'app'
+    },
+    // Track if external email was sent successfully
+    emailSent: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true

@@ -35,8 +35,8 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(255,255,255,0.9);
-  border: none;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -48,6 +48,7 @@
   transform: translateY(10px);
   transition: all 0.3s ease;
   color: var(--text-color);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .product-card:hover .quick-view {
@@ -56,8 +57,13 @@
 }
 
 .quick-view:hover {
-  background: var(--card-bg);
-  color: var(--btn-primary);
+  background: var(--btn-primary);
+  border-color: var(--btn-primary);
+  color: white;
+}
+
+.quick-view svg {
+  stroke: currentColor;
 }
 
 .product-info {

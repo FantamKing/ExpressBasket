@@ -60,9 +60,13 @@
     color: #1a1a2e !important;
 }
 
-[data-theme="dark"] .bill-header .company-info h1,
-[data-theme="dark"] .invoice-info h2 {
+[data-theme="dark"] .bill-header .company-info h1 {
     color: #28a745 !important;
+}
+
+[data-theme="dark"] .invoice-info h2,
+.view-bill-container .invoice-info h2 {
+    color: #1a1a2e !important;
 }
 
 [data-theme="dark"] .bill-header .company-info p,
@@ -392,13 +396,15 @@
     gap: 20px;
 }
 
-/* Header QR Code Section */
+/* Header QR Code Section - Right side */
 .header-qr-section {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
+    order: 3;
+    min-width: 100px;
 }
 
 .header-qr-image {
@@ -415,6 +421,12 @@
     font-weight: 700;
     color: #28a745 !important;
     text-align: center;
+}
+
+.bill-header .company-info {
+    order: 1;
+    flex: 1;
+    min-width: 200px;
 }
 
 .bill-header .company-info h1 {
@@ -439,7 +451,15 @@
 }
 
 .invoice-info {
-    text-align: right;
+    text-align: center;
+    order: 2;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.bill-header {
+    position: relative;
 }
 
 .invoice-info h2 {
@@ -817,22 +837,128 @@
         display: none !important;
     }
 
+    body,
+    html {
+        background: white !important;
+    }
+
     .view-bill-container {
-        background: white;
-        padding: 0;
+        background: white !important;
+        padding: 0 !important;
+        min-height: auto !important;
+    }
+
+    .bill-page {
+        max-width: 100% !important;
     }
 
     .bill-content {
-        box-shadow: none;
-        border-radius: 0;
-        padding: 20px;
-        border: none;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 20px !important;
+        border: none !important;
+    }
+
+    /* Header layout for print */
+    .bill-header {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr 1fr !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        position: static !important;
+    }
+
+    .bill-header .company-info {
+        order: unset !important;
+        grid-column: 1 !important;
+        text-align: left !important;
+    }
+
+    .bill-header .company-info h1 {
+        font-size: 18px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .bill-header .company-info p {
+        font-size: 10px !important;
+    }
+
+    .invoice-info {
+        order: unset !important;
+        grid-column: 2 !important;
+        position: static !important;
+        transform: none !important;
+        text-align: center !important;
+        justify-self: center !important;
+    }
+
+    .invoice-info h2 {
+        font-size: 22px !important;
+        letter-spacing: 2px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .invoice-info .order-date {
+        font-size: 11px !important;
+    }
+
+    .header-qr-section {
+        order: unset !important;
+        grid-column: 3 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        justify-self: end !important;
+    }
+
+    .header-qr-image {
+        width: 55px !important;
+        height: 55px !important;
+    }
+
+    .header-qr-order {
+        font-size: 9px !important;
+    }
+
+    .status-badge {
+        font-size: 9px !important;
+        padding: 3px 10px !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     .items-table th {
         background: #28a745 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        color: white !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .status-delivered {
+        background: #d4edda !important;
+        color: #155724 !important;
+    }
+
+    .customer-info {
+        background: #f0fdf4 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .payment-info {
+        background: #d4edda !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .totals-section {
+        background: #f8fafc !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .cta-section {
+        display: none !important;
     }
 }
 

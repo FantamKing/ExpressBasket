@@ -1423,10 +1423,17 @@
 }
 
 [data-theme="dark"] p,
-[data-theme="dark"] span:not(.badge):not([class*="icon"]):not([class*="status"]),
+[data-theme="dark"] span:not(.badge):not([class*="icon"]):not([class*="status"]):not(.hp-promo-btn span),
 [data-theme="dark"] label {
   color: #f1f5f9 !important;
 }
+
+/* Exclude promo button text from dark mode color override */
+[data-theme="dark"] .hp-promo-btn,
+[data-theme="dark"] .hp-promo-btn span {
+  color: #059669 !important;
+}
+
 
 [data-theme="dark"] .stat-value,
 [data-theme="dark"] .ma-stat-value,

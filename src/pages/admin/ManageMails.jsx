@@ -27,6 +27,7 @@ const ManageMails = () => {
     // Form state
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
+    const [deliveryType, setDeliveryType] = useState('app'); // 'app', 'email', 'both'
 
     // Broadcast form state
     const [broadcastSubject, setBroadcastSubject] = useState('');
@@ -93,18 +94,26 @@ const ManageMails = () => {
             await axios.post('/admin/mails', {
                 userId: selectedUser._id,
                 subject: subject.trim(),
-                message: message.trim()
+                message: message.trim(),
+                deliveryType: deliveryType
             }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
             });
 
-            Swal.fire('Success', `Mail sent to ${selectedUser.name}`, 'success');
+            const deliveryMessage = deliveryType === 'app' 
+                ? `Mail sent to ${selectedUser.name}'s ExpressBasket inbox`
+                : deliveryType === 'email'
+                ? `Email sent to ${selectedUser.email}`
+                : `Mail sent to ${selectedUser.name}'s inbox and email`;
+            
+            Swal.fire('Success', deliveryMessage, 'success');
 
             // Reset form
             setSelectedUser(null);
             setSearchQuery('');
             setSubject('');
             setMessage('');
+            setDeliveryType('app');
 
             // Refresh mails list
             fetchMails();
@@ -459,6 +468,157 @@ const ManageMails = () => {
                                 )}
                             </div>
 
+                            {/* Delivery Type Selector */}
+                            <div style={{ marginBottom: '20px' }}>
+                                <label style={{
+                                    display: 'block',
+                                    marginBottom: '8px',
+                                    color: 'var(--text-secondary)',
+                                    fontWeight: '500'
+                                }}>
+                                    Send To
+                                </label>
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '10px',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <label style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        padding: '12px 18px',
+                                        borderRadius: '10px',
+                                        border: deliveryType === 'app' ? '2px solid var(--btn-primary)' : '1px solid var(--border-color)',
+                                        background: deliveryType === 'app' ? 'rgba(102, 126, 234, 0.1)' : 'var(--input-bg)',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}>
+                                        <input
+                                            type="radio"
+                                            name="deliveryType"
+                                            value="app"
+                                            checked={deliveryType === 'app'}
+                                            onChange={(e) => setDeliveryType(e.target.value)}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={deliveryType === 'app' ? 'var(--btn-primary)' : 'var(--text-secondary)'} strokeWidth="2">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="3" y1="9" x2="21" y2="9"></line>
+                                            <line x1="9" y1="21" x2="9" y2="9"></line>
+                                        </svg>
+                                        <span style={{ 
+                                            color: deliveryType === 'app' ? 'var(--btn-primary)' : 'var(--text-color)',
+                                            fontWeight: deliveryType === 'app' ? '600' : '400'
+                                        }}>
+                                            ExpressBasket Mail
+                                        </span>
+                                    </label>
+                                    
+                                    <label style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        padding: '12px 18px',
+                                        borderRadius: '10px',
+                                        border: deliveryType === 'email' ? '2px solid #10b981' : '1px solid var(--border-color)',
+                                        background: deliveryType === 'email' ? 'rgba(16, 185, 129, 0.1)' : 'var(--input-bg)',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}>
+                                        <input
+                                            type="radio"
+                                            name="deliveryType"
+                                            value="email"
+                                            checked={deliveryType === 'email'}
+                                            onChange={(e) => setDeliveryType(e.target.value)}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={deliveryType === 'email' ? '#10b981' : 'var(--text-secondary)'} strokeWidth="2">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                            <polyline points="22,6 12,13 2,6"></polyline>
+                                        </svg>
+                                        <span style={{ 
+                                            color: deliveryType === 'email' ? '#10b981' : 'var(--text-color)',
+                                            fontWeight: deliveryType === 'email' ? '600' : '400'
+                                        }}>
+                                            User Email
+                                        </span>
+                                    </label>
+                                    
+                                    <label style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        padding: '12px 18px',
+                                        borderRadius: '10px',
+                                        border: deliveryType === 'both' ? '2px solid #f59e0b' : '1px solid var(--border-color)',
+                                        background: deliveryType === 'both' ? 'rgba(245, 158, 11, 0.1)' : 'var(--input-bg)',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}>
+                                        <input
+                                            type="radio"
+                                            name="deliveryType"
+                                            value="both"
+                                            checked={deliveryType === 'both'}
+                                            onChange={(e) => setDeliveryType(e.target.value)}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={deliveryType === 'both' ? '#f59e0b' : 'var(--text-secondary)'} strokeWidth="2">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="9" cy="7" r="4"></circle>
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                        </svg>
+                                        <span style={{ 
+                                            color: deliveryType === 'both' ? '#f59e0b' : 'var(--text-color)',
+                                            fontWeight: deliveryType === 'both' ? '600' : '400'
+                                        }}>
+                                            Both
+                                        </span>
+                                    </label>
+                                </div>
+                                <p style={{ 
+                                    marginTop: '8px', 
+                                    fontSize: '12px', 
+                                    color: 'var(--text-secondary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px'
+                                }}>
+                                    {deliveryType === 'app' && (
+                                        <>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                            </svg>
+                                            Mail will appear in user's ExpressBasket inbox only
+                                        </>
+                                    )}
+                                    {deliveryType === 'email' && (
+                                        <>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                <polyline points="22,6 12,13 2,6"></polyline>
+                                            </svg>
+                                            Mail will be sent to user's registered email address only
+                                        </>
+                                    )}
+                                    {deliveryType === 'both' && (
+                                        <>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="9" cy="7" r="4"></circle>
+                                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                            </svg>
+                                            Mail will be sent to both ExpressBasket inbox and email
+                                        </>
+                                    )}
+                                </p>
+                            </div>
+
                             {/* Subject */}
                             <div style={{ marginBottom: '20px' }}>
                                 <label style={{
@@ -578,6 +738,7 @@ const ManageMails = () => {
                                 <tr>
                                     <th>To</th>
                                     <th>Subject</th>
+                                    <th>Delivery</th>
                                     <th>Status</th>
                                     <th>Sent At</th>
                                 </tr>
@@ -594,6 +755,48 @@ const ManageMails = () => {
                                             </div>
                                         </td>
                                         <td>{mail.subject}</td>
+                                        <td>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                {(mail.deliveryType === 'app' || mail.deliveryType === 'both' || !mail.deliveryType) && (
+                                                    <span style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px',
+                                                        padding: '3px 8px',
+                                                        borderRadius: '8px',
+                                                        fontSize: '10px',
+                                                        fontWeight: '600',
+                                                        background: 'rgba(102, 126, 234, 0.15)',
+                                                        color: 'var(--btn-primary)'
+                                                    }}>
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                                        </svg>
+                                                        App
+                                                    </span>
+                                                )}
+                                                {(mail.deliveryType === 'email' || mail.deliveryType === 'both') && (
+                                                    <span style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px',
+                                                        padding: '3px 8px',
+                                                        borderRadius: '8px',
+                                                        fontSize: '10px',
+                                                        fontWeight: '600',
+                                                        background: mail.emailSent ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                                                        color: mail.emailSent ? '#10b981' : '#ef4444'
+                                                    }}>
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                            <polyline points="22,6 12,13 2,6"></polyline>
+                                                        </svg>
+                                                        {mail.emailSent ? 'Email Sent' : 'Email Failed'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td>
                                             <span style={{
                                                 padding: '4px 10px',

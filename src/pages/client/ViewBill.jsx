@@ -130,10 +130,16 @@ const ViewBill = () => {
                                 Express Basket
                             </h1>
                             <p>Your Trusted Online Grocery Store</p>
-                            <p>expressbasket.help@gmail.com</p>
+                            <p>contact: expressbasket.help@gmail.com</p>
                         </div>
 
-                        {/* QR Code in Header */}
+                        {/* Invoice Title - Center */}
+                        <div className="invoice-info">
+                            <h2>INVOICE</h2>
+                            <p className="order-date">{new Date(order.orderDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        </div>
+
+                        {/* QR Code and Status - Right */}
                         <div className="header-qr-section">
                             <img
                                 src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}`}
@@ -141,11 +147,6 @@ const ViewBill = () => {
                                 className="header-qr-image"
                             />
                             <span className="header-qr-order">#{order._id?.slice(-6).toUpperCase()}</span>
-                        </div>
-
-                        <div className="invoice-info">
-                            <h2>INVOICE</h2>
-                            <p className="order-date">{new Date(order.orderDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                             <span className={`status-badge ${getStatusClass(order.status)}`}>
                                 {order.status}
                             </span>

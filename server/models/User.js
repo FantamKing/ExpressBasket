@@ -60,7 +60,7 @@ const userSchema = new mongoose.Schema({
     walletHistory: [{
         type: {
             type: String,
-            enum: ['topup', 'purchase', 'refund', 'deposit', 'withdraw', 'friend_payment'],
+            enum: ['topup', 'purchase', 'refund', 'deposit', 'withdraw', 'friend_payment', 'membership_purchase'],
             required: true
         },
         amount: {

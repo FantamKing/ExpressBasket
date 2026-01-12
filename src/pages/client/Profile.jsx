@@ -7,6 +7,7 @@ import axios from '../../utils/axios';
 import useTrackingStatus from '../../hooks/useTrackingStatus.js';
 import OrderBill from '../../components/OrderBill';
 import CustomerDeliveryTracking from '../../components/client/CustomerDeliveryTracking';
+import MembershipModal from '../../components/client/MembershipModal';
 import Swal from 'sweetalert2';
 import { ShoppingCart, DollarSign, Star, Wallet, Headphones, Mail, Send, X, MessageCircle } from 'lucide-react';
 import './Profile.css';
@@ -466,12 +467,7 @@ const Profile = () => {
   };
 
   const fetchBadgePrices = async () => {
-    try {
-      const response = await axios.get('/badges/prices');
-      setBadgePrices(response.data.badges);
-    } catch (error) {
-      console.error('Error fetching badge prices:', error);
-    }
+    // Badge prices are now fetched inside MembershipModal component
   };
 
   const fetchWallet = async () => {
@@ -513,23 +509,6 @@ const Profile = () => {
     setTimeout(() => {
       setMessage('');
     }, 6000);
-  };
-
-  const handleBuyBadge = async (badgeType) => {
-    try {
-      const token = localStorage.getItem('userToken');
-      const response = await axios.post('/user/buy-badge',
-        { badgeType },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setMessage(response.data.message);
-      setMessageType('success');
-      setShowBadgeModal(false);
-      fetchUserStats();
-    } catch (error) {
-      setMessage(error.response?.data?.message || 'Failed to purchase badge');
-      setMessageType('error');
-    }
   };
 
   const getBadgeStyle = (type) => {
@@ -1487,93 +1466,17 @@ const Profile = () => {
         </div>
 
         {/* Badge Purchase Modal */}
-        {
-          showBadgeModal && (
-            <div style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.7)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000
-            }} onClick={() => setShowBadgeModal(false)}>
-              <div style={{
-                background: 'var(--card-bg)',
-                borderRadius: '16px',
-                padding: '30px',
-                maxWidth: '500px',
-                width: '90%',
-                maxHeight: '80vh',
-                overflowY: 'auto'
-              }} onClick={e => e.stopPropagation()}>
-                <h2 style={{ marginBottom: '20px', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <svg className="icon-bounce" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--btn-primary)" strokeWidth="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-                  Loyalty Badges
-                </h2>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                  Current Badge: <strong style={{ textTransform: 'capitalize' }}>{stats.loyaltyBadge?.type || 'None'}</strong>
-                </p>
-
-                {badgePrices.map(badge => (
-                  <div key={badge.type} style={{
-                    border: '2px solid var(--border-color)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    marginBottom: '15px',
-                    ...getBadgeStyle(badge.type)
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                      <h3 style={{ textTransform: 'capitalize', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <svg className="icon-pulse" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                        {badge.type}
-                      </h3>
-                      <span style={{ fontSize: '20px', fontWeight: '700' }}>₹{badge.price}</span>
-                    </div>
-                    <ul style={{ margin: '10px 0', paddingLeft: '20px' }}>
-                      {badge.benefits.map((benefit, i) => (
-                        <li key={i} style={{ fontSize: '14px', marginBottom: '5px' }}>{benefit}</li>
-                      ))}
-                    </ul>
-                    <button
-                      onClick={() => handleBuyBadge(badge.type)}
-                      disabled={stats.loyaltyBadge?.type === badge.type ||
-                        (['gold', 'platinum'].includes(stats.loyaltyBadge?.type) && badge.type === 'silver') ||
-                        (stats.loyaltyBadge?.type === 'platinum' && badge.type === 'gold')}
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        border: 'none',
-                        borderRadius: '8px',
-                        background: stats.loyaltyBadge?.type === badge.type ? '#6c757d' : '#28a745',
-                        color: 'white',
-                        fontWeight: '600',
-                        cursor: stats.loyaltyBadge?.type === badge.type ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      {stats.loyaltyBadge?.type === badge.type ? 'Current Badge' : 'Purchase'}
-                    </button>
-                  </div>
-                ))}
-
-                <button onClick={() => setShowBadgeModal(false)} style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  background: 'transparent',
-                  color: 'var(--text-color)',
-                  cursor: 'pointer',
-                  marginTop: '10px'
-                }}>
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
+        {/* Membership Modal */}
+        <MembershipModal
+          isOpen={showBadgeModal}
+          onClose={() => setShowBadgeModal(false)}
+          currentMembership={stats.loyaltyBadge}
+          walletBalance={walletBalance}
+          onSuccess={(data) => {
+            fetchUserStats();
+            fetchWallet();
+          }}
+        />
 
         {/* Wallet Top-up Modal */}
         {showTopupModal && (

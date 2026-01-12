@@ -13,7 +13,7 @@ const Admin = require('../models/Admin.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { sendPasswordResetEmail } = require('../config/emailConfig.js');
+const { sendPasswordResetEmail, sendBroadcastEmail } = require('../config/emailConfig.js');
 
 // User Registration
 router.post('/signup', async (req, res) => {
@@ -621,20 +621,45 @@ router.get('/user/stats', authenticateToken, async (req, res) => {
     }
 });
 
-// Badge pricing
+// Badge pricing with durations (weekly/monthly/yearly)
 const BADGE_PRICES = {
-    silver: 99,
-    gold: 199,
-    platinum: 499
+    silver: {
+        weekly: 29,
+        monthly: 99,
+        yearly: 899
+    },
+    gold: {
+        weekly: 49,
+        monthly: 199,
+        yearly: 1799
+    },
+    platinum: {
+        weekly: 99,
+        monthly: 499,
+        yearly: 4499
+    }
 };
 
-// Buy loyalty badge
+// Duration in days
+const DURATION_DAYS = {
+    weekly: 7,
+    monthly: 30,
+    yearly: 365
+};
+
+// Buy loyalty badge with duration
 router.post('/user/buy-badge', authenticateToken, async (req, res) => {
     try {
-        const { badgeType } = req.body;
+        const { badgeType, duration } = req.body;
+        console.log('Buy badge request:', { badgeType, duration, userId: req.user.userId });
 
         if (!['silver', 'gold', 'platinum'].includes(badgeType)) {
             return res.status(400).json({ message: 'Invalid badge type' });
+        }
+
+        if (!duration || !['weekly', 'monthly', 'yearly'].includes(duration)) {
+            console.log('Invalid duration received:', duration);
+            return res.status(400).json({ message: 'Invalid duration. Choose weekly, monthly, or yearly' });
         }
 
         const user = await User.findById(req.user.userId);
@@ -642,17 +667,23 @@ router.post('/user/buy-badge', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if user already has this or higher badge
-        const badgeLevels = { none: 0, silver: 1, gold: 2, platinum: 3 };
-        const currentLevel = badgeLevels[user.loyaltyBadge?.type || 'none'];
-        const newLevel = badgeLevels[badgeType];
-
-        if (currentLevel >= newLevel) {
-            return res.status(400).json({ message: 'You already have this badge or better' });
+        // Check if user has an active membership
+        if (user.loyaltyBadge?.type && user.loyaltyBadge.type !== 'none') {
+            const expiresAt = new Date(user.loyaltyBadge.expiresAt);
+            if (expiresAt > new Date()) {
+                const daysRemaining = Math.ceil((expiresAt - new Date()) / (1000 * 60 * 60 * 24));
+                return res.status(400).json({
+                    message: 'You already have an active membership',
+                    currentMembership: user.loyaltyBadge.type,
+                    expiresAt: user.loyaltyBadge.expiresAt,
+                    daysRemaining: daysRemaining
+                });
+            }
         }
 
-        // Get badge price
-        const badgePrice = BADGE_PRICES[badgeType];
+        // Get badge price based on duration
+        const badgePrice = BADGE_PRICES[badgeType][duration];
+        console.log('Badge price:', badgePrice, 'for', badgeType, duration);
 
         // Check wallet balance
         const currentBalance = user.walletBalance || 0;
@@ -673,17 +704,18 @@ router.post('/user/buy-badge', authenticateToken, async (req, res) => {
         user.walletHistory.push({
             type: 'membership_purchase',
             amount: -badgePrice,
-            description: `Purchased ${badgeType.charAt(0).toUpperCase() + badgeType.slice(1)} membership badge`,
+            description: `Purchased ${badgeType.charAt(0).toUpperCase() + badgeType.slice(1)} ${duration} membership`,
             createdAt: new Date()
         });
 
-        // Set expiry date (1 year from now)
+        // Set expiry date based on duration
         const expiresAt = new Date();
-        expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+        expiresAt.setDate(expiresAt.getDate() + DURATION_DAYS[duration]);
 
         // Update user badge
         user.loyaltyBadge = {
             type: badgeType,
+            duration: duration,
             purchasedAt: new Date(),
             expiresAt: expiresAt,
             assignedBy: null // Self-purchased
@@ -691,24 +723,80 @@ router.post('/user/buy-badge', authenticateToken, async (req, res) => {
 
         await user.save();
 
+        console.log('Badge purchased successfully:', user.loyaltyBadge);
         res.json({
-            message: `${badgeType.charAt(0).toUpperCase() + badgeType.slice(1)} badge purchased successfully!`,
+            message: `${badgeType.charAt(0).toUpperCase() + badgeType.slice(1)} ${duration} membership purchased successfully!`,
             badge: user.loyaltyBadge,
             price: badgePrice,
             newBalance: user.walletBalance
         });
     } catch (error) {
+        console.error('Buy badge error:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
 
-// Get badge prices
+// Get badge prices with all duration options
 router.get('/badges/prices', (req, res) => {
     res.json({
         badges: [
-            { type: 'silver', price: 99, benefits: ['Free delivery on orders above ₹300', '5% discount on all products'] },
-            { type: 'gold', price: 199, benefits: ['Free delivery on all orders', '10% discount on all products', 'Priority support'] },
-            { type: 'platinum', price: 499, benefits: ['Free delivery on all orders', '15% discount on all products', 'Priority support', 'Early access to deals'] }
+            {
+                type: 'silver',
+                name: 'Silver',
+                color: '#C0C0C0',
+                gradient: 'linear-gradient(135deg, #e8e8e8 0%, #c0c0c0 50%, #a8a8a8 100%)',
+                prices: {
+                    weekly: 29,
+                    monthly: 99,
+                    yearly: 899
+                },
+                benefits: [
+                    'Free delivery on orders above 300',
+                    '5% discount on all products',
+                    'Basic support'
+                ]
+            },
+            {
+                type: 'gold',
+                name: 'Gold',
+                color: '#FFD700',
+                gradient: 'linear-gradient(135deg, #fff5cc 0%, #ffd700 50%, #ffb347 100%)',
+                prices: {
+                    weekly: 49,
+                    monthly: 199,
+                    yearly: 1799
+                },
+                benefits: [
+                    'Free delivery on all orders',
+                    '10% discount on all products',
+                    'Priority support',
+                    'Early access to sales'
+                ]
+            },
+            {
+                type: 'platinum',
+                name: 'Platinum',
+                color: '#E5E4E2',
+                gradient: 'linear-gradient(135deg, #f5f5f5 0%, #e5e4e2 30%, #9370db 70%, #8b5cf6 100%)',
+                prices: {
+                    weekly: 99,
+                    monthly: 499,
+                    yearly: 4499
+                },
+                benefits: [
+                    'Free delivery on all orders',
+                    '15% discount on all products',
+                    'VIP priority support 24/7',
+                    'Early access to new products',
+                    'Exclusive member-only deals',
+                    'Birthday bonus rewards'
+                ]
+            }
+        ],
+        durations: [
+            { key: 'weekly', label: 'Weekly', days: 7, badge: '7 Days' },
+            { key: 'monthly', label: 'Monthly', days: 30, badge: '30 Days', popular: true },
+            { key: 'yearly', label: 'Yearly', days: 365, badge: '1 Year', savings: true }
         ]
     });
 });
@@ -1831,7 +1919,7 @@ router.put('/admin/settings/tracking', authenticateAdminToken, async (req, res) 
 // Admin: Send mail to user
 router.post('/admin/mails', authenticateAdminToken, async (req, res) => {
     try {
-        const { userId, subject, message } = req.body;
+        const { userId, subject, message, deliveryType = 'app' } = req.body;
 
         if (!userId || !subject || !message) {
             return res.status(400).json({ message: 'User, subject, and message are required' });
@@ -1843,35 +1931,77 @@ router.post('/admin/mails', authenticateAdminToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const mail = new Mail({
-            from: req.admin.id,
-            to: userId,
-            subject,
-            message
-        });
+        let mail = null;
+        let emailResult = { success: false };
 
-        await mail.save();
+        // Handle different delivery types
+        if (deliveryType === 'app' || deliveryType === 'both') {
+            // Save to ExpressBasket inbox
+            mail = new Mail({
+                from: req.admin.id,
+                to: userId,
+                subject,
+                message,
+                deliveryType,
+                emailSent: false
+            });
+            await mail.save();
 
-        // Emit real-time notification to user
-        const { sendMailNotification } = require('../socketHandler.js');
-        sendMailNotification(userId, {
-            _id: mail._id,
-            subject: mail.subject,
-            message: mail.message,
-            type: mail.type || 'normal',
-            createdAt: mail.createdAt
-        });
+            // Emit real-time notification to user
+            const { sendMailNotification } = require('../socketHandler.js');
+            sendMailNotification(userId, {
+                _id: mail._id,
+                subject: mail.subject,
+                message: mail.message,
+                type: mail.type || 'normal',
+                createdAt: mail.createdAt
+            });
+        }
+
+        if (deliveryType === 'email' || deliveryType === 'both') {
+            // Send actual email to user's registered email
+            emailResult = await sendBroadcastEmail(user.email, user.name, subject, message);
+            
+            if (mail && emailResult.success) {
+                mail.emailSent = true;
+                await mail.save();
+            }
+
+            // If only email delivery and it failed
+            if (deliveryType === 'email' && !emailResult.success) {
+                return res.status(500).json({ 
+                    message: 'Failed to send email: ' + (emailResult.error || 'Unknown error'),
+                    error: emailResult.error 
+                });
+            }
+        }
+
+        // Prepare response message
+        let responseMessage = '';
+        if (deliveryType === 'app') {
+            responseMessage = 'Mail sent to user\'s ExpressBasket inbox';
+        } else if (deliveryType === 'email') {
+            responseMessage = 'Email sent to user\'s registered email';
+        } else if (deliveryType === 'both') {
+            responseMessage = emailResult.success 
+                ? 'Mail sent to inbox and email successfully'
+                : 'Mail sent to inbox, but email delivery failed';
+        }
 
         res.status(201).json({
-            message: 'Mail sent successfully',
-            mail: {
+            message: responseMessage,
+            mail: mail ? {
                 _id: mail._id,
                 subject: mail.subject,
                 to: { name: user.name, email: user.email },
-                createdAt: mail.createdAt
-            }
+                createdAt: mail.createdAt,
+                deliveryType: mail.deliveryType,
+                emailSent: mail.emailSent
+            } : null,
+            emailSent: emailResult.success
         });
     } catch (error) {
+        console.error('Mail sending error:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });

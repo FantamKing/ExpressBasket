@@ -1,7 +1,21 @@
 const nodemailer = require('nodemailer');
 
-// Create email transporter
-const transporter = nodemailer.createTransport({
+// ============ BREVO SMTP (for Password Reset - works on Render!) ============
+const brevoTransporter = nodemailer.createTransport({
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    secure: false,
+    auth: {
+        user: process.env.BREVO_EMAIL,      // Your Brevo login email
+        pass: process.env.BREVO_API_KEY     // Your Brevo SMTP key
+    },
+    connectionTimeout: 30000,
+    greetingTimeout: 30000,
+    socketTimeout: 30000
+});
+
+// ============ GMAIL SMTP (for Broadcast Emails) ============
+const gmailTransporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
@@ -10,28 +24,50 @@ const transporter = nodemailer.createTransport({
     tls: {
         rejectUnauthorized: false
     },
-    connectionTimeout: 60000, // 60 seconds
-    greetingTimeout: 30000,   // 30 seconds
-    socketTimeout: 60000      // 60 seconds
+    connectionTimeout: 60000,
+    greetingTimeout: 30000,
+    socketTimeout: 60000
 });
 
-// Verify connection
-transporter.verify((error, success) => {
-    if (error) {
-        console.error('Email service error:', error);
-    } else {
-        console.log('✅ Email service ready');
-    }
-});
+// Verify connections
+if (process.env.BREVO_API_KEY) {
+    brevoTransporter.verify((error, success) => {
+        if (error) {
+            console.error('⚠️ Brevo SMTP error:', error.message);
+        } else {
+            console.log('✅ Brevo SMTP ready (for password reset)');
+        }
+    });
+} else {
+    console.warn('⚠️ BREVO_API_KEY not set - password reset emails disabled');
+}
 
-// Send password reset email
+if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+    gmailTransporter.verify((error, success) => {
+        if (error) {
+            console.error('⚠️ Gmail SMTP error:', error.message);
+        } else {
+            console.log('✅ Gmail SMTP ready (for broadcast emails)');
+        }
+    });
+}
+
+// Email sender addresses - BREVO_FROM must be a verified sender in Brevo
+// Use environment variable for flexibility, fallback to verified sender
+const BREVO_FROM = process.env.BREVO_FROM_EMAIL || 'expressbasket.help@gmail.com';  // Verified sender in Brevo
+const GMAIL_FROM = process.env.EMAIL_USER || 'expressbasket.help@gmail.com';
+
+// ============ PASSWORD RESET (via Brevo) ============
 const sendPasswordResetEmail = async (email, resetToken, userName) => {
-    // Use production URL or fallback to localhost for development
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
 
+    if (!process.env.BREVO_API_KEY) {
+        return { success: false, error: 'Email service not configured. Please set BREVO_API_KEY.' };
+    }
+
     const mailOptions = {
-        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        from: `Express Basket <${BREVO_FROM}>`,
         to: email,
         subject: 'Password Reset Request - Express Basket',
         html: `
@@ -91,36 +127,23 @@ const sendPasswordResetEmail = async (email, resetToken, userName) => {
 
     try {
         console.log('📧 Attempting to send password reset email to:', email);
-        console.log('📧 Using email service:', process.env.EMAIL_USER);
+        console.log('📧 Using Brevo SMTP');
         console.log('📧 Reset URL:', resetUrl);
 
-        const info = await transporter.sendMail(mailOptions);
+        const info = await brevoTransporter.sendMail(mailOptions);
 
-        console.log('✅ Email sent successfully!');
+        console.log('✅ Password reset email sent successfully!');
         console.log('📧 Message ID:', info.messageId);
-        console.log('📧 Response:', info.response);
 
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('❌ Email send error:', error);
-        console.error('Error details:', {
-            code: error.code,
-            command: error.command,
-            response: error.response,
-            responseCode: error.responseCode
-        });
+        console.error('❌ Brevo email error:', error);
 
-        // Provide more specific error messages
         let errorMessage = 'Failed to send email. ';
-
         if (error.code === 'EAUTH') {
-            errorMessage += 'Email authentication failed. Please check your email credentials.';
-            console.error('💡 Tip: Make sure you are using an App Password for Gmail, not your regular password.');
-            console.error('💡 Generate one at: https://myaccount.google.com/apppasswords');
-        } else if (error.code === 'ETIMEDOUT' || error.code === 'ESOCKET') {
-            errorMessage += 'Connection timeout. Please check your internet connection.';
-        } else if (error.code === 'ECONNECTION') {
-            errorMessage += 'Cannot connect to email server. Please try again later.';
+            errorMessage += 'Authentication failed. Check BREVO_EMAIL and BREVO_API_KEY.';
+        } else if (error.code === 'ETIMEDOUT') {
+            errorMessage += 'Connection timeout. Please try again.';
         } else {
             errorMessage += error.message || 'Unknown error occurred.';
         }
@@ -129,10 +152,10 @@ const sendPasswordResetEmail = async (email, resetToken, userName) => {
     }
 };
 
-// Send broadcast email to all users
+// ============ BROADCAST EMAILS (via Gmail SMTP) ============
 const sendBroadcastEmail = async (email, userName, subject, message) => {
     const mailOptions = {
-        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        from: `Express Basket <${GMAIL_FROM}>`,
         to: email,
         subject: `${subject} - Express Basket`,
         html: `
@@ -181,11 +204,23 @@ const sendBroadcastEmail = async (email, userName, subject, message) => {
     };
 
     try {
-        const info = await transporter.sendMail(mailOptions);
+        console.log('📧 Sending broadcast email via Gmail to:', email);
+        const info = await gmailTransporter.sendMail(mailOptions);
+        console.log('✅ Broadcast email sent:', info.messageId);
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error(`❌ Email send error for ${email}:`, error.message);
-        return { success: false, error: error.message };
+        console.error(`❌ Gmail SMTP error for ${email}:`, error.message);
+
+        let errorMessage = 'Failed to send broadcast email. ';
+        if (error.code === 'ETIMEDOUT') {
+            errorMessage += 'Connection timeout - Gmail SMTP may be blocked on this server.';
+        } else if (error.code === 'EAUTH') {
+            errorMessage += 'Authentication failed. Check EMAIL_USER and EMAIL_PASSWORD.';
+        } else {
+            errorMessage += error.message;
+        }
+
+        return { success: false, error: errorMessage };
     }
 };
 

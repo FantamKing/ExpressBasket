@@ -14,30 +14,40 @@ const OrderBill = ({ order, user, onClose }) => {
         <title>Invoice - Order #${order._id.slice(-6).toUpperCase()}</title>
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #fff; color: #333; }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #fff; color: #1a1a2e; }
           .bill-container { max-width: 800px; margin: 0 auto; }
-          .bill-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #667eea; }
-          .company-info h1 { font-size: 28px; color: #667eea; margin-bottom: 5px; }
-          .company-info p { color: #666; font-size: 13px; }
-          .invoice-details { text-align: right; }
-          .invoice-details h2 { font-size: 24px; color: #333; margin-bottom: 10px; }
-          .invoice-details p { color: #666; font-size: 13px; margin-bottom: 3px; }
-          .customer-info { margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px; }
-          .customer-info h3 { font-size: 14px; color: #667eea; margin-bottom: 10px; text-transform: uppercase; }
-          .customer-info p { font-size: 14px; margin-bottom: 3px; }
-          .items-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-          .items-table th { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px; text-align: left; font-size: 13px; }
-          .items-table td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
-          .items-table tr:nth-child(even) { background: #f8f9fa; }
-          .totals { margin-left: auto; width: 300px; }
-          .totals-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
-          .totals-row.total { font-weight: bold; font-size: 18px; color: #667eea; border-top: 2px solid #667eea; padding-top: 12px; margin-top: 5px; }
-          .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 12px; }
-          .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-          .status-delivered { background: #d4edda; color: #155724; }
-          .status-pending { background: #fff3cd; color: #856404; }
-          .status-cancelled { background: #f8d7da; color: #721c24; }
-          @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+          .bill-header { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: flex-start; gap: 10px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 3px solid #28a745; }
+          .company-info { grid-column: 1; }
+          .company-info h1 { font-size: 20px; color: #28a745; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+          .company-info p { color: #4a5568; font-size: 11px; }
+          .invoice-info { grid-column: 2; text-align: center; }
+          .invoice-info h2 { font-size: 26px; color: #28a745; margin-bottom: 5px; letter-spacing: 3px; }
+          .invoice-info .order-date { color: #4a5568; font-size: 12px; }
+          .qr-section { grid-column: 3; display: flex; flex-direction: column; align-items: flex-end; }
+          .qr-section img { width: 60px; height: 60px; border: 2px solid #28a745; border-radius: 8px; padding: 3px; }
+          .qr-section .order-id { font-size: 10px; color: #28a745; font-weight: 700; margin-top: 4px; }
+          .customer-info { margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: 12px; }
+          .customer-info h3 { font-size: 12px; color: #28a745; margin-bottom: 10px; text-transform: uppercase; font-weight: 700; }
+          .customer-info p { font-size: 13px; margin-bottom: 4px; color: #1a1a2e; }
+          .customer-info .customer-name { font-weight: 600; font-size: 15px; }
+          .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border-radius: 12px; overflow: hidden; }
+          .items-table th { background: #28a745; color: white; padding: 12px; text-align: left; font-size: 12px; font-weight: 600; }
+          .items-table th:nth-child(3), .items-table th:nth-child(4), .items-table th:nth-child(5) { text-align: center; }
+          .items-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #1e293b; }
+          .items-table td:nth-child(3), .items-table td:nth-child(4), .items-table td:nth-child(5) { text-align: center; }
+          .items-table tr:nth-child(even) { background: #f8fafc; }
+          .totals { margin-left: auto; width: 280px; background: #f8fafc; padding: 15px 20px; border-radius: 12px; }
+          .totals-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: #4a5568; }
+          .totals-row.total { font-weight: 700; font-size: 16px; color: #1a1a2e; border-top: 2px solid #28a745; padding-top: 12px; margin-top: 8px; }
+          .totals-row.total span:last-child { color: #28a745; }
+          .payment-info { margin-top: 20px; padding: 15px 20px; background: linear-gradient(135deg, #d4edda, #c3e6cb); border-radius: 12px; display: flex; align-items: center; gap: 12px; color: #155724; font-size: 14px; }
+          .footer { text-align: center; margin-top: 25px; padding-top: 20px; border-top: 2px dashed #e2e8f0; color: #6c757d; font-size: 12px; }
+          .footer p:first-child { font-weight: 600; color: #4a5568; margin-bottom: 5px; }
+          .status-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-top: 6px; }
+          .status-delivered { background: linear-gradient(135deg, #d4edda, #c3e6cb); color: #155724; border: 1px solid #28a745; }
+          .status-pending { background: linear-gradient(135deg, #fff3cd, #ffeeba); color: #856404; border: 1px solid #ffc107; }
+          .status-cancelled { background: linear-gradient(135deg, #f8d7da, #f5c6cb); color: #721c24; border: 1px solid #dc3545; }
+          @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } .items-table th { background: #28a745 !important; } }
         </style>
       </head>
       <body>
@@ -73,10 +83,21 @@ const OrderBill = ({ order, user, onClose }) => {
             zIndex: 10000,
             padding: '20px'
         }} onClick={onClose}>
+            {/* Style tag for invoice title color - ensures black color regardless of other CSS */}
+            <style>
+                {`
+                    #invoice-title-black,
+                    [data-theme="light"] #invoice-title-black,
+                    [data-theme="dark"] #invoice-title-black,
+                    div#invoice-title-black {
+                        color: #000000 !important;
+                    }
+                `}
+            </style>
             <div style={{
-                background: 'white',
-                borderRadius: '16px',
-                maxWidth: '800px',
+                background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #d1fae5 100%)',
+                borderRadius: '20px',
+                maxWidth: '850px',
                 width: '100%',
                 maxHeight: '90vh',
                 overflow: 'auto',
@@ -88,14 +109,25 @@ const OrderBill = ({ order, user, onClose }) => {
                     position: 'sticky',
                     top: 0,
                     background: 'white',
-                    padding: '15px 20px',
-                    borderBottom: '1px solid #eee',
+                    padding: '15px 25px',
+                    borderBottom: '1px solid #e2e8f0',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    zIndex: 10
+                    zIndex: 10,
+                    borderRadius: '20px 20px 0 0'
                 }}>
-                    <h3 style={{ margin: 0, color: '#333' }}>Invoice</h3>
+                    <h3 style={{ margin: 0, color: '#28a745', fontSize: '18px', fontWeight: '700' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#28a745" strokeWidth="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                            </svg>
+                            Invoice
+                        </span>
+                    </h3>
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <button
                             onClick={handleDownload}
@@ -103,14 +135,15 @@ const OrderBill = ({ order, user, onClose }) => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '8px',
-                                padding: '10px 20px',
-                                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                                padding: '12px 24px',
+                                background: 'linear-gradient(135deg, #28a745, #20c997)',
                                 color: 'white',
                                 border: 'none',
-                                borderRadius: '8px',
+                                borderRadius: '10px',
                                 fontSize: '14px',
                                 fontWeight: '600',
-                                cursor: 'pointer'
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 15px rgba(40, 167, 69, 0.3)'
                             }}
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -118,18 +151,20 @@ const OrderBill = ({ order, user, onClose }) => {
                                 <polyline points="7 10 12 15 17 10" />
                                 <line x1="12" y1="15" x2="12" y2="3" />
                             </svg>
-                            Download PDF
+                            Download / Print
                         </button>
                         <button
                             onClick={onClose}
                             style={{
-                                padding: '10px 20px',
-                                background: '#f1f1f1',
-                                color: '#333',
+                                padding: '12px 24px',
+                                background: 'linear-gradient(135deg, #1a1a2e, #2d2d44)',
+                                color: 'white',
                                 border: 'none',
-                                borderRadius: '8px',
+                                borderRadius: '10px',
                                 fontSize: '14px',
-                                cursor: 'pointer'
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.15)'
                             }}
                         >
                             Close
@@ -138,71 +173,82 @@ const OrderBill = ({ order, user, onClose }) => {
                 </div>
 
                 {/* Bill Content */}
-                <div ref={billRef} className="bill-container" style={{ padding: '30px' }}>
+                <div ref={billRef} className="bill-container" data-theme="light" style={{
+                    padding: '30px 40px',
+                    background: 'white',
+                    margin: '20px',
+                    borderRadius: '16px',
+                    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
+                    color: '#1a1a2e'
+                }}>
                     {/* Header */}
                     <div className="bill-header" style={{
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'flex-start',
-                        marginBottom: '30px',
+                        gap: '15px',
+                        marginBottom: '25px',
                         paddingBottom: '20px',
-                        borderBottom: '2px solid #667eea'
+                        borderBottom: '3px solid #28a745'
                     }}>
-                        <div className="company-info">
-                            <h1 style={{ fontSize: '28px', color: '#667eea', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#667eea" strokeWidth="2">
+                        {/* Company Info - Left */}
+                        <div className="company-info" style={{ minWidth: '180px', maxWidth: '200px' }}>
+                            <div style={{ fontSize: '20px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700' }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#28a745" strokeWidth="2">
                                     <circle cx="9" cy="21" r="1"></circle>
                                     <circle cx="20" cy="21" r="1"></circle>
                                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                                 </svg>
-                                Express Basket
-                            </h1>
-                            <p style={{ color: '#666', fontSize: '13px' }}>Your Trusted Online Grocery Store</p>
-                            <p style={{ color: '#666', fontSize: '13px' }}>expressbasket.help@gmail.com</p>
+                                <span style={{ color: '#28a745' }}>Express Basket</span>
+                            </div>
+                            <p style={{ color: '#4a5568', fontSize: '11px', marginBottom: '2px', fontWeight: '500' }}>Your Trusted Online Grocery Store</p>
+                            <p style={{ color: '#4a5568', fontSize: '11px', fontWeight: '500' }}>contact: expressbasket.help@gmail.com</p>
                         </div>
-                        <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                            {/* QR Code */}
-                            <div style={{ textAlign: 'center' }}>
-                                <img
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent('https://expressbasket.vercel.app/bill/' + order._id)}`}
-                                    alt="Order QR Code"
-                                    style={{ width: '80px', height: '80px', borderRadius: '8px', border: '2px solid #667eea' }}
-                                />
-                                <p style={{ fontSize: '10px', color: '#888', marginTop: '4px' }}>Scan for details</p>
-                            </div>
-                            <div className="invoice-details" style={{ textAlign: 'right' }}>
-                                <h2 style={{ fontSize: '24px', color: '#333', marginBottom: '10px' }}>INVOICE</h2>
-                                <p style={{ color: '#666', fontSize: '13px' }}>Order #{order._id.slice(-6).toUpperCase()}</p>
-                                <p style={{ color: '#666', fontSize: '13px' }}>Date: {new Date(order.orderDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                                <p style={{ marginTop: '10px' }}>
-                                    <span className={`status-badge ${getStatusClass(order.status)}`} style={{
-                                        display: 'inline-block',
-                                        padding: '4px 12px',
-                                        borderRadius: '20px',
-                                        fontSize: '11px',
-                                        fontWeight: '600',
-                                        textTransform: 'uppercase',
-                                        background: order.status === 'delivered' ? '#d4edda' : order.status === 'cancelled' ? '#f8d7da' : '#fff3cd',
-                                        color: order.status === 'delivered' ? '#155724' : order.status === 'cancelled' ? '#721c24' : '#856404'
-                                    }}>{order.status}</span>
-                                </p>
-                            </div>
+
+                        {/* Invoice Info - Center */}
+                        <div className="invoice-info" style={{ textAlign: 'center', flex: '1' }}>
+                            <div id="invoice-title-black" style={{ fontSize: '26px', marginBottom: '6px', letterSpacing: '3px', fontWeight: '800' }}>INVOICE</div>
+                            <p className="order-date" style={{ color: '#4a5568', fontSize: '12px', fontWeight: '500' }}>
+                                {new Date(order.orderDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </p>
+                        </div>
+
+                        {/* QR & Status - Right */}
+                        <div className="qr-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', minWidth: '90px' }}>
+                            <img
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent('https://expressbasket.vercel.app/bill/' + order._id)}`}
+                                alt="Order QR Code"
+                                style={{ width: '65px', height: '65px', borderRadius: '8px', border: '2px solid #28a745', padding: '2px', background: 'white' }}
+                            />
+                            <span className="order-id" style={{ fontSize: '10px', color: '#28a745', fontWeight: '700' }}>#{order._id.slice(-6).toUpperCase()}</span>
+                            <span className={`status-badge ${getStatusClass(order.status)}`} style={{
+                                display: 'inline-block',
+                                padding: '4px 12px',
+                                borderRadius: '20px',
+                                fontSize: '9px',
+                                fontWeight: '700',
+                                textTransform: 'uppercase',
+                                background: order.status === 'delivered' ? '#d4edda' : order.status === 'cancelled' ? '#f8d7da' : '#fff3cd',
+                                color: order.status === 'delivered' ? '#155724' : order.status === 'cancelled' ? '#721c24' : '#856404',
+                                border: order.status === 'delivered' ? '1px solid #28a745' : order.status === 'cancelled' ? '1px solid #dc3545' : '1px solid #ffc107'
+                            }}>{order.status}</span>
                         </div>
                     </div>
 
                     {/* Customer Info */}
                     <div className="customer-info" style={{
                         marginBottom: '25px',
-                        padding: '15px',
-                        background: '#f8f9fa',
-                        borderRadius: '8px'
+                        padding: '20px',
+                        background: '#f0fdf4',
+                        borderRadius: '12px',
+                        border: '1px solid #c3e6cb'
                     }}>
-                        <h3 style={{ fontSize: '14px', color: '#667eea', marginBottom: '10px', textTransform: 'uppercase' }}>Bill To</h3>
-                        <p style={{ fontSize: '14px', fontWeight: '600', marginBottom: '3px' }}>{user?.name || 'Customer'}</p>
-                        <p style={{ fontSize: '14px', color: '#666', marginBottom: '3px' }}>{user?.email}</p>
-                        <p style={{ fontSize: '14px', color: '#666', marginBottom: '3px' }}>{user?.phone}</p>
+                        <h3 style={{ fontSize: '12px', color: '#28a745', marginBottom: '12px', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '1px' }}>Bill To</h3>
+                        <p className="customer-name" style={{ fontSize: '16px', fontWeight: '600', marginBottom: '5px', color: '#1a1a2e' }}>{user?.name || 'Customer'}</p>
+                        <p style={{ fontSize: '13px', color: '#4a5568', marginBottom: '4px' }}>{user?.email}</p>
+                        <p style={{ fontSize: '13px', color: '#4a5568', marginBottom: '4px' }}>{user?.phone}</p>
                         {user?.address && (
-                            <p style={{ fontSize: '14px', color: '#666' }}>
+                            <p className="address" style={{ fontSize: '13px', color: '#4a5568' }}>
                                 {user.address.street}, {user.address.city}, {user.address.state} - {user.address.pincode}
                             </p>
                         )}
@@ -210,26 +256,26 @@ const OrderBill = ({ order, user, onClose }) => {
 
 
                     {/* Items Table */}
-                    <table className="items-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '25px' }}>
+                    <table className="items-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '25px', borderRadius: '12px', overflow: 'hidden' }}>
                         <thead>
                             <tr>
-                                <th style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', padding: '12px', textAlign: 'left', fontSize: '13px' }}>#</th>
-                                <th style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', padding: '12px', textAlign: 'left', fontSize: '13px' }}>Item</th>
-                                <th style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', padding: '12px', textAlign: 'center', fontSize: '13px' }}>Qty</th>
-                                <th style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', padding: '12px', textAlign: 'right', fontSize: '13px' }}>Price</th>
-                                <th style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', padding: '12px', textAlign: 'right', fontSize: '13px' }}>Total</th>
+                                <th style={{ background: '#28a745', color: 'white', padding: '14px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>#</th>
+                                <th style={{ background: '#28a745', color: 'white', padding: '14px', textAlign: 'left', fontSize: '12px', fontWeight: '600' }}>Item</th>
+                                <th style={{ background: '#28a745', color: 'white', padding: '14px', textAlign: 'center', fontSize: '12px', fontWeight: '600' }}>Qty</th>
+                                <th style={{ background: '#28a745', color: 'white', padding: '14px', textAlign: 'center', fontSize: '12px', fontWeight: '600' }}>Price</th>
+                                <th style={{ background: '#28a745', color: 'white', padding: '14px', textAlign: 'center', fontSize: '12px', fontWeight: '600' }}>Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             {order.items?.map((item, index) => (
-                                <tr key={index} style={{ background: index % 2 === 0 ? '#fff' : '#f8f9fa' }}>
-                                    <td style={{ padding: '12px', borderBottom: '1px solid #eee', fontSize: '14px' }}>{index + 1}</td>
-                                    <td style={{ padding: '12px', borderBottom: '1px solid #eee', fontSize: '14px' }}>
+                                <tr key={index} style={{ background: index % 2 === 0 ? '#fff' : '#f8fafc' }}>
+                                    <td style={{ padding: '14px', borderBottom: '1px solid #e2e8f0', fontSize: '13px', color: '#1e293b' }}>{index + 1}</td>
+                                    <td style={{ padding: '14px', borderBottom: '1px solid #e2e8f0', fontSize: '13px', color: '#1e293b', fontWeight: '500' }}>
                                         {item.productId?.name || item.name || 'Product'}
                                     </td>
-                                    <td style={{ padding: '12px', borderBottom: '1px solid #eee', fontSize: '14px', textAlign: 'center' }}>{item.quantity || 1}</td>
-                                    <td style={{ padding: '12px', borderBottom: '1px solid #eee', fontSize: '14px', textAlign: 'right' }}>₹{(item.price || item.productId?.price || 0).toFixed(2)}</td>
-                                    <td style={{ padding: '12px', borderBottom: '1px solid #eee', fontSize: '14px', textAlign: 'right', fontWeight: '600' }}>
+                                    <td style={{ padding: '14px', borderBottom: '1px solid #e2e8f0', fontSize: '13px', textAlign: 'center', color: '#1e293b' }}>{item.quantity || 1}</td>
+                                    <td style={{ padding: '14px', borderBottom: '1px solid #e2e8f0', fontSize: '13px', textAlign: 'center', color: '#1e293b' }}>₹{(item.price || item.productId?.price || 0).toFixed(2)}</td>
+                                    <td style={{ padding: '14px', borderBottom: '1px solid #e2e8f0', fontSize: '13px', textAlign: 'center', fontWeight: '600', color: '#1e293b' }}>
                                         ₹{((item.price || item.productId?.price || 0) * (item.quantity || 1)).toFixed(2)}
                                     </td>
                                 </tr>
@@ -238,12 +284,12 @@ const OrderBill = ({ order, user, onClose }) => {
                     </table>
 
                     {/* Totals */}
-                    <div className="totals" style={{ marginLeft: 'auto', width: '300px' }}>
-                        <div className="totals-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '14px' }}>
+                    <div className="totals" style={{ marginLeft: 'auto', width: '280px', background: '#f8fafc', padding: '18px 22px', borderRadius: '12px' }}>
+                        <div className="totals-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '14px', color: '#4a5568' }}>
                             <span>Subtotal:</span>
                             <span>₹{subtotal.toFixed(2)}</span>
                         </div>
-                        <div className="totals-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '14px' }}>
+                        <div className="totals-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '14px', color: '#4a5568' }}>
                             <span>Delivery:</span>
                             <span>{deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge.toFixed(2)}`}</span>
                         </div>
@@ -256,33 +302,34 @@ const OrderBill = ({ order, user, onClose }) => {
                         <div className="totals-row total" style={{
                             display: 'flex',
                             justifyContent: 'space-between',
-                            padding: '12px 0 8px',
-                            fontSize: '18px',
-                            fontWeight: 'bold',
-                            color: '#667eea',
-                            borderTop: '2px solid #667eea',
-                            marginTop: '5px'
+                            padding: '14px 0 8px',
+                            fontSize: '17px',
+                            fontWeight: '700',
+                            color: '#1a1a2e',
+                            borderTop: '2px solid #28a745',
+                            marginTop: '8px'
                         }}>
                             <span>Grand Total:</span>
-                            <span>₹{total.toFixed(2)}</span>
+                            <span style={{ color: '#28a745' }}>₹{total.toFixed(2)}</span>
                         </div>
                     </div>
 
                     {/* Payment Info */}
-                    <div style={{
+                    <div className="payment-info" style={{
                         marginTop: '25px',
-                        padding: '15px',
-                        background: '#e8f5e9',
-                        borderRadius: '8px',
+                        padding: '16px 22px',
+                        background: '#d4edda',
+                        borderRadius: '12px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '10px'
+                        gap: '12px',
+                        border: '1px solid #c3e6cb'
                     }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#28a745" strokeWidth="2">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#28a745" strokeWidth="2">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                             <polyline points="22 4 12 14.01 9 11.01" />
                         </svg>
-                        <span style={{ color: '#155724', fontSize: '14px' }}>
+                        <span style={{ color: '#155724', fontSize: '15px', fontWeight: '500' }}>
                             Payment: {order.paymentMethod === 'wallet' ? 'Paid via Wallet' : order.paymentMethod === 'friend_wallet' ? 'Paid via Friend\'s Wallet' : 'Cash on Delivery'}
                         </span>
                     </div>
@@ -290,14 +337,14 @@ const OrderBill = ({ order, user, onClose }) => {
                     {/* Footer */}
                     <div className="footer" style={{
                         textAlign: 'center',
-                        marginTop: '40px',
+                        marginTop: '30px',
                         paddingTop: '20px',
-                        borderTop: '1px solid #eee',
-                        color: '#888',
-                        fontSize: '12px'
+                        borderTop: '2px dashed #e2e8f0',
+                        color: '#6c757d',
+                        fontSize: '13px'
                     }}>
-                        <p>Thank you for shopping with Express Basket!</p>
-                        <p style={{ marginTop: '5px' }}>This is a computer-generated invoice and does not require a signature.</p>
+                        <p style={{ fontWeight: '600', color: '#4a5568', marginBottom: '5px' }}>Thank you for shopping with Express Basket!</p>
+                        <p>This is a computer-generated invoice and does not require a signature.</p>
                     </div>
                 </div>
             </div>

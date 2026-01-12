@@ -73,14 +73,14 @@ const AuthTab = styled.button`
   border: none;
   font-size: 14px;
   font-weight: 600;
-  color: ${props => props.$active ? 'white' : (props.theme === 'dark' ? '#9ca3af' : '#6b7280')};
+  color: ${props => props.$active ? '#ffffff' : (props.theme === 'dark' ? '#e5e7eb' : '#374151')};
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
   box-shadow: ${props => props.$active ? '0 2px 8px rgba(16, 185, 129, 0.3)' : 'none'};
   
   &:hover {
-    color: ${props => props.$active ? 'white' : '#10b981'};
+    color: ${props => props.$active ? '#ffffff' : '#10b981'};
   }
 `;
 
@@ -367,16 +367,18 @@ const LoginSignup = () => {
             </svg>
           )}
         </ThemeToggle>
-        <AuthTabs>
+        <AuthTabs theme={theme}>
           <AuthTab
             $active={isLogin}
             onClick={() => setIsLogin(true)}
+            theme={theme}
           >
             Login
           </AuthTab>
           <AuthTab
             $active={!isLogin}
             onClick={() => setIsLogin(false)}
+            theme={theme}
           >
             Sign Up
           </AuthTab>

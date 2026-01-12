@@ -1315,8 +1315,8 @@ const verifyMembershipPermission = async (req, res, next) => {
             });
         }
 
-        // Super admins always have access
-        if (admin.role === 'super_admin') {
+        // Super admins and god always have access
+        if (admin.role === 'super_admin' || admin.role === 'god') {
             req.admin = verified;
             return next();
         }
@@ -1379,6 +1379,7 @@ router.get('/memberships', verifyMembershipPermission, async (req, res) => {
     try {
         const users = await User.find()
             .select('name email phone loyaltyBadge createdAt')
+            .populate('loyaltyBadge.assignedBy', 'username')
             .sort({ 'loyaltyBadge.type': -1, createdAt: -1 });
         res.json(users);
     } catch (error) {
@@ -1410,6 +1411,7 @@ router.get('/memberships/stats', verifyMembershipPermission, async (req, res) =>
 router.put('/memberships/:userId/badge', verifyMembershipPermission, async (req, res) => {
     try {
         const { badgeType, customExpiresAt } = req.body;
+        console.log('Admin badge update request:', { userId: req.params.userId, badgeType, adminId: req.admin.id });
 
         if (!['none', 'silver', 'gold', 'platinum'].includes(badgeType)) {
             return res.status(400).json({ message: 'Invalid badge type' });
@@ -1425,9 +1427,10 @@ router.put('/memberships/:userId/badge', verifyMembershipPermission, async (req,
         const isSuperAdmin = admin && (admin.role === 'super_admin' || admin.role === 'god');
 
         if (badgeType === 'none') {
-            // Remove badge
+            // Remove badge - clear all fields
             user.loyaltyBadge = {
                 type: 'none',
+                duration: null,
                 purchasedAt: null,
                 expiresAt: null,
                 assignedBy: null
@@ -1451,6 +1454,7 @@ router.put('/memberships/:userId/badge', verifyMembershipPermission, async (req,
 
             user.loyaltyBadge = {
                 type: badgeType,
+                duration: null, // Admin assigned, no duration
                 purchasedAt: new Date(),
                 expiresAt: expiresAt,
                 assignedBy: req.admin.id
@@ -1458,6 +1462,7 @@ router.put('/memberships/:userId/badge', verifyMembershipPermission, async (req,
         }
 
         await user.save();
+        console.log('Badge updated successfully:', user.loyaltyBadge);
 
         // Broadcast membership update to user
         const { broadcastMembershipUpdate } = require('../socketHandler.js');

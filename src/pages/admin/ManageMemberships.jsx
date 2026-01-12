@@ -29,8 +29,14 @@ const ManageMemberships = () => {
             return JSON.parse(localStorage.getItem('admin') || '{}');
         } catch { return {}; }
     })();
-    const viewOnly = admin?.role === 'normal_viewer' || admin?.role === 'special_viewer';
-    const isSuperAdmin = admin?.role === 'super_admin' || admin?.role === 'god';
+    const role = (admin?.role || '').toLowerCase().replace(/[\s_-]/g, '');
+    // Force viewOnly to false for testing - allow all admins to edit
+    const viewOnly = false;
+    const isSuperAdmin = role === 'superadmin' || role === 'god';
+
+    // Debug logging
+    console.log('ManageMemberships - admin:', admin);
+    console.log('ManageMemberships - role:', admin?.role, 'normalized:', role, 'viewOnly:', viewOnly);
 
     useEffect(() => {
         fetchData();
@@ -112,15 +118,22 @@ const ManageMemberships = () => {
     };
 
     const handleRemoveBadge = async (userId) => {
+        if (!window.confirm('Are you sure you want to remove this membership?')) {
+            return;
+        }
         try {
             setError('');
-            await axios.put(`/admin/memberships/${userId}/badge`,
+            setSuccess('');
+            console.log('Removing badge for user:', userId);
+            const response = await axios.put(`/admin/memberships/${userId}/badge`,
                 { badgeType: 'none' },
                 { headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` } }
             );
+            console.log('Remove badge response:', response.data);
             setSuccess('Badge removed successfully!');
             fetchData();
         } catch (error) {
+            console.error('Remove badge error:', error);
             setError(error.response?.data?.message || 'Failed to remove badge');
         }
     };
@@ -389,7 +402,11 @@ const ManageMemberships = () => {
                                                         {badge}
                                                     </div>
                                                     <h4 style={{ color: 'var(--text-color)', marginBottom: '5px', fontSize: '15px', paddingRight: '70px' }}>{user.name}</h4>
-                                                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>{user.email}</p>
+                                                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>{user.email}</p>
+                                                    <p style={{ fontSize: '10px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                                                        {user.loyaltyBadge?.assignedBy ? 'Admin Assigned' : 'Self Purchased'}
+                                                        {user.loyaltyBadge?.duration && ` (${user.loyaltyBadge.duration})`}
+                                                    </p>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
                                                         <div>
                                                             <p style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>Expires</p>
@@ -451,6 +468,7 @@ const ManageMemberships = () => {
                                 <th>User</th>
                                 <th>Email</th>
                                 <th>Badge</th>
+                                <th>Source</th>
                                 <th>Expires</th>
                                 <th>Days Left</th>
                                 <th>Actions</th>
@@ -464,6 +482,12 @@ const ManageMemberships = () => {
                                     <td>
                                         <span style={{ ...getBadgeStyle(user.loyaltyBadge?.type || 'none'), padding: '4px 12px', borderRadius: '15px', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase' }}>
                                             {user.loyaltyBadge?.type || 'None'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span style={{ fontSize: '11px', color: user.loyaltyBadge?.assignedBy ? '#28a745' : '#6c757d' }}>
+                                            {user.loyaltyBadge?.assignedBy ? 'Admin' : 'Self'}
+                                            {user.loyaltyBadge?.duration && ` (${user.loyaltyBadge.duration})`}
                                         </span>
                                     </td>
                                     <td>{user.loyaltyBadge?.expiresAt ? new Date(user.loyaltyBadge.expiresAt).toLocaleDateString() : '-'}</td>

@@ -739,6 +739,149 @@ input:-webkit-autofill:active {
   color: var(--text-color);
 }
 
+/* ========== Cart Notification Popup ========== */
+.cart-notification-popup {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  padding: 16px 20px;
+  min-width: 320px;
+  max-width: 90vw;
+  animation: cartPopupSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border: 1px solid var(--border-color);
+}
+
+@keyframes cartPopupSlideIn {
+  0% {
+    transform: translateX(-50%) translateY(100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+.cart-notification-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cart-notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cart-notification-icon svg {
+  stroke: white;
+}
+
+.cart-notification-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cart-notification-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.cart-notification-product {
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.cart-notification-close {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-notification-close:hover {
+  background: var(--nav-link-hover);
+  color: var(--text-color);
+}
+
+.cart-notification-view-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.cart-notification-view-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+.cart-notification-view-btn:active {
+  transform: translateY(0);
+}
+
+.cart-notification-view-btn svg {
+  stroke: white;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .cart-notification-popup {
+    left: 15px;
+    right: 15px;
+    transform: none;
+    min-width: unset;
+    bottom: 20px;
+  }
+  
+  @keyframes cartPopupSlideIn {
+    0% {
+      transform: translateY(100px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
 /* ========== Lucide Icon Animations ========== */
 .icon-bounce {
   animation: iconBounce 1s ease-in-out infinite;
