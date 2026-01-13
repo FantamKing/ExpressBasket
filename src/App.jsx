@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from '@vercel/analytics/react';
 import { CartProvider } from './context/CartContext.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
@@ -120,6 +121,7 @@ function App() {
               <AppContainer>
                 <ScrollToTop />
                 {import.meta.env.PROD && <SpeedInsights />}
+                {import.meta.env.PROD && <Analytics />}
                 <Routes>
                   {/* Client Routes - wrapped with maintenance check */}
                   <Route path="/" element={<ClientRoute maintenanceMode={maintenanceMode}><Layout><Home /></Layout></ClientRoute>} />
