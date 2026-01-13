@@ -119,6 +119,25 @@ const PartnerLayout = ({ children }) => {
 
     return (
         <div className="partner-layout">
+            {/* Mobile Header - only visible on mobile */}
+            <header className="partner-mobile-header">
+                <div className="mobile-brand">
+                    <div className="mobile-brand-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M10 17h4V5H2v12h3" />
+                            <path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5" />
+                            <circle cx="7.5" cy="17.5" r="2.5" />
+                            <circle cx="17.5" cy="17.5" r="2.5" />
+                        </svg>
+                    </div>
+                    <span className="mobile-brand-text">Partner</span>
+                </div>
+                <div className="mobile-status">
+                    <span className={`status-dot ${isAvailable ? 'online' : 'offline'}`}></span>
+                    <span>{isAvailable ? 'Online' : 'Offline'}</span>
+                </div>
+            </header>
+
             <nav className="partner-nav">
                 <div className="partner-nav-header">
                     <div className="partner-brand">
@@ -250,6 +269,51 @@ const PartnerLayout = ({ children }) => {
             <main className="partner-content">
                 {children}
             </main>
+
+            {/* Mobile Bottom Navigation - only visible on mobile */}
+            <nav className="partner-bottom-nav">
+                <Link
+                    to="/partner/dashboard"
+                    className={`bottom-nav-item ${isActive('/partner/dashboard') ? 'active' : ''}`}
+                >
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                    </svg>
+                    <span>Home</span>
+                </Link>
+                <Link
+                    to="/partner/deliveries"
+                    className={`bottom-nav-item ${isActive('/partner/deliveries') ? 'active' : ''}`}
+                >
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    </svg>
+                    <span>Deliveries</span>
+                </Link>
+                <Link
+                    to="/partner/earnings"
+                    className={`bottom-nav-item ${isActive('/partner/earnings') ? 'active' : ''}`}
+                >
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                    <span>Earnings</span>
+                </Link>
+                <Link
+                    to="/partner/profile"
+                    className={`bottom-nav-item ${isActive('/partner/profile') ? 'active' : ''}`}
+                >
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span>Profile</span>
+                </Link>
+            </nav>
         </div>
     );
 };

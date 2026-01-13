@@ -1773,7 +1773,7 @@ const AdminLayout = ({ children }) => {
                           onClick={async () => {
                             const token = localStorage.getItem('adminToken');
                             try {
-                              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/frame`, {
+                              const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/frame`, {
                                 method: 'PUT',
                                 headers: {
                                   'Authorization': `Bearer ${token}`,
@@ -1781,8 +1781,12 @@ const AdminLayout = ({ children }) => {
                                 },
                                 body: JSON.stringify({ frame: null })
                               });
-                              setAdmin({ ...admin, avatarFrame: null });
-                              localStorage.setItem('admin', JSON.stringify({ ...admin, avatarFrame: null }));
+                              const data = await res.json();
+                              if (data.success) {
+                                const updatedAdmin = { ...admin, avatarFrame: data.avatarFrame, customFrameUrl: data.customFrameUrl };
+                                setAdmin(updatedAdmin);
+                                localStorage.setItem('admin', JSON.stringify(updatedAdmin));
+                              }
                             } catch (e) { console.error(e); }
                           }}
                           style={{
@@ -1822,7 +1826,7 @@ const AdminLayout = ({ children }) => {
                             onClick={async () => {
                               const token = localStorage.getItem('adminToken');
                               try {
-                                await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/frame`, {
+                                const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/frame`, {
                                   method: 'PUT',
                                   headers: {
                                     'Authorization': `Bearer ${token}`,
@@ -1830,8 +1834,12 @@ const AdminLayout = ({ children }) => {
                                   },
                                   body: JSON.stringify({ frame: 'custom', customFrameUrl: admin.customFrameUrl })
                                 });
-                                setAdmin({ ...admin, avatarFrame: 'custom' });
-                                localStorage.setItem('admin', JSON.stringify({ ...admin, avatarFrame: 'custom' }));
+                                const data = await res.json();
+                                if (data.success) {
+                                  const updatedAdmin = { ...admin, avatarFrame: data.avatarFrame, customFrameUrl: data.customFrameUrl };
+                                  setAdmin(updatedAdmin);
+                                  localStorage.setItem('admin', JSON.stringify(updatedAdmin));
+                                }
                               } catch (e) { console.error(e); }
                             }}
                             style={{
@@ -1929,7 +1937,7 @@ const AdminLayout = ({ children }) => {
                             onClick={async () => {
                               const token = localStorage.getItem('adminToken');
                               try {
-                                await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/frame`, {
+                                const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/frame`, {
                                   method: 'PUT',
                                   headers: {
                                     'Authorization': `Bearer ${token}`,
@@ -1937,8 +1945,12 @@ const AdminLayout = ({ children }) => {
                                   },
                                   body: JSON.stringify({ frame: frame.id })
                                 });
-                                setAdmin({ ...admin, avatarFrame: frame.id });
-                                localStorage.setItem('admin', JSON.stringify({ ...admin, avatarFrame: frame.id }));
+                                const data = await res.json();
+                                if (data.success) {
+                                  const updatedAdmin = { ...admin, avatarFrame: data.avatarFrame, customFrameUrl: data.customFrameUrl };
+                                  setAdmin(updatedAdmin);
+                                  localStorage.setItem('admin', JSON.stringify(updatedAdmin));
+                                }
                               } catch (e) { console.error(e); }
                             }}
                             style={{
@@ -2202,8 +2214,9 @@ const AdminLayout = ({ children }) => {
                                   });
                                   const data = await res.json();
                                   if (data.success) {
-                                    setAdmin({ ...admin, avatarFrame: null, customFrameUrl: null });
-                                    localStorage.setItem('admin', JSON.stringify({ ...admin, avatarFrame: null, customFrameUrl: null }));
+                                    const updatedAdmin = { ...admin, avatarFrame: null, customFrameUrl: null };
+                                    setAdmin(updatedAdmin);
+                                    localStorage.setItem('admin', JSON.stringify(updatedAdmin));
                                   }
                                 } catch (err) {
                                   console.error('Failed to delete custom frame:', err);
@@ -2267,8 +2280,9 @@ const AdminLayout = ({ children }) => {
                               try {
                                 const data = JSON.parse(xhr.responseText);
                                 if (data.success) {
-                                  setAdmin({ ...admin, avatarFrame: 'custom', customFrameUrl: data.customFrameUrl });
-                                  localStorage.setItem('admin', JSON.stringify({ ...admin, avatarFrame: 'custom', customFrameUrl: data.customFrameUrl }));
+                                  const updatedAdmin = { ...admin, avatarFrame: 'custom', customFrameUrl: data.customFrameUrl };
+                                  setAdmin(updatedAdmin);
+                                  localStorage.setItem('admin', JSON.stringify(updatedAdmin));
                                 }
                               } catch (err) {
                                 console.error('Failed to parse response:', err);

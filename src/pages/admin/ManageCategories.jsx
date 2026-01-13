@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import axios from '../../utils/axios';
 import Swal from 'sweetalert2';
 import ViewOnlyBanner from '../../components/admin/ViewOnlyBanner';
+import { canEdit, isViewOnly } from '../../utils/adminPermissions';
 
 // ==================== STYLED COMPONENTS ====================
 
@@ -382,7 +383,8 @@ const ManageCategories = () => {
   const [transferLoading, setTransferLoading] = useState(false);
 
   const admin = JSON.parse(localStorage.getItem('admin') || '{}');
-  const viewOnly = admin?.role === 'normal_viewer' || admin?.role === 'special_viewer';
+  // Check for manage_categories permission
+  const viewOnly = isViewOnly(admin) || !canEdit(admin, 'categories');
 
   useEffect(() => {
     fetchCategories();

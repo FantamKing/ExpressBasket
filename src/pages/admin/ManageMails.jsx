@@ -3,20 +3,16 @@ import axios from '../../utils/axios';
 import Swal from 'sweetalert2';
 import './ManageAdmins.css';
 import ViewOnlyBanner from '../../components/admin/ViewOnlyBanner';
-
-// Check if admin is viewer (read-only)
-const isViewOnly = (admin) => {
-    return admin?.role === 'normal_viewer' || admin?.role === 'special_viewer';
-};
+import { canEdit, isViewOnly } from '../../utils/adminPermissions';
 
 const ManageMails = () => {
     const [mails, setMails] = useState([]);
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
 
-    // Viewer restriction
+    // Permission check - check for manage_mails permission
     const admin = JSON.parse(localStorage.getItem('admin') || '{}');
-    const viewOnly = isViewOnly(admin);
+    const viewOnly = isViewOnly(admin) || !canEdit(admin, 'mails');
 
     // Search state
     const [searchQuery, setSearchQuery] = useState('');
@@ -100,12 +96,12 @@ const ManageMails = () => {
                 headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
             });
 
-            const deliveryMessage = deliveryType === 'app' 
+            const deliveryMessage = deliveryType === 'app'
                 ? `Mail sent to ${selectedUser.name}'s ExpressBasket inbox`
                 : deliveryType === 'email'
-                ? `Email sent to ${selectedUser.email}`
-                : `Mail sent to ${selectedUser.name}'s inbox and email`;
-            
+                    ? `Email sent to ${selectedUser.email}`
+                    : `Mail sent to ${selectedUser.name}'s inbox and email`;
+
             Swal.fire('Success', deliveryMessage, 'success');
 
             // Reset form
@@ -507,14 +503,14 @@ const ManageMails = () => {
                                             <line x1="3" y1="9" x2="21" y2="9"></line>
                                             <line x1="9" y1="21" x2="9" y2="9"></line>
                                         </svg>
-                                        <span style={{ 
+                                        <span style={{
                                             color: deliveryType === 'app' ? 'var(--btn-primary)' : 'var(--text-color)',
                                             fontWeight: deliveryType === 'app' ? '600' : '400'
                                         }}>
                                             ExpressBasket Mail
                                         </span>
                                     </label>
-                                    
+
                                     <label style={{
                                         display: 'flex',
                                         alignItems: 'center',
@@ -538,14 +534,14 @@ const ManageMails = () => {
                                             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                                             <polyline points="22,6 12,13 2,6"></polyline>
                                         </svg>
-                                        <span style={{ 
+                                        <span style={{
                                             color: deliveryType === 'email' ? '#10b981' : 'var(--text-color)',
                                             fontWeight: deliveryType === 'email' ? '600' : '400'
                                         }}>
                                             User Email
                                         </span>
                                     </label>
-                                    
+
                                     <label style={{
                                         display: 'flex',
                                         alignItems: 'center',
@@ -571,7 +567,7 @@ const ManageMails = () => {
                                             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                                         </svg>
-                                        <span style={{ 
+                                        <span style={{
                                             color: deliveryType === 'both' ? '#f59e0b' : 'var(--text-color)',
                                             fontWeight: deliveryType === 'both' ? '600' : '400'
                                         }}>
@@ -579,9 +575,9 @@ const ManageMails = () => {
                                         </span>
                                     </label>
                                 </div>
-                                <p style={{ 
-                                    marginTop: '8px', 
-                                    fontSize: '12px', 
+                                <p style={{
+                                    marginTop: '8px',
+                                    fontSize: '12px',
                                     color: 'var(--text-secondary)',
                                     display: 'flex',
                                     alignItems: 'center',

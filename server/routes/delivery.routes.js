@@ -23,6 +23,41 @@ const authenticateAdminToken = (req, res, next) => {
     }
 };
 
+// Middleware factory to check for specific manage permission
+const requirePermission = (permission) => {
+    return (req, res, next) => {
+        const viewerRoles = ['normal_viewer', 'special_viewer'];
+
+        // Block viewers from all write operations
+        if (viewerRoles.includes(req.admin?.role)) {
+            if (req.method !== 'GET') {
+                return res.status(403).json({
+                    message: 'Viewers do not have permission to modify data.',
+                    role: req.admin.role
+                });
+            }
+        }
+
+        // For write operations (POST, PUT, DELETE), check specific permission
+        if (req.method !== 'GET') {
+            // Super admin bypasses permission checks
+            if (req.admin?.role === 'super_admin') {
+                return next();
+            }
+
+            // Check if admin has the required manage permission
+            if (!req.admin?.permissions?.includes(permission)) {
+                return res.status(403).json({
+                    message: `You do not have permission to perform this action. Required: ${permission.replace(/_/g, ' ')}`,
+                    requiredPermission: permission
+                });
+            }
+        }
+
+        next();
+    };
+};
+
 // ==================== PARTNER AUTH ROUTES ====================
 
 // Partner registration (self-signup)
@@ -230,7 +265,7 @@ router.get('/admin/delivery-partners', authenticateAdminToken, async (req, res) 
 });
 
 // Add new delivery partner
-router.post('/admin/delivery-partners', authenticateAdminToken, async (req, res) => {
+router.post('/admin/delivery-partners', [authenticateAdminToken, requirePermission('manage_delivery_partners')], async (req, res) => {
     try {
         const { name, email, phone, password, vehicle } = req.body;
 
@@ -266,7 +301,7 @@ router.post('/admin/delivery-partners', authenticateAdminToken, async (req, res)
 });
 
 // Update delivery partner
-router.put('/admin/delivery-partners/:id', authenticateAdminToken, async (req, res) => {
+router.put('/admin/delivery-partners/:id', [authenticateAdminToken, requirePermission('manage_delivery_partners')], async (req, res) => {
     try {
         const { name, phone, vehicle, isAvailable, isActive, isApproved } = req.body;
 
@@ -287,7 +322,7 @@ router.put('/admin/delivery-partners/:id', authenticateAdminToken, async (req, r
 });
 
 // Delete delivery partner
-router.delete('/admin/delivery-partners/:id', authenticateAdminToken, async (req, res) => {
+router.delete('/admin/delivery-partners/:id', [authenticateAdminToken, requirePermission('manage_delivery_partners')], async (req, res) => {
     try {
         const partner = await DeliveryPartner.findByIdAndDelete(req.params.id);
 
@@ -302,7 +337,7 @@ router.delete('/admin/delivery-partners/:id', authenticateAdminToken, async (req
 });
 
 // Assign delivery to partner
-router.post('/admin/delivery/assign', authenticateAdminToken, async (req, res) => {
+router.post('/admin/delivery/assign', [authenticateAdminToken, requirePermission('manage_orders')], async (req, res) => {
     try {
         const { orderId, partnerId } = req.body;
 

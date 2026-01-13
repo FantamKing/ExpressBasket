@@ -188,7 +188,10 @@ router.post('/auth/face-login', async (req, res) => {
                 email: admin.email,
                 role: admin.role,
                 permissions: admin.permissions,
-                profilePicture: admin.profilePicture
+                profilePicture: admin.profilePicture,
+                avatarFrame: admin.avatarFrame,
+                customFrameUrl: admin.customFrameUrl,
+                tags: admin.tags
             },
             confidence,
             message: 'Login successful'

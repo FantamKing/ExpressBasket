@@ -3,11 +3,7 @@ import axios from '../../utils/axios';
 import { Headphones, MessageCircle, Send, X, Clock, User, CheckCircle, Lock } from 'lucide-react';
 import './SupportManagement.css';
 import ViewOnlyBanner from '../../components/admin/ViewOnlyBanner';
-
-// Check if admin is viewer (read-only)
-const isViewOnly = (admin) => {
-    return admin?.role === 'normal_viewer' || admin?.role === 'special_viewer';
-};
+import { canEdit, isViewOnly } from '../../utils/adminPermissions';
 
 const SupportManagement = () => {
     const [pendingRequests, setPendingRequests] = useState([]);
@@ -19,9 +15,9 @@ const SupportManagement = () => {
     const messagesEndRef = useRef(null);
     const pollingRef = useRef(null);
 
-    // Viewer restriction
+    // Permission check - check for manage_support permission
     const admin = JSON.parse(localStorage.getItem('admin') || '{}');
-    const viewOnly = isViewOnly(admin);
+    const viewOnly = isViewOnly(admin) || !canEdit(admin, 'support');
 
     // Fetch pending support requests
     const fetchPendingRequests = async () => {

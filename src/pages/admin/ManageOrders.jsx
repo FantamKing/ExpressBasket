@@ -6,6 +6,7 @@ import RouteConfigModal from '../../components/admin/RouteConfigModal.jsx';
 import useTrackingStatus from '../../hooks/useTrackingStatus.js';
 import ViewOnlyBanner from '../../components/admin/ViewOnlyBanner';
 import { io } from 'socket.io-client';
+import { canEdit, isViewOnly } from '../../utils/adminPermissions';
 
 const ManageOrdersContainer = styled.div``;
 
@@ -105,9 +106,9 @@ const ManageOrders = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { trackingEnabled } = useTrackingStatus();
 
-  // Viewer role check - viewers cannot edit
+  // Permission check - check for manage_orders permission
   const admin = JSON.parse(localStorage.getItem('admin') || '{}');
-  const viewOnly = admin?.role === 'normal_viewer' || admin?.role === 'special_viewer';
+  const viewOnly = isViewOnly(admin) || !canEdit(admin, 'orders');
 
   // Filter orders based on search query
   const filteredOrders = orders.filter(order => {

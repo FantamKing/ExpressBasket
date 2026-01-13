@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import axios from '../../utils/axios';
 import Swal from 'sweetalert2';
 import ViewOnlyBanner from '../../components/admin/ViewOnlyBanner';
+import { canEdit, isViewOnly } from '../../utils/adminPermissions';
 
 const ManageUsersContainer = styled.div``;
 
@@ -195,9 +196,9 @@ const ManageUsers = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  // Viewer role check - viewers cannot edit
+  // Permission check - check for manage_users permission
   const admin = JSON.parse(localStorage.getItem('admin') || '{}');
-  const viewOnly = admin?.role === 'normal_viewer' || admin?.role === 'special_viewer';
+  const viewOnly = isViewOnly(admin) || !canEdit(admin, 'users');
 
   useEffect(() => {
     fetchUsers();

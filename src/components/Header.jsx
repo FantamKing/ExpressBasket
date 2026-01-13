@@ -1,20 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
 import { useUser } from '../context/UserContext.jsx';
-import { Gamepad2 } from 'lucide-react';
+import { Gamepad2, Sun, Moon } from 'lucide-react';
 import './Header.css';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [themeAnimation, setThemeAnimation] = useState(null); // 'to-dark' or 'to-light'
   const { getCartCount } = useCart();
   const { theme, toggleTheme } = useTheme();
   const { user } = useUser();
   const cartCount = getCartCount();
+  const isDark = theme === 'dark';
+
+  // Handle theme toggle with animation
+  const handleThemeToggle = useCallback(() => {
+    const newAnimation = isDark ? 'to-light' : 'to-dark';
+    setThemeAnimation(newAnimation);
+    toggleTheme();
+
+    // Clear animation after it completes
+    setTimeout(() => {
+      setThemeAnimation(null);
+    }, 3000);
+  }, [isDark, toggleTheme]);
 
   return (
     <>
+      {/* Screen-wide Theme Transition Animation */}
+      {themeAnimation && (
+        <div className={`theme-transition-overlay ${themeAnimation}`}>
+          {themeAnimation === 'to-dark' ? (
+            // Shooting Stars for Dark Mode
+            <>
+              <div className="shooting-star star-1"></div>
+              <div className="shooting-star star-2"></div>
+              <div className="shooting-star star-3"></div>
+              <div className="shooting-star star-4"></div>
+              <div className="shooting-star star-5"></div>
+              <div className="shooting-star star-6"></div>
+              <div className="shooting-star star-7"></div>
+              <div className="shooting-star star-8"></div>
+              <div className="shooting-star star-9"></div>
+              <div className="shooting-star star-10"></div>
+              <div className="shooting-star star-11"></div>
+              <div className="shooting-star star-12"></div>
+              <div className="shooting-star star-13"></div>
+              <div className="shooting-star star-14"></div>
+              <div className="shooting-star star-15"></div>
+              <div className="shooting-star star-16"></div>
+            </>
+          ) : (
+            // Sun Heat Waves for Light Mode
+            <>
+              <div className="heat-wave wave-1"></div>
+              <div className="heat-wave wave-2"></div>
+              <div className="heat-wave wave-3"></div>
+              <div className="heat-wave wave-4"></div>
+              <div className="sun-burst"></div>
+            </>
+          )}
+        </div>
+      )}
+
       <header className="header">
         <div className="container">
           <div className="header-content">
@@ -72,16 +122,20 @@ const Header = () => {
               )}
             </nav>
 
-            {/* Animated Theme Toggle */}
+            {/* Premium Orbital Theme Toggle */}
             <button
-              className="theme-toggle-animated"
-              onClick={toggleTheme}
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              className={`orbital-theme-toggle ${isDark ? 'night' : 'day'}`}
+              onClick={handleThemeToggle}
+              title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
               aria-label="Toggle theme"
             >
-              <span className="toggle-icon sun-icon">☀️</span>
-              <span className="toggle-icon moon-icon">🌙</span>
-              <span className="toggle-ball"></span>
+              <div className="orbital-track">
+                <div className="orbital-glow"></div>
+                <div className="celestial-orb">
+                  <Sun className="orb-sun" />
+                  <Moon className="orb-moon" />
+                </div>
+              </div>
             </button>
 
             {/* Mobile Menu Button */}

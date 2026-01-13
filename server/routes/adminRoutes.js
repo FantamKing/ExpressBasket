@@ -129,6 +129,42 @@ const blockViewers = (req, res, next) => {
 // Combined middleware: verify admin + block viewers for write operations
 const verifyAdminWithWriteProtection = [verifyAdmin, blockViewers];
 
+// Middleware factory to check for specific manage permission
+// This ensures admins with view_* permissions cannot perform write operations
+const requirePermission = (permission) => {
+    return (req, res, next) => {
+        const viewerRoles = ['normal_viewer', 'special_viewer'];
+
+        // Block viewers from all write operations
+        if (viewerRoles.includes(req.admin?.role)) {
+            if (req.method !== 'GET') {
+                return res.status(403).json({
+                    message: 'Viewers do not have permission to modify data.',
+                    role: req.admin.role
+                });
+            }
+        }
+
+        // For write operations (POST, PUT, DELETE), check specific permission
+        if (req.method !== 'GET') {
+            // Super admin bypasses permission checks
+            if (req.admin?.role === 'super_admin') {
+                return next();
+            }
+
+            // Check if admin has the required manage permission
+            if (!req.admin?.permissions?.includes(permission)) {
+                return res.status(403).json({
+                    message: `You do not have permission to perform this action. Required: ${permission.replace(/_/g, ' ')}`,
+                    requiredPermission: permission
+                });
+            }
+        }
+
+        next();
+    };
+};
+
 // Check if admin is a viewer role
 const isViewerRole = (role) => {
     return role === 'normal_viewer' || role === 'special_viewer';
@@ -424,7 +460,9 @@ router.post('/login', async (req, res) => {
                 role: admin.role,
                 permissions: admin.permissions,
                 tags: admin.tags,
-                profilePicture: admin.profilePicture
+                profilePicture: admin.profilePicture,
+                avatarFrame: admin.avatarFrame,
+                customFrameUrl: admin.customFrameUrl
             }
         });
 
@@ -502,7 +540,7 @@ router.get('/sign', verifyAdmin, (req, res) => {
 });
 
 // Add product
-router.post('/products', verifyAdminWithWriteProtection, async (req, res) => {
+router.post('/products', [verifyAdmin, requirePermission('manage_products')], async (req, res) => {
     try {
         console.log('Product creation request received');
         console.log('Body:', JSON.stringify(req.body));
@@ -570,7 +608,7 @@ router.post('/products', verifyAdminWithWriteProtection, async (req, res) => {
 });
 
 // Update product
-router.put('/products/:id', verifyAdminWithWriteProtection, upload.single('image'), async (req, res) => {
+router.put('/products/:id', [verifyAdmin, requirePermission('manage_products'), upload.single('image')], async (req, res) => {
     try {
         const { name, description, price, originalPrice, category, stock, unit, discount, isFeatured } = req.body;
 
@@ -610,7 +648,7 @@ router.put('/products/:id', verifyAdminWithWriteProtection, upload.single('image
 });
 
 // Delete product
-router.delete('/products/:id', verifyAdminWithWriteProtection, async (req, res) => {
+router.delete('/products/:id', [verifyAdmin, requirePermission('manage_products')], async (req, res) => {
     try {
         const product = await Product.findByIdAndDelete(req.params.id);
 
@@ -642,7 +680,7 @@ router.get('/products', verifyAdmin, async (req, res) => {
 });
 
 // Add category
-router.post('/categories', verifyAdminWithWriteProtection, async (req, res) => {
+router.post('/categories', [verifyAdmin, requirePermission('manage_categories')], async (req, res) => {
     try {
         const { name, description, image } = req.body;
 
@@ -693,7 +731,7 @@ router.get('/categories', verifyAdmin, async (req, res) => {
 });
 
 // Update category
-router.put('/categories/:id', verifyAdminWithWriteProtection, upload.single('image'), async (req, res) => {
+router.put('/categories/:id', [verifyAdmin, requirePermission('manage_categories'), upload.single('image')], async (req, res) => {
     try {
         const { name, description, image, isActive } = req.body;
 
@@ -748,7 +786,7 @@ router.put('/categories/:id', verifyAdminWithWriteProtection, upload.single('ima
 });
 
 // Transfer all products from one category to another
-router.post('/categories/:sourceId/transfer/:targetId', verifyAdminWithWriteProtection, async (req, res) => {
+router.post('/categories/:sourceId/transfer/:targetId', [verifyAdmin, requirePermission('manage_categories')], async (req, res) => {
     try {
         const { sourceId, targetId } = req.params;
 
@@ -801,7 +839,7 @@ router.post('/categories/:sourceId/transfer/:targetId', verifyAdminWithWriteProt
 });
 
 // Delete category
-router.delete('/categories/:id', verifyAdminWithWriteProtection, async (req, res) => {
+router.delete('/categories/:id', [verifyAdmin, requirePermission('manage_categories')], async (req, res) => {
     try {
         // Check if category has products
         const productCount = await Product.countDocuments({ category: req.params.id });
@@ -840,7 +878,7 @@ router.get('/users', verifyAdmin, async (req, res) => {
 });
 
 // Update user
-router.put('/users/:id', verifyAdminWithWriteProtection, async (req, res) => {
+router.put('/users/:id', [verifyAdmin, requirePermission('manage_users')], async (req, res) => {
     try {
         const { name, email, phone, address } = req.body;
         const updateData = {};
@@ -874,7 +912,7 @@ router.put('/users/:id', verifyAdminWithWriteProtection, async (req, res) => {
 });
 
 // Delete user
-router.delete('/users/:id', verifyAdmin, async (req, res) => {
+router.delete('/users/:id', [verifyAdmin, requirePermission('manage_users')], async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
         if (!user) {
@@ -927,7 +965,7 @@ router.get('/orders', verifyAdmin, async (req, res) => {
 });
 
 // Update order status (specific route - must come before /orders/:id)
-router.put('/orders/:id/status', verifyAdminWithWriteProtection, async (req, res) => {
+router.put('/orders/:id/status', [verifyAdmin, requirePermission('manage_orders')], async (req, res) => {
     console.log('🚨🚨🚨 ROUTE HANDLER EXECUTING 🚨🚨🚨');
     try {
         const { status } = req.body;
@@ -1078,7 +1116,7 @@ router.put('/orders/:id/status', verifyAdminWithWriteProtection, async (req, res
 });
 
 // Update order status
-router.put('/orders/:id', verifyAdminWithWriteProtection, async (req, res) => {
+router.put('/orders/:id', [verifyAdmin, requirePermission('manage_orders')], async (req, res) => {
     try {
         const { status } = req.body;
         const updateData = { status };
@@ -1220,7 +1258,7 @@ router.put('/orders/:id', verifyAdminWithWriteProtection, async (req, res) => {
 });
 
 // Delete order
-router.delete('/orders/:id', verifyAdminWithWriteProtection, async (req, res) => {
+router.delete('/orders/:id', [verifyAdmin, requirePermission('manage_orders')], async (req, res) => {
     try {
         const order = await Order.findByIdAndDelete(req.params.id);
         if (!order) return res.status(404).json({ message: 'Order not found' });
@@ -1942,32 +1980,8 @@ router.delete('/profile/picture', verifyAdmin, async (req, res) => {
     }
 });
 
-// Update avatar frame
-router.put('/profile/frame', verifyAdmin, async (req, res) => {
-    try {
-        const { frame } = req.body;
-
-        // Valid frame options
-        const validFrames = ['fire', 'neon', 'galaxy', 'gold', 'electric', 'rainbow', 'ice', 'phantom', null];
-
-        if (!validFrames.includes(frame)) {
-            return res.status(400).json({ message: 'Invalid frame selection' });
-        }
-
-        const admin = await Admin.findByIdAndUpdate(
-            req.admin.id,
-            { avatarFrame: frame },
-            { new: true }
-        ).select('-password');
-
-        res.json({
-            message: 'Avatar frame updated',
-            avatarFrame: admin.avatarFrame
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
+// NOTE: The main avatar frame update route is at the bottom of this file (in AVATAR FRAME ROUTES section)
+// It supports both preset and custom frames
 
 // Get current admin profile
 router.get('/profile/me', verifyAdmin, async (req, res) => {
@@ -2312,11 +2326,12 @@ router.put('/profile/frame', verifyAdmin, async (req, res) => {
         if (!admin) return res.status(404).json({ message: 'Admin not found' });
 
         admin.avatarFrame = frame;
+        // Only update customFrameUrl if it's explicitly provided (for custom frame)
+        // This preserves the uploaded frame when user switches to preset frames or "None"
         if (frame === 'custom' && customFrameUrl) {
             admin.customFrameUrl = customFrameUrl;
-        } else if (frame !== 'custom') {
-            admin.customFrameUrl = null;
         }
+        // Note: customFrameUrl is only cleared via DELETE /profile/custom-frame endpoint
 
         await admin.save();
         res.json({

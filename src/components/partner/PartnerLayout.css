@@ -324,37 +324,170 @@
 @media (max-width: 768px) {
     .partner-layout {
         flex-direction: column;
+        padding-bottom: 70px;
+        /* Space for bottom nav */
     }
 
+    /* Hide desktop sidebar on mobile */
     .partner-nav {
-        width: 100%;
-        border-right: none;
+        display: none;
+    }
+
+    /* Show mobile header */
+    .partner-mobile-header {
+        display: flex !important;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #1e293b;
+        padding: 12px 16px;
         border-bottom: 1px solid #334155;
+        align-items: center;
+        justify-content: space-between;
     }
 
-    .partner-nav-links {
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 12px;
+    .partner-mobile-header .mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .partner-mobile-header .mobile-brand-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .partner-mobile-header .mobile-brand-text {
+        font-size: 16px;
+        font-weight: 700;
+        color: #f1f5f9;
+    }
+
+    .partner-mobile-header .mobile-status {
+        display: flex;
+        align-items: center;
         gap: 8px;
+        padding: 6px 12px;
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 20px;
+        border: 1px solid #334155;
     }
 
-    .nav-link {
-        flex-shrink: 0;
-        padding: 10px 14px;
+    .partner-mobile-header .mobile-status .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
     }
 
-    .nav-link span:not(.nav-icon) {
-        display: none;
+    .partner-mobile-header .mobile-status .status-dot.online {
+        background: #22c55e;
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
     }
 
-    .partner-nav-footer {
-        display: none;
+    .partner-mobile-header .mobile-status .status-dot.offline {
+        background: #64748b;
     }
 
-    .partner-status-section {
-        padding: 12px;
+    .partner-mobile-header .mobile-status span {
+        font-size: 12px;
+        color: #94a3b8;
+        font-weight: 500;
     }
+
+    /* Mobile Bottom Navigation */
+    .partner-bottom-nav {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #1e293b;
+        border-top: 1px solid #334155;
+        padding: 8px 0;
+        z-index: 1000;
+        justify-content: space-around;
+    }
+
+    .partner-bottom-nav .bottom-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 16px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-radius: 8px;
+    }
+
+    .partner-bottom-nav .bottom-nav-item:hover {
+        color: #94a3b8;
+    }
+
+    .partner-bottom-nav .bottom-nav-item.active {
+        color: #10b981;
+    }
+
+    .partner-bottom-nav .bottom-nav-item.active svg {
+        color: #10b981;
+    }
+
+    .partner-bottom-nav .bottom-nav-item svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Content adjustments */
+    .partner-content {
+        padding: 16px;
+        min-height: calc(100vh - 130px);
+    }
+}
+
+/* Hide mobile elements on desktop */
+.partner-mobile-header,
+.partner-bottom-nav {
+    display: none;
+}
+
+/* Light Theme Mobile */
+[data-theme="light"] .partner-mobile-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .partner-mobile-header .mobile-brand-text {
+    color: #1e293b;
+}
+
+[data-theme="light"] .partner-mobile-header .mobile-status {
+    background: rgba(241, 245, 249, 0.8);
+    border-color: #e2e8f0;
+}
+
+[data-theme="light"] .partner-mobile-header .mobile-status span {
+    color: #64748b;
+}
+
+[data-theme="light"] .partner-bottom-nav {
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .partner-bottom-nav .bottom-nav-item {
+    color: #64748b;
+}
+
+[data-theme="light"] .partner-bottom-nav .bottom-nav-item.active {
+    color: #059669;
 }
 
 /* ========== LIGHT THEME SUPPORT ========== */

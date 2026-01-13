@@ -365,31 +365,123 @@
 /* Responsive Design */
 @media (max-width: 768px) {
     .partner-profile {
-        padding: 0 16px;
+        padding: 0;
     }
 
     .partner-profile .profile-header {
         flex-direction: column !important;
         align-items: flex-start !important;
+        gap: 14px !important;
+        margin-bottom: 20px !important;
+        padding-bottom: 16px !important;
+    }
+
+    .partner-profile .header-content h1 {
+        font-size: 20px;
+    }
+
+    .partner-profile .header-content p {
+        font-size: 13px;
+    }
+
+    .partner-profile .edit-btn,
+    .partner-profile .save-btn,
+    .partner-profile .cancel-btn {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .partner-profile .profile-content {
         gap: 16px !important;
     }
 
     .partner-profile .profile-grid {
         grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+
+    .partner-profile .profile-card.main-info {
+        padding: 20px !important;
+    }
+
+    .partner-profile .profile-card {
+        padding: 16px !important;
+        border-radius: 12px !important;
     }
 
     .partner-profile .avatar-section {
-        flex-direction: column;
-        text-align: center;
+        flex-direction: row;
+        gap: 16px;
+    }
+
+    .partner-profile .avatar-large {
+        width: 56px;
+        height: 56px;
+        font-size: 22px;
+        border-radius: 12px;
     }
 
     .partner-profile .avatar-info {
-        text-align: center;
+        text-align: left;
+    }
+
+    .partner-profile .avatar-info h2 {
+        font-size: 18px;
+    }
+
+    .partner-profile .avatar-info .email {
+        font-size: 13px;
+    }
+
+    .partner-profile .card-header {
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+    }
+
+    .partner-profile .card-header h3 {
+        font-size: 14px;
+    }
+
+    .partner-profile .card-content {
+        gap: 10px;
+    }
+
+    .partner-profile .info-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 4px !important;
+        padding: 6px 0 !important;
+    }
+
+    .partner-profile .info-row .label {
+        font-size: 11px !important;
+    }
+
+    .partner-profile .info-row .value {
+        text-align: left !important;
+        font-size: 14px !important;
     }
 
     .partner-profile .stats-row {
-        flex-direction: column;
-        gap: 10px;
+        flex-direction: row;
+        gap: 8px;
+    }
+
+    .partner-profile .stat-item {
+        padding: 10px 6px;
+    }
+
+    .partner-profile .stat-item .stat-value {
+        font-size: 18px;
+    }
+
+    .partner-profile .stat-item .stat-label {
+        font-size: 9px;
+    }
+
+    .partner-profile .edit-input {
+        width: 100%;
+        min-width: unset;
     }
 }
 

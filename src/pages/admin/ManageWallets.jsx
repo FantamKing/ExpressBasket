@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../utils/axios';
 import './ManageAdmins.css';
+import { canEdit, isViewOnly } from '../../utils/adminPermissions';
 
 const ManageWallets = () => {
     const [users, setUsers] = useState([]);
@@ -21,11 +22,11 @@ const ManageWallets = () => {
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
 
-    // Viewer role check - viewers cannot edit
+    // Permission check - check for manage_wallets permission
     const viewOnly = (() => {
         try {
             const admin = JSON.parse(localStorage.getItem('admin') || '{}');
-            return admin?.role === 'normal_viewer' || admin?.role === 'special_viewer';
+            return isViewOnly(admin) || !canEdit(admin, 'wallets');
         } catch { return false; }
     })();
 

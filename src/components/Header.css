@@ -214,85 +214,523 @@
   }
 }
 
-/* ========== Animated Theme Toggle ========== */
-.theme-toggle-animated {
+/* ========== Screen-Wide Theme Transition Animations ========== */
+.theme-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* === Shooting Stars for Dark Mode === */
+.theme-transition-overlay.to-dark {
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(15, 23, 42, 0.4) 100%);
+  animation: darkOverlayFade 2.5s ease-out forwards;
+}
+
+@keyframes darkOverlayFade {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.shooting-star {
+  position: absolute;
+  width: 200px;
+  height: 2px;
+  background: linear-gradient(90deg,
+      rgba(139, 92, 246, 1) 0%,
+      rgba(200, 180, 255, 0.9) 15%,
+      rgba(255, 255, 255, 0.6) 40%,
+      rgba(255, 255, 255, 0.2) 80%,
+      transparent 100%);
+  border-radius: 100px;
+  transform: rotate(-35deg);
+  transform-origin: right center;
+  animation: shootingStar 2.5s ease-in forwards;
+  opacity: 0;
+  filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.6));
+}
+
+.shooting-star::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, white 0%, rgba(200, 180, 255, 0.8) 50%, transparent 100%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 8px 4px rgba(255, 255, 255, 0.9),
+    0 0 16px 8px rgba(139, 92, 246, 0.5);
+}
+
+@keyframes shootingStar {
+  0% {
+    opacity: 0;
+    transform: rotate(-35deg) translateX(0);
+  }
+
+  5% {
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotate(-35deg) translateX(-150vw);
+  }
+}
+
+/* Shooting stars positioned across the right side, falling diagonally left */
+.star-1 {
+  top: -5%;
+  right: 10%;
+  animation-delay: 0s;
+}
+
+.star-2 {
+  top: 5%;
+  right: 25%;
+  animation-delay: 0.15s;
+}
+
+.star-3 {
+  top: -10%;
+  right: 45%;
+  animation-delay: 0.3s;
+}
+
+.star-4 {
+  top: 10%;
+  right: 60%;
+  animation-delay: 0.1s;
+}
+
+.star-5 {
+  top: 0%;
+  right: 80%;
+  animation-delay: 0.25s;
+}
+
+.star-6 {
+  top: 15%;
+  right: 5%;
+  animation-delay: 0.4s;
+}
+
+.star-7 {
+  top: -8%;
+  right: 35%;
+  animation-delay: 0.5s;
+}
+
+.star-8 {
+  top: 20%;
+  right: 55%;
+  animation-delay: 0.2s;
+}
+
+.star-9 {
+  top: 8%;
+  right: 75%;
+  animation-delay: 0.35s;
+}
+
+.star-10 {
+  top: -3%;
+  right: 90%;
+  animation-delay: 0.45s;
+}
+
+.star-11 {
+  top: 25%;
+  right: 20%;
+  animation-delay: 0.55s;
+}
+
+.star-12 {
+  top: 12%;
+  right: 40%;
+  animation-delay: 0.6s;
+}
+
+.star-13 {
+  top: 3%;
+  right: 65%;
+  animation-delay: 0.7s;
+}
+
+.star-14 {
+  top: 18%;
+  right: 85%;
+  animation-delay: 0.65s;
+}
+
+.star-15 {
+  top: -12%;
+  right: 15%;
+  animation-delay: 0.75s;
+}
+
+.star-16 {
+  top: 22%;
+  right: 50%;
+  animation-delay: 0.8s;
+}
+
+/* === Sun Heat Waves for Light Mode === */
+.theme-transition-overlay.to-light {
+  background: radial-gradient(ellipse at top right, rgba(255, 200, 100, 0.2) 0%, transparent 70%);
+  animation: lightOverlayFade 1.5s ease-out forwards;
+}
+
+@keyframes lightOverlayFade {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Sun Burst Effect */
+.sun-burst {
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 200, 50, 0.9) 0%, rgba(255, 150, 0, 0.6) 40%, transparent 70%);
+  animation: sunBurst 1s ease-out forwards;
+  filter: blur(20px);
+}
+
+@keyframes sunBurst {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Heat Waves */
+.heat-wave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 180, 50, 0.6);
+  transform: translate(-50%, -50%);
+  animation: heatWaveExpand 1.2s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes heatWaveExpand {
+  0% {
+    width: 50px;
+    height: 50px;
+    opacity: 0;
+    border-width: 4px;
+  }
+
+  20% {
+    opacity: 0.8;
+  }
+
+  100% {
+    width: 200vmax;
+    height: 200vmax;
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+.wave-1 {
+  animation-delay: 0s;
+  border-color: rgba(255, 180, 50, 0.7);
+}
+
+.wave-2 {
+  animation-delay: 0.15s;
+  border-color: rgba(255, 150, 50, 0.6);
+}
+
+.wave-3 {
+  animation-delay: 0.3s;
+  border-color: rgba(255, 120, 50, 0.5);
+}
+
+.wave-4 {
+  animation-delay: 0.45s;
+  border-color: rgba(255, 100, 50, 0.4);
+}
+
+/* ========== Premium Orbital Theme Toggle ========== */
+.orbital-theme-toggle {
   position: relative;
-  width: 65px;
-  height: 32px;
-  background: linear-gradient(145deg, #87CEEB, #FFD700);
-  border-radius: 30px;
+  width: 56px;
+  height: 28px;
+  border-radius: 50px;
   border: none;
   cursor: pointer;
-  transition: all 0.5s ease;
-  overflow: hidden;
   margin-left: 15px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  padding: 3px;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
-[data-theme="dark"] .theme-toggle-animated {
-  background: linear-gradient(145deg, #1a1a2e, #16213e);
+/* Day Mode - Sunrise Gradient */
+.orbital-theme-toggle.day {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 30%, #fbbf24 70%, #f59e0b 100%);
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.3),
+    0 4px 20px rgba(251, 191, 36, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
-.theme-toggle-animated .toggle-ball {
+/* Night Mode - Deep Space Gradient */
+.orbital-theme-toggle.night {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4c1d95 70%, #5b21b6 100%);
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.3),
+    0 4px 20px rgba(139, 92, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Orbital Track */
+.orbital-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50px;
+}
+
+/* Orbital Glow Effect */
+.orbital-glow {
   position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(145deg, #FFD700, #FF8C00);
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.6s cubic-bezier(0.68, -0.15, 0.265, 1.15);
+  pointer-events: none;
+}
+
+.orbital-theme-toggle.day .orbital-glow {
+  left: 3px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(251, 191, 36, 0.4) 50%, transparent 70%);
+  box-shadow: 0 0 30px 10px rgba(251, 191, 36, 0.3);
+  animation: sunGlow 3s ease-in-out infinite;
+}
+
+.orbital-theme-toggle.night .orbital-glow {
+  left: calc(100% - 25px);
+  background: radial-gradient(circle, rgba(224, 231, 255, 0.6) 0%, rgba(139, 92, 246, 0.3) 50%, transparent 70%);
+  box-shadow: 0 0 25px 8px rgba(139, 92, 246, 0.25);
+  animation: moonGlow 4s ease-in-out infinite;
+}
+
+@keyframes sunGlow {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: translateY(-50%) scale(1.15);
+  }
+}
+
+@keyframes moonGlow {
+
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: translateY(-50%) scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+  }
+}
+
+/* Celestial Orb Container */
+.celestial-orb {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.6s cubic-bezier(0.68, -0.15, 0.265, 1.15);
   z-index: 2;
 }
 
-[data-theme="dark"] .theme-toggle-animated .toggle-ball {
-  left: calc(100% - 28px);
-  background: linear-gradient(145deg, #f0f0f0, #c0c0c0);
-  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+.orbital-theme-toggle.day .celestial-orb {
+  left: 3px;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
+  box-shadow:
+    0 2px 8px rgba(251, 146, 60, 0.5),
+    inset 0 -2px 4px rgba(251, 146, 60, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8);
 }
 
-.theme-toggle-animated .toggle-icon {
+.orbital-theme-toggle.night .celestial-orb {
+  left: calc(100% - 25px);
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
+  box-shadow:
+    0 2px 8px rgba(139, 92, 246, 0.4),
+    inset 0 -2px 4px rgba(99, 102, 241, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.6);
+}
+
+/* Sun Icon */
+.orbital-theme-toggle .orb-sun {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 14px;
-  transition: all 0.4s ease;
-  z-index: 1;
+  width: 14px;
+  height: 14px;
+  color: #ea580c;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  stroke-width: 2.5;
 }
 
-.theme-toggle-animated .sun-icon {
-  left: 8px;
+.orbital-theme-toggle.day .orb-sun {
   opacity: 1;
-  transform: translateY(-50%) scale(1);
+  transform: rotate(0deg) scale(1);
+  animation: sunRotate 20s linear infinite;
 }
 
-.theme-toggle-animated .moon-icon {
-  right: 8px;
-  opacity: 0.4;
-  transform: translateY(-50%) scale(0.8);
+.orbital-theme-toggle.night .orb-sun {
+  opacity: 0;
+  transform: rotate(180deg) scale(0);
 }
 
-[data-theme="dark"] .theme-toggle-animated .sun-icon {
-  opacity: 0.4;
-  transform: translateY(-50%) scale(0.8);
+@keyframes sunRotate {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+
+  to {
+    transform: rotate(360deg) scale(1);
+  }
 }
 
-[data-theme="dark"] .theme-toggle-animated .moon-icon {
+/* Moon Icon */
+.orbital-theme-toggle .orb-moon {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  color: #6366f1;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  stroke-width: 2.5;
+}
+
+.orbital-theme-toggle.day .orb-moon {
+  opacity: 0;
+  transform: rotate(-180deg) scale(0);
+}
+
+.orbital-theme-toggle.night .orb-moon {
   opacity: 1;
-  transform: translateY(-50%) scale(1);
+  transform: rotate(0deg) scale(1);
+  animation: moonFloat 6s ease-in-out infinite;
 }
 
-.theme-toggle-animated:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+@keyframes moonFloat {
+
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1) translateY(0);
+  }
+
+  50% {
+    transform: rotate(-3deg) scale(1.02) translateY(-1px);
+  }
 }
 
-/* Hide old theme toggle - only in header */
+/* Hover Effects */
+.orbital-theme-toggle:hover {
+  transform: scale(1.08);
+}
+
+.orbital-theme-toggle:hover .celestial-orb {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9);
+}
+
+.orbital-theme-toggle.day:hover {
+  box-shadow:
+    0 0 0 2px rgba(251, 191, 36, 0.5),
+    0 6px 25px rgba(251, 191, 36, 0.5);
+}
+
+.orbital-theme-toggle.night:hover {
+  box-shadow:
+    0 0 0 2px rgba(139, 92, 246, 0.5),
+    0 6px 25px rgba(139, 92, 246, 0.4);
+}
+
+/* Active Press Effect */
+.orbital-theme-toggle:active {
+  transform: scale(0.95);
+}
+
+.orbital-theme-toggle:active .celestial-orb {
+  transform: translateY(-50%) scale(0.9);
+}
+
+/* Focus Outline */
+.orbital-theme-toggle:focus {
+  outline: none;
+}
+
+.orbital-theme-toggle:focus-visible {
+  outline: 2px solid var(--btn-primary);
+  outline-offset: 3px;
+}
+
+/* Hide old theme toggle classes */
 .header .theme-toggle-container,
 .header .theme-toggle-switch,
 .header .theme-toggle-btn,
-.header .theme-icon {
+.header .theme-icon,
+.header .theme-toggle-animated,
+.header .cosmic-theme-toggle {
   display: none !important;
 }
 
@@ -447,26 +885,45 @@
     gap: 10px;
   }
 
-  .theme-toggle-animated {
-    width: 52px;
-    height: 26px;
+  /* Orbital Toggle Mobile Styles */
+  .orbital-theme-toggle {
+    width: 48px;
+    height: 24px;
     margin-left: 0;
-    border-radius: 20px;
   }
 
-  .theme-toggle-animated .toggle-ball {
-    width: 20px;
-    height: 20px;
-    top: 3px;
+  .orbital-theme-toggle .celestial-orb {
+    width: 18px;
+    height: 18px;
   }
 
-  [data-theme="dark"] .theme-toggle-animated .toggle-ball {
-    left: calc(100% - 23px);
+  .orbital-theme-toggle.day .celestial-orb {
+    left: 3px;
   }
 
-  .theme-toggle-animated .toggle-icon {
-    font-size: 11px;
+  .orbital-theme-toggle.night .celestial-orb {
+    left: calc(100% - 21px);
   }
+
+  .orbital-theme-toggle .orbital-glow {
+    width: 18px;
+    height: 18px;
+  }
+
+  .orbital-theme-toggle.day .orbital-glow {
+    left: 3px;
+  }
+
+  .orbital-theme-toggle.night .orbital-glow {
+    left: calc(100% - 21px);
+  }
+
+  .orbital-theme-toggle .orb-sun,
+  .orbital-theme-toggle .orb-moon {
+    width: 11px;
+    height: 11px;
+  }
+
 
   /* Professional mobile menu button */
   .mobile-menu-btn {

@@ -464,33 +464,163 @@
 }
 
 @media (max-width: 768px) {
+    .partner-dashboard {
+        padding: 0;
+    }
+
     .dashboard-header {
         flex-direction: column;
+        margin-bottom: 20px;
     }
 
     .header-content h1 {
-        font-size: 22px;
+        font-size: 20px;
     }
 
+    .header-content p {
+        font-size: 13px;
+    }
+
+    /* Stats grid - 2 columns on mobile */
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        padding: 14px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+
+    /* Quick actions - single column */
+    .quick-actions {
+        margin-bottom: 20px;
+    }
+
+    .quick-actions h2 {
+        font-size: 16px;
+        margin-bottom: 12px;
     }
 
     .actions-grid {
         grid-template-columns: 1fr;
+        gap: 10px;
     }
 
-    .stat-card {
+    .action-card {
+        padding: 14px;
+    }
+
+    .action-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .action-content h3 {
+        font-size: 14px;
+    }
+
+    .action-content p {
+        font-size: 12px;
+    }
+
+    /* Info section - compact on mobile */
+    .info-section {
         padding: 16px;
+        border-radius: 12px;
     }
 
-    .stat-icon {
-        width: 46px;
-        height: 46px;
+    .info-section h2 {
+        font-size: 16px;
+        margin-bottom: 16px;
     }
 
-    .stat-value {
-        font-size: 22px;
+    .steps {
+        gap: 12px;
+    }
+
+    .step {
+        padding: 12px;
+        background: rgba(15, 23, 42, 0.3);
+        border-radius: 10px;
+        gap: 12px;
+    }
+
+    .step-number {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    .step-number svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .step-content h3 {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .step-content p {
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    /* Pending deliveries section */
+    .pending-deliveries-section {
+        padding: 16px;
+        margin-bottom: 16px;
+        border-radius: 12px;
+    }
+
+    .pending-deliveries-section .section-title {
+        font-size: 16px;
+        margin-bottom: 14px;
+    }
+
+    .pending-delivery-card {
+        padding: 14px;
+    }
+
+    .delivery-card-content {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .delivery-actions {
+        flex-direction: row;
+        width: 100%;
+    }
+
+    .accept-btn,
+    .reject-btn {
+        flex: 1;
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    /* Status toggle (in header) */
+    .dashboard-status-toggle {
+        width: 100%;
+        justify-content: space-between;
+        padding: 10px 14px;
     }
 }
 

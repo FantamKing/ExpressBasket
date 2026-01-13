@@ -3,6 +3,7 @@ import axios from '../../utils/axios';
 import Swal from 'sweetalert2';
 import './ManageAdmins.css';
 import ViewOnlyBanner from '../../components/admin/ViewOnlyBanner';
+import { canEdit, isViewOnly } from '../../utils/adminPermissions';
 
 const ManageAdmins = () => {
   const [admins, setAdmins] = useState([]);
@@ -21,12 +22,12 @@ const ManageAdmins = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
 
-  // Current admin and viewer check
+  // Current admin and permission check
   const [currentAdmin, setCurrentAdmin] = useState(null);
   const viewOnly = (() => {
     try {
       const admin = JSON.parse(localStorage.getItem('admin') || '{}');
-      return admin?.role === 'normal_viewer' || admin?.role === 'special_viewer';
+      return isViewOnly(admin) || !canEdit(admin, 'admins');
     } catch { return false; }
   })();
 

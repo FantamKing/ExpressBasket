@@ -306,26 +306,124 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .earnings-stats {
-        grid-template-columns: 1fr;
+    .partner-earnings-page {
+        padding: 0;
     }
 
     .earnings-header {
         flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    .earnings-header h1 {
+        font-size: 20px;
+    }
+
+    .earnings-header p {
+        font-size: 13px;
     }
 
     .total-balance {
         align-items: flex-start;
         width: 100%;
+        padding: 14px 18px;
+        border-radius: 12px;
+    }
+
+    .balance-label {
+        font-size: 11px;
+    }
+
+    .balance-amount {
+        font-size: 26px;
+    }
+
+    .earnings-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        padding: 14px;
+    }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    .earnings-breakdown {
+        padding: 16px;
+        margin-bottom: 20px;
+        border-radius: 12px;
     }
 
     .breakdown-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 12px;
+    }
+
+    .breakdown-header h2 {
+        font-size: 16px;
+    }
+
+    .period-tabs {
+        width: 100%;
+    }
+
+    .period-tab {
+        flex: 1;
+        text-align: center;
+        padding: 8px 12px;
+        font-size: 12px;
     }
 
     .breakdown-amount {
-        font-size: 36px;
+        font-size: 32px;
+    }
+
+    .breakdown-deliveries {
+        font-size: 13px;
+    }
+
+    .recent-earnings {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .recent-earnings h2 {
+        font-size: 16px;
+        margin-bottom: 14px;
+    }
+
+    .earnings-list {
+        gap: 8px;
+    }
+
+    .earnings-item {
+        padding: 12px 14px;
+    }
+
+    .order-id {
+        font-size: 13px;
+    }
+
+    .delivery-date {
+        font-size: 11px;
+    }
+
+    .earning-amount {
+        font-size: 15px;
     }
 }
 

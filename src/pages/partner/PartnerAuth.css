@@ -208,6 +208,31 @@
     color: #10b981;
 }
 
+/* Password Toggle Button */
+.password-toggle {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+    color: #10b981;
+}
+
+.password-toggle svg {
+    stroke: currentColor;
+}
+
 /* Form Row */
 .form-row {
     display: grid;
