@@ -9,6 +9,7 @@ const Contribution = require('../models/Contribution.js');
 const SupportChat = require('../models/SupportChat.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 console.log('🔥🔥🔥 ADMIN ROUTES FILE LOADED - NEW VERSION 🔥🔥🔥');
 const multer = require('multer');
@@ -370,11 +371,17 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
+        // Generate new session token (invalidates previous sessions)
+        const sessionToken = crypto.randomBytes(32).toString('hex');
+        admin.sessionToken = sessionToken;
+        await admin.save();
+
         const token = jwt.sign({
             id: admin._id,
             email: admin.email,
             role: admin.role,
-            permissions: admin.permissions
+            permissions: admin.permissions,
+            sessionToken
         }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         // Log login contribution
@@ -396,6 +403,33 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: error.message });
+    }
+});
+
+// Validate admin session - check if session token is still valid
+router.get('/validate-session', verifyAdmin, async (req, res) => {
+    try {
+        const admin = await Admin.findById(req.admin.id).select('sessionToken');
+        if (!admin) {
+            return res.status(401).json({
+                valid: false,
+                code: 'ADMIN_NOT_FOUND',
+                message: 'Admin not found'
+            });
+        }
+
+        // Check if session token matches
+        if (admin.sessionToken !== req.admin.sessionToken) {
+            return res.status(401).json({
+                valid: false,
+                code: 'SESSION_EXPIRED',
+                message: 'Your account was logged in from another location'
+            });
+        }
+
+        res.json({ valid: true });
+    } catch (error) {
+        res.status(500).json({ valid: false, message: 'Server error' });
     }
 });
 

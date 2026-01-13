@@ -369,6 +369,49 @@ const AdminLayout = ({ children }) => {
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
+  // Session validation state
+  const [sessionExpired, setSessionExpired] = React.useState(false);
+
+  // Validate admin session periodically
+  React.useEffect(() => {
+    const validateSession = async () => {
+      const token = localStorage.getItem('adminToken');
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/validate-session`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          if (data.code === 'SESSION_EXPIRED') {
+            setSessionExpired(true);
+            localStorage.removeItem('admin');
+            localStorage.removeItem('adminToken');
+          }
+        }
+      } catch (error) {
+        // Network error - don't logout
+      }
+    };
+
+    // Check immediately and every 30 seconds
+    validateSession();
+    const interval = setInterval(validateSession, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handle session expired - redirect to login
+  React.useEffect(() => {
+    if (sessionExpired) {
+      const timer = setTimeout(() => {
+        navigate('/admin', { replace: true });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [sessionExpired, navigate]);
+
   // Clear admin session when navigating away from admin panel
   React.useEffect(() => {
     const handleLocationChange = () => {
@@ -586,7 +629,127 @@ const AdminLayout = ({ children }) => {
       {/* Snowfall Background */}
       <Snowfall />
 
+      {/* Session Expired Alert */}
+      {sessionExpired && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999
+        }}>
+          <div style={{
+            background: '#1a1a2e',
+            padding: '30px 40px',
+            borderRadius: '16px',
+            textAlign: 'center',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+            maxWidth: '420px',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }}>
+            <div style={{
+              width: '70px',
+              height: '70px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px'
+            }}>
+              <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 style={{
+              margin: '0 0 12px',
+              color: '#fff',
+              fontSize: '22px',
+              fontWeight: '600'
+            }}>
+              Session Expired
+            </h3>
+            <p style={{
+              color: 'rgba(255,255,255,0.7)',
+              margin: 0,
+              fontSize: '15px',
+              lineHeight: '1.6'
+            }}>
+              Your admin account was logged in from another location. You will be redirected to the login page.
+            </p>
+          </div>
+        </div>
+      )}
+
       <aside className="admin-sidebar">
+        {/* Mobile Profile Bar - shown only on mobile, before navigation */}
+        <div className="mobile-profile-bar">
+          {admin && (
+            <>
+              {/* Left side: Avatar + Info */}
+              <div className="mobile-profile-left">
+                <div
+                  className="mobile-profile-avatar"
+                  onClick={openProfile}
+                  style={admin.profilePicture ? {
+                    backgroundImage: `url(${admin.profilePicture})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  } : {}}
+                >
+                  {!admin.profilePicture && (admin.username ? admin.username.charAt(0).toUpperCase() : 'A')}
+                </div>
+                <div className="mobile-profile-info" onClick={openProfile}>
+                  <span className="mobile-profile-name">{admin.username || 'Admin'}</span>
+                  <span className={`mobile-profile-role role-${admin.role}`}>
+                    {getRoleDisplay(admin.role)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Admin Panel Title with Rocket */}
+              <div className="mobile-admin-title">
+                <svg className="mobile-rocket-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+                  <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+                  <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+                  <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+                </svg>
+                <span>Admin Panel</span>
+              </div>
+
+              <button
+                className="mobile-theme-toggle"
+                onClick={toggleTheme}
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              >
+                {theme === 'light' ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                  </svg>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                  </svg>
+                )}
+              </button>
+            </>
+          )}
+        </div>
+
         <div className="sidebar-header">
           <h2>
             <RocketIcon />
@@ -825,15 +988,50 @@ const AdminLayout = ({ children }) => {
               </div>
             )}
 
-            {/* Theme Toggle */}
+            {/* Animated Theme Toggle with Lucide Icons */}
             <button
-              className="admin-theme-toggle"
+              className="admin-theme-toggle-new"
               onClick={toggleTheme}
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
-              <span className="sun-icon">☀️</span>
-              <span className="moon-icon">🌙</span>
-              <span className="toggle-ball"></span>
+              <div className="toggle-icons">
+                {/* Sun Icon */}
+                <svg
+                  className={`theme-icon sun ${theme === 'light' ? 'active' : ''}`}
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                {/* Moon Icon */}
+                <svg
+                  className={`theme-icon moon ${theme === 'dark' ? 'active' : ''}`}
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+              </div>
             </button>
           </div>
         </header>
@@ -941,6 +1139,16 @@ const AdminLayout = ({ children }) => {
                         )}
                       </div>
 
+                      {/* Logout Button - Under Avatar */}
+                      <button className="profile-avatar-logout-btn" onClick={handleLogout}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                          <polyline points="16 17 21 12 16 7"></polyline>
+                          <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Logout
+                      </button>
+
                       <div className="profile-details">
                         <div className="profile-field">
                           <label>Name</label>
@@ -989,17 +1197,6 @@ const AdminLayout = ({ children }) => {
                           </div>
                         </div>
 
-                        {/* Logout Button */}
-                        <div className="profile-logout-section">
-                          <button className="profile-logout-btn" onClick={handleLogout}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                              <polyline points="16 17 21 12 16 7"></polyline>
-                              <line x1="21" y1="12" x2="9" y2="12"></line>
-                            </svg>
-                            Logout
-                          </button>
-                        </div>
                       </div>
                     </div>
                   </div>

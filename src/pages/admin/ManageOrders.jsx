@@ -102,11 +102,26 @@ const ManageOrders = () => {
   const [showRouteConfigModal, setShowRouteConfigModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [locationSimulator, setLocationSimulator] = useState({ lat: '', lng: '' });
+  const [searchQuery, setSearchQuery] = useState('');
   const { trackingEnabled } = useTrackingStatus();
 
   // Viewer role check - viewers cannot edit
   const admin = JSON.parse(localStorage.getItem('admin') || '{}');
   const viewOnly = admin?.role === 'normal_viewer' || admin?.role === 'special_viewer';
+
+  // Filter orders based on search query
+  const filteredOrders = orders.filter(order => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase().trim();
+    const orderId = order._id?.toLowerCase() || '';
+    const customerName = order.userId?.name?.toLowerCase() || '';
+    const customerPhone = order.userId?.phone?.toLowerCase() || '';
+    const customerEmail = order.userId?.email?.toLowerCase() || '';
+    return orderId.includes(query) ||
+      customerName.includes(query) ||
+      customerPhone.includes(query) ||
+      customerEmail.includes(query);
+  });
 
   useEffect(() => {
     fetchOrders();
@@ -376,6 +391,62 @@ const ManageOrders = () => {
       {viewOnly && <ViewOnlyBanner role={admin?.role} />}
       <Section>
         <SectionTitle>All Orders</SectionTitle>
+
+        {/* Search Bar */}
+        <div style={{
+          marginBottom: '20px',
+          display: 'flex',
+          gap: '10px',
+          flexWrap: 'wrap',
+          alignItems: 'center'
+        }}>
+          <div style={{
+            position: 'relative',
+            flex: '1',
+            minWidth: '250px',
+            maxWidth: '400px'
+          }}>
+            <svg
+              width="18" height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--text-secondary)"
+              strokeWidth="2"
+              style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)'
+              }}
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by Order ID, Customer Name, or Phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '10px 12px 10px 42px',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
+                fontSize: '14px',
+                background: 'var(--bg-color)',
+                color: 'var(--text-color)',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+            />
+          </div>
+          {searchQuery && (
+            <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+              Found {filteredOrders.length} of {orders.length} orders
+            </span>
+          )}
+        </div>
+
         <OrdersTable>
           <thead>
             <tr>
@@ -390,7 +461,7 @@ const ManageOrders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => (
+            {filteredOrders.map(order => (
               <tr key={order._id}>
                 <td>#{order._id.slice(-8)}</td>
                 <td>{order.userId?.name || 'Unknown'}</td>

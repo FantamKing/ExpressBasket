@@ -68,9 +68,14 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // Create token
+        // Generate new session token (invalidates previous sessions)
+        const sessionToken = crypto.randomBytes(32).toString('hex');
+        user.sessionToken = sessionToken;
+        await user.save();
+
+        // Create token with session token included
         const token = jwt.sign(
-            { userId: user._id, email: user.email },
+            { userId: user._id, email: user.email, sessionToken },
             process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
@@ -140,6 +145,33 @@ const blockViewersWrite = (req, res, next) => {
 
 // Combined middleware: authenticate admin + block viewers from write operations
 const authenticateAdminWithWriteProtection = [authenticateAdminToken, blockViewersWrite];
+
+// Validate user session - check if session token is still valid
+router.get('/user/validate-session', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).select('sessionToken');
+        if (!user) {
+            return res.status(401).json({
+                valid: false,
+                code: 'USER_NOT_FOUND',
+                message: 'User not found'
+            });
+        }
+
+        // Check if session token matches
+        if (user.sessionToken !== req.user.sessionToken) {
+            return res.status(401).json({
+                valid: false,
+                code: 'SESSION_EXPIRED',
+                message: 'Your account was logged in from another location'
+            });
+        }
+
+        res.json({ valid: true });
+    } catch (error) {
+        res.status(500).json({ valid: false, message: 'Server error' });
+    }
+});
 
 // Get user profile
 router.get('/user/profile', authenticateToken, async (req, res) => {

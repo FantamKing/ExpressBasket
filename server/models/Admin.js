@@ -91,6 +91,11 @@ const adminSchema = new mongoose.Schema({
             default: null
         }
     },
+    // Session token for single-session login
+    sessionToken: {
+        type: String,
+        default: null
+    },
     createdAt: {
         type: Date,
         default: Date.now

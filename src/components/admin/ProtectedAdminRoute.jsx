@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
 // Access Denied Component
@@ -105,24 +105,103 @@ export const canModify = (admin) => {
 
 /**
  * Protected Route Component for Admin Panel
- * Checks authentication and permissions before rendering children
+ * Checks authentication and validates token with backend before rendering children
  */
 const ProtectedAdminRoute = ({ children, requiredPermission }) => {
-    // Check if admin is logged in
-    const adminToken = localStorage.getItem('adminToken');
-    const adminData = localStorage.getItem('admin');
+    const [isValidating, setIsValidating] = useState(true);
+    const [isValid, setIsValid] = useState(false);
+    const [admin, setAdmin] = useState(null);
 
-    // Not logged in - redirect to login
-    if (!adminToken) {
-        return <Navigate to="/admin" replace />;
+    useEffect(() => {
+        const validateToken = async () => {
+            const adminToken = localStorage.getItem('adminToken');
+            const adminData = localStorage.getItem('admin');
+
+            // No token - not logged in
+            if (!adminToken) {
+                setIsValidating(false);
+                setIsValid(false);
+                return;
+            }
+
+            // Parse admin data
+            let parsedAdmin = null;
+            try {
+                parsedAdmin = adminData ? JSON.parse(adminData) : null;
+            } catch (e) {
+                console.error('Failed to parse admin data');
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('admin');
+                setIsValidating(false);
+                setIsValid(false);
+                return;
+            }
+
+            // Validate token with backend
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/validate-session`, {
+                    headers: { Authorization: `Bearer ${adminToken}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.valid) {
+                        setAdmin(parsedAdmin);
+                        setIsValid(true);
+                    } else {
+                        // Token invalid
+                        localStorage.removeItem('adminToken');
+                        localStorage.removeItem('admin');
+                        setIsValid(false);
+                    }
+                } else {
+                    // Token expired or invalid
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('admin');
+                    setIsValid(false);
+                }
+            } catch (error) {
+                // Network error - allow access if we have token (offline mode)
+                // But still require admin data
+                if (parsedAdmin) {
+                    setAdmin(parsedAdmin);
+                    setIsValid(true);
+                } else {
+                    setIsValid(false);
+                }
+            }
+
+            setIsValidating(false);
+        };
+
+        validateToken();
+    }, []);
+
+    // Show loading while validating
+    if (isValidating) {
+        return (
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '100vh',
+                background: '#0f0f1a'
+            }}>
+                <div style={{
+                    width: '40px',
+                    height: '40px',
+                    border: '3px solid rgba(255,255,255,0.1)',
+                    borderTopColor: '#667eea',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                }} />
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+        );
     }
 
-    // Parse admin data
-    let admin = null;
-    try {
-        admin = adminData ? JSON.parse(adminData) : null;
-    } catch (e) {
-        console.error('Failed to parse admin data');
+    // Not valid - redirect to login
+    if (!isValid) {
         return <Navigate to="/admin" replace />;
     }
 

@@ -10,6 +10,7 @@ const OrdersMap = () => {
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedStatus, setSelectedStatus] = useState('all');
+    const [searchQuery, setSearchQuery] = useState('');
     const [partners, setPartners] = useState([]);
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -99,13 +100,32 @@ const OrdersMap = () => {
         }
     };
 
+    // Filter orders based on status and search query
     useEffect(() => {
-        if (selectedStatus === 'all') {
-            setFilteredOrders(orders);
-        } else {
-            setFilteredOrders(orders.filter(order => order.status === selectedStatus));
+        let result = orders;
+
+        // Filter by status
+        if (selectedStatus !== 'all') {
+            result = result.filter(order => order.status === selectedStatus);
         }
-    }, [selectedStatus, orders]);
+
+        // Filter by search query
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase().trim();
+            result = result.filter(order => {
+                const orderId = order._id?.toLowerCase() || '';
+                const customerName = order.userId?.name?.toLowerCase() || '';
+                const customerPhone = order.userId?.phone?.toLowerCase() || '';
+                const customerEmail = order.userId?.email?.toLowerCase() || '';
+                return orderId.includes(query) ||
+                    customerName.includes(query) ||
+                    customerPhone.includes(query) ||
+                    customerEmail.includes(query);
+            });
+        }
+
+        setFilteredOrders(result);
+    }, [selectedStatus, searchQuery, orders]);
 
     const statusFilters = [
         { value: 'all', label: 'All Orders', icon: Package, color: '#667eea' },
@@ -198,6 +218,36 @@ const OrdersMap = () => {
                         {selectedStatus === 'all' ? 'All Orders' : statusFilters.find(f => f.value === selectedStatus)?.label}
                         <span className="om-count-badge">{filteredOrders.length}</span>
                     </h2>
+
+                    {/* Search Bar */}
+                    <div className="om-search-container">
+                        <svg
+                            width="18" height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="var(--text-secondary)"
+                            strokeWidth="2"
+                            className="om-search-icon"
+                        >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input
+                            type="text"
+                            placeholder="Search by Order ID, Name, or Phone..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="om-search-input"
+                        />
+                        {searchQuery && (
+                            <button
+                                className="om-search-clear"
+                                onClick={() => setSearchQuery('')}
+                            >
+                                ×
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {filteredOrders.length === 0 ? (

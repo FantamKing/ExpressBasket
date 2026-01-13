@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from '../utils/axios';
 
 const UserContext = createContext();
@@ -14,7 +14,35 @@ export const useUser = () => {
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
+  // Session validation function
+  const validateSession = useCallback(async () => {
+    const token = localStorage.getItem('userToken');
+    if (!token || !user) return;
+
+    try {
+      const response = await axios.get('/user/validate-session', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!response.data.valid) {
+        // Session is invalid
+        setSessionExpired(true);
+        localStorage.removeItem('userToken');
+        setUser(null);
+      }
+    } catch (error) {
+      if (error.response?.status === 401 && error.response?.data?.code === 'SESSION_EXPIRED') {
+        // Session expired - logged in from another location
+        setSessionExpired(true);
+        localStorage.removeItem('userToken');
+        setUser(null);
+      }
+    }
+  }, [user]);
+
+  // Initial load
   useEffect(() => {
     const token = localStorage.getItem('userToken');
     if (token) {
@@ -36,8 +64,20 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
+  // Periodic session validation (every 30 seconds)
+  useEffect(() => {
+    if (!user) return;
+
+    const interval = setInterval(() => {
+      validateSession();
+    }, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [user, validateSession]);
+
   const login = async (email, password) => {
     try {
+      setSessionExpired(false); // Clear any previous session expired state
       const response = await axios.post('/login', { email, password });
       const { token } = response.data;
       localStorage.setItem('userToken', token);
@@ -65,6 +105,11 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('userToken');
     setUser(null);
+    setSessionExpired(false);
+  };
+
+  const clearSessionExpired = () => {
+    setSessionExpired(false);
   };
 
   const updateProfile = async (updatedData) => {
@@ -86,7 +131,9 @@ export const UserProvider = ({ children }) => {
     login,
     signup,
     logout,
-    updateProfile
+    updateProfile,
+    sessionExpired,
+    clearSessionExpired
   };
 
   return (
