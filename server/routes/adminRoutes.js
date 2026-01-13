@@ -1985,7 +1985,7 @@ router.get('/profile/me', verifyAdmin, async (req, res) => {
 router.get('/directory', verifyAdmin, async (req, res) => {
     try {
         const admins = await Admin.find({ isActive: true })
-            .select('username email role profilePicture avatarFrame likes likeBoost tags createdAt');
+            .select('username email role profilePicture avatarFrame customFrameUrl likes likeBoost tags createdAt');
 
         // Add likeCount and hasLiked for current user
         const adminsWithLikes = admins.map(admin => ({
@@ -1995,6 +1995,7 @@ router.get('/directory', verifyAdmin, async (req, res) => {
             role: admin.role,
             profilePicture: admin.profilePicture,
             avatarFrame: admin.avatarFrame,
+            customFrameUrl: admin.customFrameUrl,
             tags: admin.tags,
             createdAt: admin.createdAt,
             likeCount: (admin.likes?.length || 0) + (admin.likeBoost || 0),
@@ -2020,7 +2021,7 @@ router.get('/directory', verifyAdmin, async (req, res) => {
 router.get('/directory/:id', verifyAdmin, async (req, res) => {
     try {
         const admin = await Admin.findById(req.params.id)
-            .select('username email role profilePicture avatarFrame likes likeBoost tags createdAt permissions');
+            .select('username email role profilePicture avatarFrame customFrameUrl likes likeBoost tags createdAt permissions');
 
         if (!admin) {
             return res.status(404).json({ message: 'Admin not found' });
@@ -2041,6 +2042,7 @@ router.get('/directory/:id', verifyAdmin, async (req, res) => {
             role: admin.role,
             profilePicture: admin.profilePicture,
             avatarFrame: admin.avatarFrame,
+            customFrameUrl: admin.customFrameUrl,
             tags: admin.tags,
             permissions: admin.permissions,
             createdAt: admin.createdAt,

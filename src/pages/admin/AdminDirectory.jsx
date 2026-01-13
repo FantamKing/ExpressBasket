@@ -35,10 +35,33 @@ const AdminDirectory = () => {
 
     useEffect(() => {
         fetchAdmins();
+
+        // Refresh data when page becomes visible (user might have updated settings)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchAdmins();
+            }
+        };
+
+        // Refresh when localStorage changes (frame update, etc.)
+        const handleStorageChange = (e) => {
+            if (e.key === 'admin' || e.key === 'adminToken') {
+                fetchAdmins();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const fetchAdmins = async () => {
         try {
+            setLoading(true);
             const response = await axios.get('/admin/directory', {
                 headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
             });
@@ -147,16 +170,26 @@ const AdminDirectory = () => {
                         onClick={() => viewProfile(admin._id)}
                     >
                         <div className="ad-card-header">
-                            <div className="ad-avatar-wrapper" style={{ position: 'relative' }}>
+                            <div className="ad-avatar-wrapper" style={{
+                                position: 'relative',
+                                overflow: 'visible'
+                            }}>
                                 {/* Avatar Frame */}
                                 {admin.avatarFrame && (
                                     <div
-                                        className={`ad-avatar-frame frame-${admin.avatarFrame}`}
+                                        className={admin.avatarFrame !== 'custom' ? `ad-avatar-frame frame-${admin.avatarFrame}` : ''}
                                         style={{
                                             position: 'absolute',
                                             inset: '-4px',
                                             borderRadius: '50%',
-                                            zIndex: 0
+                                            zIndex: 0,
+                                            clipPath: 'circle(50%)',
+                                            ...(admin.avatarFrame === 'custom' && admin.customFrameUrl ? {
+                                                backgroundImage: `url(${admin.customFrameUrl})`,
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                                animation: 'frameSpinAnimation 3s linear infinite'
+                                            } : {})
                                         }}
                                     ></div>
                                 )}
@@ -230,16 +263,26 @@ const AdminDirectory = () => {
                         </button>
 
                         <div className="ad-modal-header">
-                            <div className="ad-modal-avatar-wrapper" style={{ position: 'relative' }}>
+                            <div className="ad-modal-avatar-wrapper" style={{
+                                position: 'relative',
+                                overflow: 'visible'
+                            }}>
                                 {/* Modal Avatar Frame */}
                                 {selectedAdmin.avatarFrame && (
                                     <div
-                                        className={`ad-modal-avatar-frame frame-${selectedAdmin.avatarFrame}`}
+                                        className={selectedAdmin.avatarFrame !== 'custom' ? `ad-modal-avatar-frame frame-${selectedAdmin.avatarFrame}` : ''}
                                         style={{
                                             position: 'absolute',
                                             inset: '-5px',
                                             borderRadius: '50%',
-                                            zIndex: 0
+                                            zIndex: 0,
+                                            clipPath: 'circle(50%)',
+                                            ...(selectedAdmin.avatarFrame === 'custom' && selectedAdmin.customFrameUrl ? {
+                                                backgroundImage: `url(${selectedAdmin.customFrameUrl})`,
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                                animation: 'frameSpinAnimation 3s linear infinite'
+                                            } : {})
                                         }}
                                     ></div>
                                 )}
@@ -289,6 +332,127 @@ const AdminDirectory = () => {
                                 {selectedAdmin.hasLiked ? 'Liked' : 'Like'}
                             </button>
                         )}
+
+                        {/* Achievements Section */}
+                        <div className="ad-achievements">
+                            <h3>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                </svg>
+                                Achievements
+                            </h3>
+                            <div className="ad-achievements-grid">
+                                {/* Role Badge */}
+                                <div className="ad-achievement-item">
+                                    <div className="ad-achievement-icon" style={{ background: getRoleColor(selectedAdmin.role) }}>
+                                        {selectedAdmin.role === 'super_admin' ? (
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z" /><path d="m5 16 2 4h10l2-4" /></svg>
+                                        ) : selectedAdmin.role === 'admin' ? (
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                                        ) : selectedAdmin.role === 'vendor' ? (
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                                        ) : (
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                        )}
+                                    </div>
+                                    <span className="ad-achievement-name">{getRoleDisplay(selectedAdmin.role)}</span>
+                                    <span className="ad-achievement-desc">Role Badge</span>
+                                </div>
+
+                                {/* Contribution Badges */}
+                                {(selectedAdmin.contributionCount || 0) >= 100 && (
+                                    <div className="ad-achievement-item">
+                                        <div className="ad-achievement-icon" style={{ background: 'linear-gradient(135deg, #ffd700, #ffec8b)' }}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M8 21h8m-4-4v4m-3-8l3-3 3 3M6 8l.001.009" /><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9z" /></svg>
+                                        </div>
+                                        <span className="ad-achievement-name">Century</span>
+                                        <span className="ad-achievement-desc">100+ Contributions</span>
+                                    </div>
+                                )}
+                                {(selectedAdmin.contributionCount || 0) >= 500 && (
+                                    <div className="ad-achievement-item">
+                                        <div className="ad-achievement-icon" style={{ background: 'linear-gradient(135deg, #ff6b35, #f7931e)' }}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" /></svg>
+                                        </div>
+                                        <span className="ad-achievement-name">On Fire</span>
+                                        <span className="ad-achievement-desc">500+ Contributions</span>
+                                    </div>
+                                )}
+                                {(selectedAdmin.contributionCount || 0) >= 1000 && (
+                                    <div className="ad-achievement-item">
+                                        <div className="ad-achievement-icon" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M6 3h12l4 6-10 13L2 9l4-6z" /><path d="M11 3l1 6h6m-12 0h6l1-6" /></svg>
+                                        </div>
+                                        <span className="ad-achievement-name">Diamond</span>
+                                        <span className="ad-achievement-desc">1000+ Contributions</span>
+                                    </div>
+                                )}
+
+                                {/* Like Badges */}
+                                {(selectedAdmin.likeCount || 0) >= 10 && (
+                                    <div className="ad-achievement-item">
+                                        <div className="ad-achievement-icon" style={{ background: 'linear-gradient(135deg, #ef4444, #f87171)' }}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+                                        </div>
+                                        <span className="ad-achievement-name">Loved</span>
+                                        <span className="ad-achievement-desc">10+ Likes</span>
+                                    </div>
+                                )}
+                                {(selectedAdmin.likeCount || 0) >= 100 && (
+                                    <div className="ad-achievement-item">
+                                        <div className="ad-achievement-icon" style={{ background: 'linear-gradient(135deg, #ec4899, #f472b6)' }}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>
+                                        </div>
+                                        <span className="ad-achievement-name">Popular</span>
+                                        <span className="ad-achievement-desc">100+ Likes</span>
+                                    </div>
+                                )}
+
+                                {/* Special Badges */}
+                                {selectedAdmin.avatarFrame && (
+                                    <div className="ad-achievement-item">
+                                        <div className="ad-achievement-icon" style={{ background: 'linear-gradient(135deg, #00d4ff, #9d4edd)' }}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /></svg>
+                                        </div>
+                                        <span className="ad-achievement-name">Stylist</span>
+                                        <span className="ad-achievement-desc">Custom Frame</span>
+                                    </div>
+                                )}
+                                {selectedAdmin.profilePicture && (
+                                    <div className="ad-achievement-item">
+                                        <div className="ad-achievement-icon" style={{ background: 'linear-gradient(135deg, #10b981, #34d399)' }}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>
+                                        </div>
+                                        <span className="ad-achievement-name">Photogenic</span>
+                                        <span className="ad-achievement-desc">Profile Picture</span>
+                                    </div>
+                                )}
+
+                                {/* Tenure Badge */}
+                                {(() => {
+                                    const months = Math.floor((Date.now() - new Date(selectedAdmin.createdAt).getTime()) / (1000 * 60 * 60 * 24 * 30));
+                                    if (months >= 12) return (
+                                        <div className="ad-achievement-item">
+                                            <div className="ad-achievement-icon" style={{ background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)' }}>
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M8 2v4m8-4v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" /></svg>
+                                            </div>
+                                            <span className="ad-achievement-name">Veteran</span>
+                                            <span className="ad-achievement-desc">1+ Year</span>
+                                        </div>
+                                    );
+                                    if (months >= 6) return (
+                                        <div className="ad-achievement-item">
+                                            <div className="ad-achievement-icon" style={{ background: 'linear-gradient(135deg, #3b82f6, #60a5fa)' }}>
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                                            </div>
+                                            <span className="ad-achievement-name">Regular</span>
+                                            <span className="ad-achievement-desc">6+ Months</span>
+                                        </div>
+                                    );
+                                    return null;
+                                })()}
+                            </div>
+                        </div>
 
                         {selectedAdmin.contributions?.length > 0 && (
                             <div className="ad-modal-contributions">

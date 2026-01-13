@@ -133,6 +133,10 @@ const AdminLayout = ({ children }) => {
   const [dateRange, setDateRange] = React.useState(getDefaultDates());
   const [showExportMenu, setShowExportMenu] = React.useState(false);
 
+  // Custom frame upload progress state
+  const [frameUploadProgress, setFrameUploadProgress] = React.useState(0);
+  const [isUploadingFrame, setIsUploadingFrame] = React.useState(false);
+
   // Profile picture state with crop modal
   const [uploadingPicture, setUploadingPicture] = React.useState(false);
   const [showCropModal, setShowCropModal] = React.useState(false);
@@ -1811,6 +1815,103 @@ const AdminLayout = ({ children }) => {
                           <div style={{ fontSize: '11px', color: 'var(--text-color)' }}>None</div>
                         </div>
 
+                        {/* Custom Frame as First Option (if uploaded) */}
+                        {admin?.customFrameUrl && (
+                          <div
+                            className={`frame-option ${admin?.avatarFrame === 'custom' ? 'selected' : ''}`}
+                            onClick={async () => {
+                              const token = localStorage.getItem('adminToken');
+                              try {
+                                await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/frame`, {
+                                  method: 'PUT',
+                                  headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({ frame: 'custom', customFrameUrl: admin.customFrameUrl })
+                                });
+                                setAdmin({ ...admin, avatarFrame: 'custom' });
+                                localStorage.setItem('admin', JSON.stringify({ ...admin, avatarFrame: 'custom' }));
+                              } catch (e) { console.error(e); }
+                            }}
+                            style={{
+                              background: admin?.avatarFrame === 'custom' ? 'linear-gradient(135deg, var(--btn-primary), #764ba2)' : 'var(--nav-link-hover)',
+                              border: admin?.avatarFrame === 'custom' ? '2px solid var(--btn-primary)' : '2px solid #28a745',
+                              borderRadius: '12px',
+                              padding: '12px',
+                              textAlign: 'center',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              position: 'relative'
+                            }}
+                          >
+                            {/* "My Frame" Badge */}
+                            <div style={{
+                              position: 'absolute',
+                              top: '-8px',
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              background: '#28a745',
+                              color: 'white',
+                              fontSize: '9px',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              fontWeight: '600'
+                            }}>MY FRAME</div>
+                            <div style={{
+                              width: '60px',
+                              height: '60px',
+                              borderRadius: '50%',
+                              margin: '0 auto 8px',
+                              position: 'relative',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              {/* Custom Frame */}
+                              <div
+                                style={{
+                                  position: 'absolute',
+                                  inset: '-4px',
+                                  borderRadius: '50%',
+                                  backgroundImage: `url(${admin.customFrameUrl})`,
+                                  backgroundSize: 'cover',
+                                  backgroundPosition: 'center',
+                                  animation: 'frameSpinAnimation 3s linear infinite',
+                                  padding: '3px'
+                                }}
+                              >
+                                <div style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  borderRadius: '50%',
+                                  background: 'var(--card-bg)'
+                                }}></div>
+                              </div>
+                              {/* Avatar */}
+                              <div style={{
+                                width: '48px',
+                                height: '48px',
+                                borderRadius: '50%',
+                                background: 'var(--bg-color)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '18px',
+                                zIndex: 1,
+                                overflow: 'hidden'
+                              }}>
+                                {admin?.profilePicture ? (
+                                  <img src={admin.profilePicture} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                  admin?.username?.charAt(0).toUpperCase() || 'A'
+                                )}
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '10px', color: 'var(--text-color)', fontWeight: '500' }}>Custom</div>
+                          </div>
+                        )}
+
                         {/* Animated Frame Options */}
                         {[
                           { id: 'fire', name: 'Fire Ring', colors: ['#ff6b35', '#f7931e', '#ffcc02'], animation: 'spin' },
@@ -2028,6 +2129,40 @@ const AdminLayout = ({ children }) => {
                           </div>
                         )}
 
+                        {/* Upload Progress Bar */}
+                        {isUploadingFrame && (
+                          <div style={{
+                            marginBottom: '12px',
+                            padding: '12px',
+                            background: 'rgba(0,0,0,0.1)',
+                            borderRadius: '8px'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                              <span style={{ fontSize: '12px', color: 'var(--text-color)', fontWeight: '500' }}>
+                                Uploading...
+                              </span>
+                              <span style={{ fontSize: '12px', color: 'var(--btn-primary)', fontWeight: '600' }}>
+                                {frameUploadProgress}%
+                              </span>
+                            </div>
+                            <div style={{
+                              width: '100%',
+                              height: '6px',
+                              background: 'rgba(0,0,0,0.2)',
+                              borderRadius: '3px',
+                              overflow: 'hidden'
+                            }}>
+                              <div style={{
+                                width: `${frameUploadProgress}%`,
+                                height: '100%',
+                                background: 'var(--btn-primary)',
+                                borderRadius: '3px',
+                                transition: 'width 0.2s ease'
+                              }}></div>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Upload & Delete Buttons */}
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button
@@ -2103,7 +2238,7 @@ const AdminLayout = ({ children }) => {
                         id="customFrameInput"
                         accept="image/gif,image/png,image/jpeg,image/webp,image/svg+xml"
                         style={{ display: 'none' }}
-                        onChange={async (e) => {
+                        onChange={(e) => {
                           const file = e.target.files[0];
                           if (!file) return;
 
@@ -2111,23 +2246,72 @@ const AdminLayout = ({ children }) => {
                           const formData = new FormData();
                           formData.append('frame', file);
 
-                          try {
-                            const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/custom-frame`, {
-                              method: 'POST',
-                              headers: { 'Authorization': `Bearer ${token}` },
-                              body: formData
-                            });
-                            const data = await res.json();
-                            if (data.success) {
-                              setAdmin({ ...admin, avatarFrame: 'custom', customFrameUrl: data.customFrameUrl });
-                              localStorage.setItem('admin', JSON.stringify({ ...admin, avatarFrame: 'custom', customFrameUrl: data.customFrameUrl }));
+                          setIsUploadingFrame(true);
+                          setFrameUploadProgress(0);
+
+                          const xhr = new XMLHttpRequest();
+                          xhr.open('POST', `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/custom-frame`);
+                          xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+                          xhr.upload.onprogress = (event) => {
+                            if (event.lengthComputable) {
+                              const percent = Math.round((event.loaded / event.total) * 100);
+                              setFrameUploadProgress(percent);
                             }
-                          } catch (err) {
-                            console.error('Failed to upload custom frame:', err);
-                          }
+                          };
+
+                          xhr.onload = () => {
+                            setIsUploadingFrame(false);
+                            setFrameUploadProgress(0);
+                            if (xhr.status === 200) {
+                              try {
+                                const data = JSON.parse(xhr.responseText);
+                                if (data.success) {
+                                  setAdmin({ ...admin, avatarFrame: 'custom', customFrameUrl: data.customFrameUrl });
+                                  localStorage.setItem('admin', JSON.stringify({ ...admin, avatarFrame: 'custom', customFrameUrl: data.customFrameUrl }));
+                                }
+                              } catch (err) {
+                                console.error('Failed to parse response:', err);
+                              }
+                            }
+                          };
+
+                          xhr.onerror = () => {
+                            setIsUploadingFrame(false);
+                            setFrameUploadProgress(0);
+                            console.error('Failed to upload custom frame');
+                          };
+
+                          xhr.send(formData);
                           e.target.value = '';
                         }}
                       />
+
+                      {/* Save Button */}
+                      <button
+                        onClick={() => setActiveTab('profile')}
+                        style={{
+                          width: '100%',
+                          padding: '14px 20px',
+                          background: 'var(--btn-primary)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '10px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          marginTop: '16px'
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        Save Frame Selection
+                      </button>
 
                       {/* Spacer for scroll visibility */}
                       <div style={{ height: '40px' }}></div>
