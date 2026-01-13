@@ -1,5 +1,59 @@
 @import './styles/membership-badges.css';
 
+/* Hide scrollbars globally while keeping scroll functionality */
+/* Exceptions: Product, Category, Orders, Orders Map pages */
+
+/* Scrollbar hiding utility class */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+/* Apply to all scrollable elements except Product, Category, Orders, Orders Map */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.admin-layout::-webkit-scrollbar,
+.admin-sidebar::-webkit-scrollbar,
+.admin-main::-webkit-scrollbar,
+.admin-header::-webkit-scrollbar,
+.profile-modal::-webkit-scrollbar,
+.profile-modal-content::-webkit-scrollbar,
+.modal::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar,
+.card::-webkit-scrollbar,
+.dashboard-content::-webkit-scrollbar,
+.sidebar-nav::-webkit-scrollbar,
+.mobile-profile-bar::-webkit-scrollbar,
+.tab-content::-webkit-scrollbar,
+div[class*="manage-"]:not([class*="manage-products"]):not([class*="manage-categories"]):not([class*="manage-orders"])::-webkit-scrollbar {
+  display: none;
+}
+
+html,
+body,
+.admin-layout,
+.admin-sidebar,
+.admin-main,
+.admin-header,
+.profile-modal,
+.profile-modal-content,
+.modal,
+.modal-content,
+.card,
+.dashboard-content,
+.sidebar-nav,
+.mobile-profile-bar,
+.tab-content {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 body {
   margin: 0;
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -10,4 +64,49 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Restore scrollbars for Product, Category, Orders, Orders Map pages */
+.products-page::-webkit-scrollbar,
+.categories-page::-webkit-scrollbar,
+.orders-page::-webkit-scrollbar,
+.orders-map-page::-webkit-scrollbar,
+.manage-products::-webkit-scrollbar,
+.manage-categories::-webkit-scrollbar,
+.manage-orders::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+}
+
+.products-page::-webkit-scrollbar-track,
+.categories-page::-webkit-scrollbar-track,
+.orders-page::-webkit-scrollbar-track,
+.orders-map-page::-webkit-scrollbar-track,
+.manage-products::-webkit-scrollbar-track,
+.manage-categories::-webkit-scrollbar-track,
+.manage-orders::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.products-page::-webkit-scrollbar-thumb,
+.categories-page::-webkit-scrollbar-thumb,
+.orders-page::-webkit-scrollbar-thumb,
+.orders-map-page::-webkit-scrollbar-thumb,
+.manage-products::-webkit-scrollbar-thumb,
+.manage-categories::-webkit-scrollbar-thumb,
+.manage-orders::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.5);
+  border-radius: 4px;
+}
+
+.products-page,
+.categories-page,
+.orders-page,
+.orders-map-page,
+.manage-products,
+.manage-categories,
+.manage-orders {
+  -ms-overflow-style: auto;
+  scrollbar-width: thin;
 }

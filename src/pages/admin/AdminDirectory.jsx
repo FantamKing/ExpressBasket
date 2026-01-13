@@ -147,13 +147,31 @@ const AdminDirectory = () => {
                         onClick={() => viewProfile(admin._id)}
                     >
                         <div className="ad-card-header">
-                            <div
-                                className="ad-avatar"
-                                style={admin.profilePicture ? {
-                                    background: `url(${admin.profilePicture}) center/cover no-repeat`
-                                } : { background: `linear-gradient(135deg, ${getRoleColor(admin.role)}, #764ba2)` }}
-                            >
-                                {!admin.profilePicture && admin.username.charAt(0).toUpperCase()}
+                            <div className="ad-avatar-wrapper" style={{ position: 'relative' }}>
+                                {/* Avatar Frame */}
+                                {admin.avatarFrame && (
+                                    <div
+                                        className={`ad-avatar-frame frame-${admin.avatarFrame}`}
+                                        style={{
+                                            position: 'absolute',
+                                            inset: '-4px',
+                                            borderRadius: '50%',
+                                            zIndex: 0
+                                        }}
+                                    ></div>
+                                )}
+                                <div
+                                    className="ad-avatar"
+                                    style={{
+                                        ...(admin.profilePicture ? {
+                                            background: `url(${admin.profilePicture}) center/cover no-repeat`
+                                        } : { background: `linear-gradient(135deg, ${getRoleColor(admin.role)}, #764ba2)` }),
+                                        position: 'relative',
+                                        zIndex: 1
+                                    }}
+                                >
+                                    {!admin.profilePicture && admin.username.charAt(0).toUpperCase()}
+                                </div>
                             </div>
                             <div className="ad-role-badge" style={{ background: getRoleColor(admin.role) }}>
                                 {getRoleDisplay(admin.role)}
@@ -212,13 +230,31 @@ const AdminDirectory = () => {
                         </button>
 
                         <div className="ad-modal-header">
-                            <div
-                                className="ad-modal-avatar"
-                                style={selectedAdmin.profilePicture ? {
-                                    background: `url(${selectedAdmin.profilePicture}) center/cover no-repeat`
-                                } : { background: `linear-gradient(135deg, ${getRoleColor(selectedAdmin.role)}, #764ba2)` }}
-                            >
-                                {!selectedAdmin.profilePicture && selectedAdmin.username.charAt(0).toUpperCase()}
+                            <div className="ad-modal-avatar-wrapper" style={{ position: 'relative' }}>
+                                {/* Modal Avatar Frame */}
+                                {selectedAdmin.avatarFrame && (
+                                    <div
+                                        className={`ad-modal-avatar-frame frame-${selectedAdmin.avatarFrame}`}
+                                        style={{
+                                            position: 'absolute',
+                                            inset: '-5px',
+                                            borderRadius: '50%',
+                                            zIndex: 0
+                                        }}
+                                    ></div>
+                                )}
+                                <div
+                                    className="ad-modal-avatar"
+                                    style={{
+                                        ...(selectedAdmin.profilePicture ? {
+                                            background: `url(${selectedAdmin.profilePicture}) center/cover no-repeat`
+                                        } : { background: `linear-gradient(135deg, ${getRoleColor(selectedAdmin.role)}, #764ba2)` }),
+                                        position: 'relative',
+                                        zIndex: 1
+                                    }}
+                                >
+                                    {!selectedAdmin.profilePicture && selectedAdmin.username.charAt(0).toUpperCase()}
+                                </div>
                             </div>
                             <h2>{selectedAdmin.username}</h2>
                             <p>{selectedAdmin.email}</p>

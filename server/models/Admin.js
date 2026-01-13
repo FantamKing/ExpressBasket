@@ -24,17 +24,32 @@ const adminSchema = new mongoose.Schema({
     permissions: [{
         type: String,
         enum: [
-            'manage_products', 'manage_categories', 'manage_orders', 'manage_users',
-            'manage_admins', 'manage_admins_passwords', 'manage_admins_roles',
-            'view_reports', 'manage_memberships', 'manage_wallets',
-            // New view-only permissions
-            'view_everything', 'view_products', 'view_categories', 'view_orders'
+            // Management permissions
+            'manage_products', 'manage_categories', 'manage_orders', 'manage_orders_map',
+            'manage_delivery_partners', 'manage_delivery_issues', 'manage_support',
+            'manage_users', 'manage_admins', 'manage_admins_passwords', 'manage_admins_roles',
+            'manage_memberships', 'manage_wallets', 'manage_tracking', 'manage_mails', 'manage_server',
+            // View-only permissions
+            'view_everything', 'view_products', 'view_categories', 'view_orders', 'view_orders_map',
+            'view_delivery_partners', 'view_delivery_issues', 'view_support', 'view_users',
+            'view_admins', 'view_memberships', 'view_wallets', 'view_tracking', 'view_mails', 'view_server',
+            // Special permissions
+            'view_reports', 'creator'
         ]
     }],
     tags: [{
         type: String
     }],
     profilePicture: {
+        type: String,
+        default: null
+    },
+    avatarFrame: {
+        type: String,
+        enum: ['fire', 'neon', 'galaxy', 'gold', 'electric', 'rainbow', 'ice', 'phantom', 'custom', null],
+        default: null
+    },
+    customFrameUrl: {
         type: String,
         default: null
     },

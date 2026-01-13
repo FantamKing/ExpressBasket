@@ -52,6 +52,34 @@ const upload = multer({
     }
 });
 
+// Frame-specific storage for custom avatar frames
+const frameStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: async (req, file) => {
+        console.log('Uploading custom frame to Cloudinary:', file.originalname);
+        return {
+            folder: 'basket-avatar-frames',
+            allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp', 'svg'],
+            resource_type: 'auto',
+            public_id: `frame_${req.admin.id}_${Date.now()}`
+        };
+    }
+});
+
+const frameUpload = multer({
+    storage: frameStorage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit for frames
+    fileFilter: (req, file, cb) => {
+        const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+        if (allowedMimes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only jpg, png, gif, webp, and svg files are allowed for frames'), false);
+        }
+    }
+});
+
+
 // Verify super admin (highest level)
 const verifySuperAdmin = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
@@ -1914,6 +1942,33 @@ router.delete('/profile/picture', verifyAdmin, async (req, res) => {
     }
 });
 
+// Update avatar frame
+router.put('/profile/frame', verifyAdmin, async (req, res) => {
+    try {
+        const { frame } = req.body;
+
+        // Valid frame options
+        const validFrames = ['fire', 'neon', 'galaxy', 'gold', 'electric', 'rainbow', 'ice', 'phantom', null];
+
+        if (!validFrames.includes(frame)) {
+            return res.status(400).json({ message: 'Invalid frame selection' });
+        }
+
+        const admin = await Admin.findByIdAndUpdate(
+            req.admin.id,
+            { avatarFrame: frame },
+            { new: true }
+        ).select('-password');
+
+        res.json({
+            message: 'Avatar frame updated',
+            avatarFrame: admin.avatarFrame
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 // Get current admin profile
 router.get('/profile/me', verifyAdmin, async (req, res) => {
     try {
@@ -1930,7 +1985,7 @@ router.get('/profile/me', verifyAdmin, async (req, res) => {
 router.get('/directory', verifyAdmin, async (req, res) => {
     try {
         const admins = await Admin.find({ isActive: true })
-            .select('username email role profilePicture likes likeBoost tags createdAt');
+            .select('username email role profilePicture avatarFrame likes likeBoost tags createdAt');
 
         // Add likeCount and hasLiked for current user
         const adminsWithLikes = admins.map(admin => ({
@@ -1939,6 +1994,7 @@ router.get('/directory', verifyAdmin, async (req, res) => {
             email: admin.email,
             role: admin.role,
             profilePicture: admin.profilePicture,
+            avatarFrame: admin.avatarFrame,
             tags: admin.tags,
             createdAt: admin.createdAt,
             likeCount: (admin.likes?.length || 0) + (admin.likeBoost || 0),
@@ -1964,7 +2020,7 @@ router.get('/directory', verifyAdmin, async (req, res) => {
 router.get('/directory/:id', verifyAdmin, async (req, res) => {
     try {
         const admin = await Admin.findById(req.params.id)
-            .select('username email role profilePicture likes likeBoost tags createdAt permissions');
+            .select('username email role profilePicture avatarFrame likes likeBoost tags createdAt permissions');
 
         if (!admin) {
             return res.status(404).json({ message: 'Admin not found' });
@@ -1984,6 +2040,7 @@ router.get('/directory/:id', verifyAdmin, async (req, res) => {
             email: admin.email,
             role: admin.role,
             profilePicture: admin.profilePicture,
+            avatarFrame: admin.avatarFrame,
             tags: admin.tags,
             permissions: admin.permissions,
             createdAt: admin.createdAt,
@@ -2235,6 +2292,99 @@ router.post('/support/chat/:chatId/close', verifyAdmin, async (req, res) => {
         res.json({
             success: true,
             message: 'Support chat closed successfully'
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// ============================================
+// AVATAR FRAME ROUTES
+// ============================================
+
+// Update avatar frame (preset or custom)
+router.put('/profile/frame', verifyAdmin, async (req, res) => {
+    try {
+        const { frame, customFrameUrl } = req.body;
+        const admin = await Admin.findById(req.admin.id);
+        if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+        admin.avatarFrame = frame;
+        if (frame === 'custom' && customFrameUrl) {
+            admin.customFrameUrl = customFrameUrl;
+        } else if (frame !== 'custom') {
+            admin.customFrameUrl = null;
+        }
+
+        await admin.save();
+        res.json({
+            success: true,
+            message: 'Avatar frame updated',
+            avatarFrame: admin.avatarFrame,
+            customFrameUrl: admin.customFrameUrl
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Upload custom frame image
+router.post('/profile/custom-frame', verifyAdmin, frameUpload.single('frame'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No frame image uploaded' });
+        }
+
+        const admin = await Admin.findById(req.admin.id);
+        if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+        // Delete old custom frame from Cloudinary if exists
+        if (admin.customFrameUrl) {
+            const publicId = admin.customFrameUrl.split('/').pop().split('.')[0];
+            try {
+                await cloudinary.uploader.destroy(`basket-avatar-frames/${publicId}`);
+            } catch (e) {
+                console.log('Could not delete old frame:', e.message);
+            }
+        }
+
+        admin.avatarFrame = 'custom';
+        admin.customFrameUrl = req.file.path;
+        await admin.save();
+
+        res.json({
+            success: true,
+            message: 'Custom frame uploaded successfully',
+            avatarFrame: 'custom',
+            customFrameUrl: admin.customFrameUrl
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Delete custom frame
+router.delete('/profile/custom-frame', verifyAdmin, async (req, res) => {
+    try {
+        const admin = await Admin.findById(req.admin.id);
+        if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+        if (admin.customFrameUrl) {
+            const publicId = admin.customFrameUrl.split('/').pop().split('.')[0];
+            try {
+                await cloudinary.uploader.destroy(`basket-avatar-frames/${publicId}`);
+            } catch (e) {
+                console.log('Could not delete frame:', e.message);
+            }
+        }
+
+        admin.avatarFrame = null;
+        admin.customFrameUrl = null;
+        await admin.save();
+
+        res.json({
+            success: true,
+            message: 'Custom frame removed'
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
