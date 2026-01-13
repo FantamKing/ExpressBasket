@@ -119,7 +119,7 @@ function App() {
             <ToastProvider>
               <AppContainer>
                 <ScrollToTop />
-                <SpeedInsights />
+                {import.meta.env.PROD && <SpeedInsights />}
                 <Routes>
                   {/* Client Routes - wrapped with maintenance check */}
                   <Route path="/" element={<ClientRoute maintenanceMode={maintenanceMode}><Layout><Home /></Layout></ClientRoute>} />
