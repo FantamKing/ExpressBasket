@@ -110,6 +110,8 @@ const ManageAdmins = () => {
       isActive: admin.isActive
     });
     setShowForm(true);
+    // Scroll to top to show the edit form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (adminId, adminName) => {
@@ -385,11 +387,75 @@ const ManageAdmins = () => {
             {currentAdmin?.role === 'super_admin' && (
               <div className="ma-permissions-section">
                 <h3>Permissions</h3>
+
+                {/* Note for Super Admin role */}
+                {formData.role === 'super_admin' && (
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15))',
+                    border: '1px solid rgba(102, 126, 234, 0.3)',
+                    borderRadius: '10px',
+                    padding: '12px 16px',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#667eea" strokeWidth="2">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    <span style={{ color: 'var(--text-color)', fontSize: '14px' }}>
+                      <strong>Super Admin</strong> automatically has full access to everything. No permissions needed.
+                    </span>
+                  </div>
+                )}
+
                 <div className="ma-permissions-groups">
+                  {/* Creator Permission - Full Access */}
+                  <div className="ma-perm-group" style={{ marginBottom: '20px' }}>
+                    <h4 style={{ color: '#f59e0b' }}>🔑 Full Access</h4>
+                    <div className="ma-perm-grid">
+                      <div
+                        className={`ma-perm-item ${formData.permissions.includes('creator') ? 'active' : ''}`}
+                        onClick={() => handlePermissionToggle('creator')}
+                        style={{
+                          background: formData.permissions.includes('creator') ? 'linear-gradient(135deg, #f59e0b, #d97706)' : undefined,
+                          minWidth: '200px'
+                        }}
+                      >
+                        <div className="ma-checkbox">
+                          {formData.permissions.includes('creator') ? (
+                            <svg className="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          ) : null}
+                        </div>
+                        <span>CREATOR (Full Access)</span>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+                      Grants access to everything - equivalent to Super Admin permissions
+                    </p>
+                  </div>
+
                   <div className="ma-perm-group">
                     <h4>Management Permissions</h4>
                     <div className="ma-perm-grid">
-                      {['manage_products', 'manage_categories', 'manage_orders', 'manage_users', 'manage_admins', 'manage_memberships', 'manage_wallets'].map(perm => (
+                      {[
+                        'manage_products',
+                        'manage_categories',
+                        'manage_orders',
+                        'manage_orders_map',
+                        'manage_delivery_partners',
+                        'manage_delivery_issues',
+                        'manage_support',
+                        'manage_users',
+                        'manage_admins',
+                        'manage_memberships',
+                        'manage_wallets',
+                        'manage_tracking',
+                        'manage_mails',
+                        'manage_server'
+                      ].map(perm => (
                         <div key={perm} className={`ma-perm-item ${formData.permissions.includes(perm) ? 'active' : ''}`} onClick={() => handlePermissionToggle(perm)}>
                           <div className="ma-checkbox">
                             {formData.permissions.includes(perm) ? (
@@ -406,7 +472,23 @@ const ManageAdmins = () => {
                   <div className="ma-perm-group view">
                     <h4>View Only Permissions</h4>
                     <div className="ma-perm-grid">
-                      {['view_everything', 'view_products', 'view_categories', 'view_orders'].map(perm => (
+                      {[
+                        'view_everything',
+                        'view_products',
+                        'view_categories',
+                        'view_orders',
+                        'view_orders_map',
+                        'view_delivery_partners',
+                        'view_delivery_issues',
+                        'view_support',
+                        'view_users',
+                        'view_admins',
+                        'view_memberships',
+                        'view_wallets',
+                        'view_tracking',
+                        'view_mails',
+                        'view_server'
+                      ].map(perm => (
                         <div key={perm} className={`ma-perm-item ${formData.permissions.includes(perm) ? 'active' : ''}`} onClick={() => handlePermissionToggle(perm)}>
                           <div className="ma-checkbox">
                             {formData.permissions.includes(perm) ? (

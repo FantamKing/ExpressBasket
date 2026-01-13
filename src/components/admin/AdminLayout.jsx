@@ -789,32 +789,38 @@ const AdminLayout = ({ children }) => {
             </Link>
           )}
 
-          {/* Orders Map - accessible to all admins */}
-          <Link to="/admin/orders-map" className={`nav-item ${isActive('/admin/orders-map') ? 'active' : ''}`}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-            <span>Orders Map</span>
-          </Link>
+          {/* Orders Map - requires manage_orders_map permission */}
+          {hasPermission(admin, 'manage_orders_map') && (
+            <Link to="/admin/orders-map" className={`nav-item ${isActive('/admin/orders-map') ? 'active' : ''}`}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span>Orders Map</span>
+            </Link>
+          )}
 
-          {/* Delivery Partners - accessible to all admins */}
-          <Link to="/admin/delivery-partners" className={`nav-item ${isActive('/admin/delivery-partners') ? 'active' : ''}`}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path>
-            </svg>
-            <span>Delivery Partners</span>
-          </Link>
+          {/* Delivery Partners - requires manage_delivery_partners permission */}
+          {hasPermission(admin, 'manage_delivery_partners') && (
+            <Link to="/admin/delivery-partners" className={`nav-item ${isActive('/admin/delivery-partners') ? 'active' : ''}`}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path>
+              </svg>
+              <span>Delivery Partners</span>
+            </Link>
+          )}
 
-          {/* Delivery Issues - Cancellation requests from partners */}
-          <Link to="/admin/delivery-issues" className={`nav-item ${isActive('/admin/delivery-issues') ? 'active' : ''}`}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-              <line x1="12" y1="9" x2="12" y2="13"></line>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            <span>Delivery Issues</span>
-          </Link>
+          {/* Delivery Issues - requires manage_delivery_issues permission */}
+          {hasPermission(admin, 'manage_delivery_issues') && (
+            <Link to="/admin/delivery-issues" className={`nav-item ${isActive('/admin/delivery-issues') ? 'active' : ''}`}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>Delivery Issues</span>
+            </Link>
+          )}
 
           {/* Users - requires manage_users permission, hidden from normal_viewer, disabled for special_viewer */}
           {hasPermission(admin, 'manage_users') && admin?.role !== 'normal_viewer' && (
@@ -835,15 +841,17 @@ const AdminLayout = ({ children }) => {
             )
           )}
 
-          {/* Support Requests - All admins can handle support */}
-          <Link to="/admin/support" className={`nav-item ${isActive('/admin/support') ? 'active' : ''}`}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-              <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
-            </svg>
-            <span>Support</span>
-            {notifications.support > 0 && <span className="nav-badge">{notifications.support}</span>}
-          </Link>
+          {/* Support Requests - requires manage_support permission */}
+          {hasPermission(admin, 'manage_support') && (
+            <Link to="/admin/support" className={`nav-item ${isActive('/admin/support') ? 'active' : ''}`}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+              </svg>
+              <span>Support</span>
+              {notifications.support > 0 && <span className="nav-badge">{notifications.support}</span>}
+            </Link>
+          )}
 
           {/* Manage Admins - requires manage_admins permission */}
           {hasPermission(admin, 'manage_admins') && (
@@ -912,8 +920,8 @@ const AdminLayout = ({ children }) => {
             </Link>
           )}
 
-          {/* Mail Center - Super Admin & Special Viewer */}
-          {(admin?.role === 'super_admin' || admin?.role === 'special_viewer') && (
+          {/* Mail Center - requires manage_mails permission */}
+          {hasPermission(admin, 'manage_mails') && (
             <Link to="/admin/mails" className={`nav-item ${isActive('/admin/mails') ? 'active' : ''}`}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -923,17 +931,19 @@ const AdminLayout = ({ children }) => {
             </Link>
           )}
 
-          {/* Tracking Toggle - Show for all admins (will check super admin in the page itself) */}
-          <Link to="/admin/tracking-toggle" className={`nav-item ${isActive('/admin/tracking-toggle') ? 'active' : ''}`}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-            <span>Tracking Toggle</span>
-          </Link>
+          {/* Tracking Toggle - requires manage_tracking permission */}
+          {hasPermission(admin, 'manage_tracking') && (
+            <Link to="/admin/tracking-toggle" className={`nav-item ${isActive('/admin/tracking-toggle') ? 'active' : ''}`}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span>Tracking Toggle</span>
+            </Link>
+          )}
 
-          {/* Server - Super Admin & Special Viewer */}
-          {(admin?.role === 'super_admin' || admin?.role === 'special_viewer') && (
+          {/* Server - requires manage_server permission */}
+          {hasPermission(admin, 'manage_server') && (
             <Link to="/admin/server" className={`nav-item server-nav-item ${isActive('/admin/server') ? 'active' : ''}`}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>

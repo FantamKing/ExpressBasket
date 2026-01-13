@@ -63,6 +63,10 @@ const AccessDenied = () => (
 
 /**
  * Helper function to check if admin has required permission
+ * Permission System:
+ * - Super Admin: Has access to EVERYTHING (no restrictions)
+ * - All other roles (admin, vendor, viewers): Access based on assigned permissions only
+ * 
  * @param {Object} admin - Admin object with role and permissions
  * @param {string} requiredPermission - The permission needed to access the route
  * @returns {boolean} - Whether admin has access
@@ -70,24 +74,30 @@ const AccessDenied = () => (
 export const hasPermission = (admin, requiredPermission) => {
     if (!admin) return false;
 
-    // Super admin has access to everything
-    if (admin.role === 'super_admin' || admin.role === 'superadmin') return true;
+    // Super admin has access to everything - no restrictions
+    if (admin.role === 'super_admin' || admin.role === 'superadmin') {
+        return true;
+    }
 
-    // Special viewer can SEE everything (but not modify)
-    if (admin.role === 'special_viewer') return true;
-
-    // If no specific permission required, allow access
+    // If no specific permission required, allow access (dashboard, etc.)
     if (!requiredPermission) return true;
 
+    // For all other roles, check their assigned permissions
+    const permissions = admin.permissions || [];
+
+    // CREATOR permission = full access to everything (like super admin)
+    if (permissions.includes('creator')) return true;
+
     // Check if has view_everything permission (can see all sections)
-    if (admin.permissions?.includes('view_everything')) return true;
+    if (permissions.includes('view_everything')) return true;
 
-    // Check if admin has the required permission (manage_*)
-    if (admin.permissions?.includes(requiredPermission)) return true;
+    // Check if admin has the exact required permission
+    if (permissions.includes(requiredPermission)) return true;
 
-    // Also check for view permission (view_*)
+    // Also check for view permission when manage permission is required
+    // This allows users with view_* to see sections even if they can't manage
     const viewPermission = requiredPermission.replace('manage_', 'view_');
-    if (admin.permissions?.includes(viewPermission)) return true;
+    if (permissions.includes(viewPermission)) return true;
 
     return false;
 };
