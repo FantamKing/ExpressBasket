@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import FaceCapture from './FaceCapture';
+import axios from '../../utils/axios';
 import './FaceRecognitionLogin.css';
 import { X, Scan, CheckCircle, XCircle, AlertTriangle, Lock } from 'lucide-react';
 
@@ -38,19 +39,18 @@ const FaceRecognitionLogin = ({ isOpen, onClose, onLoginSuccess }) => {
 
         try {
             // Call backend API to match face (sends descriptor, not image)
-            const response = await fetch('/api/admin/face-recognition/auth/face-login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ faceDescriptor: descriptor })
+            const response = await axios.post('/admin/face-recognition/auth/face-login', {
+                faceDescriptor: descriptor
             });
 
-            const data = await response.json();
+            const data = response.data;
+            console.log('✅ Face login API response:', data);
 
-            if (response.ok && data.token) {
+            if (data.token) {
+                console.log('✅ Token received, setting success status...');
                 setStatus('success');
                 setTimeout(() => {
+                    console.log('✅ Calling onLoginSuccess with data...');
                     onLoginSuccess(data);
                 }, 1000);
             } else {
@@ -69,8 +69,15 @@ const FaceRecognitionLogin = ({ isOpen, onClose, onLoginSuccess }) => {
             }
         } catch (error) {
             console.error('Face login error:', error);
+            console.error('Error response:', error.response?.data);
             setStatus('error');
-            setErrorMessage('Connection error. Please try again.');
+
+            // Axios throws on non-2xx responses, so we need to extract the message from error.response
+            const errorMsg = error.response?.data?.message ||
+                error.response?.data?.hint ||
+                error.message ||
+                'Face not recognized. Please try again.';
+            setErrorMessage(errorMsg);
 
             setTimeout(() => {
                 if (attemptCount < MAX_ATTEMPTS - 1) {

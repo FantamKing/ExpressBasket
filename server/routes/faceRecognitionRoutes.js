@@ -3,6 +3,7 @@ const router = express.Router();
 const Admin = require('../models/Admin');
 const FaceRegistrationRequest = require('../models/FaceRegistrationRequest');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 // NOTE: Server-side face recognition disabled due to TensorFlow version conflicts
 // const faceRecognitionService = require('../utils/faceRecognitionService');
 
@@ -167,13 +168,21 @@ router.post('/auth/face-login', async (req, res) => {
             return res.status(403).json({ message: 'Account is deactivated' });
         }
 
-        // Update last used timestamp
+        // Update last used timestamp and generate session token (like regular login)
+        const sessionToken = crypto.randomBytes(32).toString('hex');
+        admin.sessionToken = sessionToken;
         admin.faceRecognition.lastUsed = new Date();
         await admin.save();
 
-        // Generate JWT token
+        // Generate JWT token with same structure as regular login
         const token = jwt.sign(
-            { id: admin._id, role: admin.role },
+            { 
+                id: admin._id, 
+                email: admin.email,
+                role: admin.role,
+                permissions: admin.permissions,
+                sessionToken 
+            },
             process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
