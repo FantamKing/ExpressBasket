@@ -56,6 +56,10 @@ const Container = styled.div`
 const Header = styled.div`
   text-align: center;
   margin-bottom: 40px;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+  }
 `;
 
 const Title = styled.h1`
@@ -64,7 +68,17 @@ const Title = styled.h1`
   margin-bottom: 10px;
   
   @media (max-width: 768px) {
-    font-size: 24px;
+    font-size: 20px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    svg {
+      width: 22px;
+      height: 22px;
+    }
   }
 `;
 
@@ -73,7 +87,8 @@ const Subtitle = styled.p`
   font-size: 18px;
   
   @media (max-width: 768px) {
-    font-size: 14px;
+    font-size: 12px;
+    margin: 0;
   }
 `;
 
@@ -84,9 +99,9 @@ const StatsGrid = styled.div`
   margin-bottom: 40px;
   
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
   }
 `;
 
@@ -98,7 +113,9 @@ const StatCard = styled.div`
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   
   @media (max-width: 768px) {
-    padding: 20px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   }
 `;
 
@@ -108,13 +125,20 @@ const StatValue = styled.div`
   margin-bottom: 10px;
   
   @media (max-width: 768px) {
-    font-size: 32px;
+    font-size: 22px;
+    margin-bottom: 4px;
+    line-height: 1.2;
   }
 `;
 
 const StatLabel = styled.div`
   font-size: 16px;
   opacity: 0.9;
+  
+  @media (max-width: 768px) {
+    font-size: 11px;
+    line-height: 1.3;
+  }
 `;
 
 const Section = styled.div`
@@ -125,9 +149,10 @@ const Section = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   
   @media (max-width: 768px) {
-    padding: 15px;
-    margin-bottom: 15px;
+    padding: 12px;
+    margin-bottom: 12px;
     border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 `;
 
@@ -138,6 +163,17 @@ const SectionTitle = styled.h2`
   display: flex;
   align-items: center;
   gap: 10px;
+  
+  @media (max-width: 768px) {
+    font-size: 15px;
+    margin-bottom: 10px;
+    gap: 6px;
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
 `;
 
 const CheckInButton = styled.button`
@@ -161,12 +197,29 @@ const CheckInButton = styled.button`
     opacity: 0.5;
     cursor: not-allowed;
   }
+  
+  @media (max-width: 768px) {
+    padding: 10px 24px;
+    font-size: 14px;
+    border-radius: 8px;
+    width: 100%;
+  }
 `;
 
 const AchievementsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  
+  @media (max-width: 400px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
 `;
 
 const AchievementCard = styled.div`
@@ -180,27 +233,63 @@ const AchievementCard = styled.div`
   &:hover {
     transform: translateY(-5px);
   }
+  
+  @media (max-width: 768px) {
+    padding: 6px 4px;
+    border-radius: 6px;
+    
+    &:hover {
+      transform: none;
+    }
+  }
 `;
 
 const AchievementIcon = styled.div`
   font-size: 48px;
   margin-bottom: 10px;
+  
+  @media (max-width: 768px) {
+    font-size: 20px;
+    margin-bottom: 2px;
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
 `;
 
 const AchievementName = styled.div`
   font-weight: bold;
   margin-bottom: 5px;
   color: ${props => props.$unlocked ? 'white' : 'var(--text-color)'};
+  
+  @media (max-width: 768px) {
+    font-size: 11px;
+    margin-bottom: 3px;
+  }
 `;
 
 const AchievementDesc = styled.div`
   font-size: 12px;
   color: ${props => props.$unlocked ? 'rgba(255,255,255,0.9)' : 'var(--text-secondary)'};
+  
+  @media (max-width: 768px) {
+    font-size: 9px;
+    line-height: 1.3;
+  }
 `;
 
 const LeaderboardTable = styled.table`
   width: 100%;
   border-collapse: collapse;
+  
+  @media (max-width: 768px) {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 12px;
+  }
 `;
 
 const LeaderboardRow = styled.tr`
@@ -214,6 +303,11 @@ const LeaderboardRow = styled.tr`
 const LeaderboardCell = styled.td`
   padding: 15px;
   color: var(--text-color);
+  
+  @media (max-width: 768px) {
+    padding: 8px 6px;
+    white-space: nowrap;
+  }
 `;
 
 const Rank = styled.span`
@@ -225,12 +319,21 @@ const Rank = styled.span`
     if (props.rank === 3) return '#CD7F32';
     return 'var(--text-color)';
   }};
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 const RewardsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
 `;
 
 const RewardCard = styled.div`
@@ -238,6 +341,12 @@ const RewardCard = styled.div`
   padding: 20px;
   border-radius: 10px;
   border: 2px solid ${props => props.$canAfford ? '#4CAF50' : 'var(--border-color)'};
+  
+  @media (max-width: 768px) {
+    padding: 10px 8px;
+    border-radius: 8px;
+    border-width: 1px;
+  }
 `;
 
 const RewardName = styled.div`
@@ -245,12 +354,22 @@ const RewardName = styled.div`
   font-size: 18px;
   margin-bottom: 10px;
   color: var(--text-color);
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
 `;
 
 const RewardDesc = styled.div`
   color: var(--text-secondary);
   font-size: 14px;
   margin-bottom: 10px;
+  
+  @media (max-width: 768px) {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
 `;
 
 const RewardCost = styled.div`
@@ -271,12 +390,76 @@ const RedeemButton = styled.button`
   &:hover:not(:disabled) {
     background: #45a049;
   }
+  
+  @media (max-width: 768px) {
+    padding: 8px;
+    font-size: 13px;
+    margin-top: 8px !important;
+  }
+`;
+
+const DiscountValue = styled.div`
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--btn-primary);
+  margin: 15px 0;
+  
+  @media (max-width: 768px) {
+    font-size: 18px;
+    margin: 8px 0;
+  }
+`;
+
+const PointsBadge = styled.div`
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: ${props => props.$canAfford ? 'linear-gradient(135deg, #1a8754, #20c997)' : 'linear-gradient(135deg, #e67e22, #f39c12)'};
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  @media (max-width: 768px) {
+    padding: 4px 10px;
+    font-size: 11px;
+    top: -8px;
+    gap: 4px;
+    
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+`;
+
+const SectionDesc = styled.p`
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+  
+  @media (max-width: 768px) {
+    margin-bottom: 12px;
+    font-size: 12px;
+  }
 `;
 
 const TabContainer = styled.div`
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  
+  @media (max-width: 768px) {
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 5px;
+  }
 `;
 
 const Tab = styled.button`
@@ -287,6 +470,13 @@ const Tab = styled.button`
   border-radius: 5px;
   cursor: pointer;
   font-weight: ${props => props.$active ? 'bold' : 'normal'};
+  
+  @media (max-width: 768px) {
+    padding: 8px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 `;
 
 const Gamification = () => {
@@ -560,24 +750,24 @@ const Gamification = () => {
 
       <Section>
         <SectionTitle><Calendar size={24} style={{ marginRight: '8px' }} /> Daily Check-In</SectionTitle>
-        <p style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
+        <SectionDesc>
           Check in daily to earn points and build your streak! Current streak: {stats.checkInStreak} days
-        </p>
+        </SectionDesc>
 
         {/* Streak Bonus Info */}
-        <div style={{
+        <div className="streak-bonus-box" style={{
           background: 'var(--input-bg)',
-          padding: '15px 20px',
-          borderRadius: '10px',
-          marginBottom: '20px',
+          padding: '10px 14px',
+          borderRadius: '8px',
+          marginBottom: '12px',
           textAlign: 'center',
           border: '1px solid var(--border-color)'
         }}>
-          <div style={{ fontSize: '14px', marginBottom: '5px', color: '#f59e0b' }}>🎁 Streak Bonus</div>
-          <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-color)' }}>
+          <div style={{ fontSize: '12px', marginBottom: '4px', color: '#f59e0b' }}>🎁 Streak Bonus</div>
+          <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text-color)' }}>
             Complete 30 days for +30% bonus on all future check-ins!
           </div>
-          <div style={{ fontSize: '12px', marginTop: '5px', color: 'var(--text-secondary)' }}>
+          <div style={{ fontSize: '11px', marginTop: '4px', color: 'var(--text-secondary)' }}>
             Progress: {stats.checkInStreak % 30}/30 days
           </div>
         </div>
@@ -591,12 +781,12 @@ const Gamification = () => {
       {/* My Gift Codes Section */}
       <Section>
         <SectionTitle><Gift size={24} style={{ marginRight: '8px' }} /> My Gift Codes</SectionTitle>
-        <p style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
+        <SectionDesc>
           Your gift codes - redeem points below to get more!
-        </p>
+        </SectionDesc>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', borderBottom: '2px solid var(--border-color)', paddingBottom: '8px' }}>
           {['active', 'redeemed', 'expired'].map(filter => (
             <button
               key={filter}
@@ -605,10 +795,10 @@ const Gamification = () => {
                 background: giftCodeFilter === filter ? 'var(--btn-primary)' : 'transparent',
                 color: giftCodeFilter === filter ? 'white' : 'var(--text-color)',
                 border: 'none',
-                padding: '10px 20px',
-                borderRadius: '8px',
+                padding: '8px 14px',
+                borderRadius: '6px',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: '600',
                 textTransform: 'capitalize',
                 transition: 'all 0.3s'
@@ -702,55 +892,35 @@ const Gamification = () => {
       {/* Redeem Rewards Section */}
       <Section>
         <SectionTitle><Gift size={24} style={{ marginRight: '8px' }} /> Redeem Rewards</SectionTitle>
-        <p style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
+        <SectionDesc>
           Convert your points into gift codes for discounts
-        </p>
+        </SectionDesc>
         <RewardsGrid>
           {rewards && rewards.filter(r => r.type === 'discount').map(reward => {
             const cost = reward.pointsCost || reward.pointCost || 0;
             const canAfford = stats.points >= cost;
             return (
-              <RewardCard key={reward.id || reward._id} style={{ position: 'relative', paddingTop: '30px' }}>
+              <RewardCard key={reward.id || reward._id} style={{ position: 'relative', paddingTop: '20px' }}>
                 {/* Points Badge */}
-                <div style={{
-                  position: 'absolute',
-                  top: '-12px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  background: canAfford ? 'linear-gradient(135deg, #1a8754, #20c997)' : 'linear-gradient(135deg, #e67e22, #f39c12)',
-                  color: 'white',
-                  padding: '6px 16px',
-                  borderRadius: '20px',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}>
+                <PointsBadge $canAfford={canAfford}>
                   <Zap size={14} fill="white" /> {cost} Points
-                </div>
+                </PointsBadge>
 
-                <RewardName style={{ marginTop: '10px' }}>{reward.name}</RewardName>
+                <RewardName>{reward.name}</RewardName>
 
                 {/* Show discount value prominently */}
-                <div style={{
-                  fontSize: '28px',
-                  fontWeight: 'bold',
-                  color: 'var(--btn-primary)',
-                  margin: '15px 0'
-                }}>
+                <DiscountValue>
                   ₹{reward.value || reward.discountAmount || reward.discount || '0'} OFF
-                </div>
+                </DiscountValue>
 
                 <RewardDesc>{reward.description}</RewardDesc>
 
                 {/* Show if user can afford */}
                 {!canAfford && (
                   <div style={{
-                    fontSize: '12px',
+                    fontSize: '11px',
                     color: '#dc3545',
-                    margin: '10px 0 5px',
+                    margin: '6px 0 4px',
                     fontWeight: '500'
                   }}>
                     Need {cost - stats.points} more points
@@ -760,7 +930,6 @@ const Gamification = () => {
                 <RedeemButton
                   onClick={() => handleRedeemGiftCode(reward)}
                   disabled={!canAfford}
-                  style={{ marginTop: '15px' }}
                 >
                   {!canAfford ? 'Not Enough Points' : 'Redeem Now'}
                 </RedeemButton>

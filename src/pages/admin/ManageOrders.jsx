@@ -106,6 +106,13 @@ const ManageOrders = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { trackingEnabled } = useTrackingStatus();
 
+  // Partner search state for broadcast assignment
+  const [partnerSearchQuery, setPartnerSearchQuery] = useState('');
+  const [partnerSearchResults, setPartnerSearchResults] = useState([]);
+  const [searchingPartners, setSearchingPartners] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignModalOrder, setAssignModalOrder] = useState(null);
+
   // Permission check - check for manage_orders permission
   const admin = JSON.parse(localStorage.getItem('admin') || '{}');
   const viewOnly = isViewOnly(admin) || !canEdit(admin, 'orders');
@@ -282,6 +289,74 @@ const ManageOrders = () => {
         text: error.response?.data?.message || 'Failed to assign partner. Make sure order is packed first.'
       });
     }
+  };
+
+  // Broadcast order to ALL online partners
+  const handleBroadcastOrder = async (orderId) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await axios.post('/admin/delivery/broadcast',
+        { orderId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      Swal.fire({
+        icon: 'success',
+        title: '📡 Order Broadcasted!',
+        html: `<p>Order sent to <strong>${response.data.onlinePartnersCount}</strong> online partner(s)</p>
+               <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                 First partner to accept will get the order.
+               </p>`,
+        timer: 4000
+      });
+
+      fetchOrders();
+      closeAssignModal();
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Broadcast Failed',
+        text: error.response?.data?.message || 'Failed to broadcast order. Make sure order is packed first.'
+      });
+    }
+  };
+
+  // Search partners by ID, vehicle, or phone
+  const handleSearchPartner = async (query) => {
+    setPartnerSearchQuery(query);
+    if (query.trim().length < 2) {
+      setPartnerSearchResults([]);
+      return;
+    }
+
+    setSearchingPartners(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await axios.get(`/admin/partners/search?q=${encodeURIComponent(query)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPartnerSearchResults(response.data);
+    } catch (error) {
+      console.error('Partner search error:', error);
+      setPartnerSearchResults([]);
+    } finally {
+      setSearchingPartners(false);
+    }
+  };
+
+  // Open assign modal with options
+  const openAssignModal = (order) => {
+    setAssignModalOrder(order);
+    setShowAssignModal(true);
+    setPartnerSearchQuery('');
+    setPartnerSearchResults([]);
+  };
+
+  const closeAssignModal = () => {
+    setShowAssignModal(false);
+    setAssignModalOrder(null);
+    setPartnerSearchQuery('');
+    setPartnerSearchResults([]);
   };
 
   const handleUpdateLocation = async () => {
@@ -488,24 +563,33 @@ const ManageOrders = () => {
                       {order.deliveryPartner.name}
                     </span>
                   ) : order.status === 'packed' ? (
-                    <StatusSelect
-                      onChange={(e) => handleAssignPartner(order._id, e.target.value)}
-                      defaultValue=""
+                    <ActionButton
+                      className="view"
+                      onClick={() => openAssignModal(order)}
                       disabled={viewOnly}
-                      style={viewOnly ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+                      style={{
+                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                        color: 'white',
+                        ...(viewOnly ? { opacity: 0.6, cursor: 'not-allowed' } : {})
+                      }}
                     >
-                      <option value="">Select Partner ({partners.length} online)</option>
-                      {partners.map(partner => (
-                        <option key={partner._id} value={partner._id}>
-                          {partner.name} - {partner.vehicle?.type || 'bike'}
-                        </option>
-                      ))}
-                    </StatusSelect>
+                      📡 Assign
+                    </ActionButton>
+                  ) : order.status === 'broadcasting' ? (
+                    <span style={{
+                      fontSize: '11px',
+                      color: '#f59e0b',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      <span style={{ animation: 'pulse 1s infinite' }}>📡</span> Broadcasting...
+                    </span>
                   ) : (
                     <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                       {order.status === 'pending' || order.status === 'confirmed'
-                        ? 'Pack order first'
-                        : order.status === 'out_for_delivery'
+                        ? 'Pack first'
+                        : order.status === 'out_for_delivery' || order.status === 'assigned'
                           ? 'In delivery'
                           : '-'}
                     </span>
@@ -695,6 +779,187 @@ const ManageOrders = () => {
           onClose={() => setShowRouteConfigModal(false)}
           onRouteSet={handleRouteSet}
         />
+      )}
+
+      {/* Partner Assignment Modal */}
+      {showAssignModal && assignModalOrder && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }} onClick={closeAssignModal}>
+          <div style={{
+            background: 'var(--card-bg)',
+            borderRadius: '16px',
+            padding: '24px',
+            maxWidth: '500px',
+            width: '95%',
+            maxHeight: '80vh',
+            overflowY: 'auto'
+          }} onClick={(e) => e.stopPropagation()}>
+            <h2 style={{ color: 'var(--text-color)', marginBottom: '8px', fontSize: '18px' }}>
+              📦 Assign Order #{assignModalOrder._id.slice(-6).toUpperCase()}
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '13px' }}>
+              {assignModalOrder.userId?.name} • ₹{assignModalOrder.totalAmount?.toLocaleString()}
+            </p>
+
+            {/* Option 1: Broadcast to All */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1))',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '16px'
+            }}>
+              <h3 style={{ color: '#10b981', marginBottom: '8px', fontSize: '14px' }}>
+                📡 Broadcast to All Partners
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '12px' }}>
+                Send to all {partners.length} online partners. First to accept gets the order.
+              </p>
+              <button
+                onClick={() => handleBroadcastOrder(assignModalOrder._id)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px'
+                }}
+              >
+                📡 Broadcast Order
+              </button>
+            </div>
+
+            {/* Option 2: Search Specific Partner */}
+            <div style={{
+              background: 'var(--bg-color)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '12px',
+              padding: '16px'
+            }}>
+              <h3 style={{ color: 'var(--text-color)', marginBottom: '8px', fontSize: '14px' }}>
+                🔍 Assign to Specific Partner
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '12px' }}>
+                Search by Partner ID, Vehicle No, Phone, or Name
+              </p>
+              <input
+                type="text"
+                placeholder="Type to search... (e.g., DP-XXXX, MH01AB1234)"
+                value={partnerSearchQuery}
+                onChange={(e) => handleSearchPartner(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-color)',
+                  outline: 'none',
+                  marginBottom: '8px',
+                  boxSizing: 'border-box'
+                }}
+              />
+
+              {/* Search Results */}
+              {searchingPartners && (
+                <div style={{ textAlign: 'center', padding: '12px', color: 'var(--text-secondary)' }}>
+                  Searching...
+                </div>
+              )}
+
+              {partnerSearchResults.length > 0 && (
+                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                  {partnerSearchResults.map(partner => (
+                    <div
+                      key={partner._id}
+                      onClick={() => {
+                        handleAssignPartner(assignModalOrder._id, partner._id);
+                        closeAssignModal();
+                      }}
+                      style={{
+                        padding: '10px 12px',
+                        borderBottom: '1px solid var(--border-color)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.background = 'var(--nav-link-hover)'}
+                      onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <div>
+                        <div style={{ fontWeight: '600', fontSize: '13px', color: 'var(--text-color)' }}>
+                          {partner.name}
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                          {partner.partnerId} • {partner.vehicle?.number || partner.phone}
+                        </div>
+                      </div>
+                      <div style={{
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        background: partner.status?.includes('Online')
+                          ? 'rgba(16, 185, 129, 0.2)'
+                          : partner.status?.includes('Handling')
+                            ? 'rgba(245, 158, 11, 0.2)'
+                            : 'rgba(239, 68, 68, 0.2)',
+                        color: partner.status?.includes('Online')
+                          ? '#10b981'
+                          : partner.status?.includes('Handling')
+                            ? '#f59e0b'
+                            : '#ef4444'
+                      }}>
+                        {partner.status || (partner.isAvailable ? 'Online' : 'Offline')}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {partnerSearchQuery.length >= 2 && partnerSearchResults.length === 0 && !searchingPartners && (
+                <div style={{ textAlign: 'center', padding: '12px', color: 'var(--text-secondary)', fontSize: '12px' }}>
+                  No partners found
+                </div>
+              )}
+            </div>
+
+            {/* Close button */}
+            <button
+              onClick={closeAssignModal}
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginTop: '16px',
+                background: 'transparent',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '13px'
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       )}
     </ManageOrdersContainer>
   );

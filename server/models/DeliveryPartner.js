@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const deliveryPartnerSchema = new mongoose.Schema({
+    partnerId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
     name: {
         type: String,
         required: true
@@ -90,7 +95,37 @@ const deliveryPartnerSchema = new mongoose.Schema({
     }
 });
 
+// Pre-save hook to generate unique partnerId
+deliveryPartnerSchema.pre('save', async function (next) {
+    if (!this.partnerId) {
+        // Generate unique ID like "DP-XXXX" where XXXX is random alphanumeric
+        const generateId = () => {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let id = 'DP-';
+            for (let i = 0; i < 4; i++) {
+                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return id;
+        };
+
+        // Ensure uniqueness
+        let newId = generateId();
+        let exists = await this.constructor.findOne({ partnerId: newId });
+        while (exists) {
+            newId = generateId();
+            exists = await this.constructor.findOne({ partnerId: newId });
+        }
+        this.partnerId = newId;
+    }
+    next();
+});
+
 // Create geospatial index for location-based queries
 deliveryPartnerSchema.index({ location: '2dsphere' });
+
+// Create indexes for partner search
+deliveryPartnerSchema.index({ 'vehicle.number': 1 });
+deliveryPartnerSchema.index({ phone: 1 });
+deliveryPartnerSchema.index({ partnerId: 1 });
 
 module.exports = mongoose.model('DeliveryPartner', deliveryPartnerSchema);

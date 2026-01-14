@@ -3,7 +3,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
 import { useUser } from '../context/UserContext.jsx';
-import { Gamepad2, Sun, Moon } from 'lucide-react';
+import { Gamepad2, Sun, Moon, Gift } from 'lucide-react';
 import './Header.css';
 
 const Header = () => {
@@ -208,6 +208,10 @@ const Header = () => {
             {cartCount > 0 && <span className="bottom-cart-badge">{cartCount}</span>}
           </div>
           <span>Cart</span>
+        </NavLink>
+        <NavLink to="/gamification" className={({ isActive }) => isActive ? 'bottom-nav-item active' : 'bottom-nav-item'}>
+          <Gift size={22} />
+          <span>Rewards</span>
         </NavLink>
         <NavLink to="/profile" className={({ isActive }) => isActive ? 'bottom-nav-item active' : 'bottom-nav-item'}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

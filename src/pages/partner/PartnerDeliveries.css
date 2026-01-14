@@ -139,6 +139,21 @@
     transition: all 0.3s ease;
 }
 
+/* Compact Card State */
+.delivery-card.compact {
+    padding: 14px 16px;
+}
+
+.delivery-card.compact .order-icon {
+    width: 36px;
+    height: 36px;
+}
+
+/* Expanded Card State */
+.delivery-card.expanded {
+    padding: 16px;
+}
+
 .delivery-card:hover {
     border-color: #475569;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);

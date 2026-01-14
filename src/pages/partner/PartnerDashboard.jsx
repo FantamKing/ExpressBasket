@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../utils/axios';
+import { io } from 'socket.io-client';
+import Swal from 'sweetalert2';
 import './PartnerDashboard.css';
 
 const PartnerDashboard = () => {
@@ -14,6 +16,10 @@ const PartnerDashboard = () => {
     const [togglingStatus, setTogglingStatus] = useState(false);
     const [pendingDeliveries, setPendingDeliveries] = useState([]);
     const [processingDelivery, setProcessingDelivery] = useState(null);
+
+    // Available broadcast orders (first-come-first-served)
+    const [availableOrders, setAvailableOrders] = useState([]);
+    const [claimingOrder, setClaimingOrder] = useState(null);
 
     useEffect(() => {
         // First load from localStorage for quick display
@@ -35,6 +41,73 @@ const PartnerDashboard = () => {
         window.addEventListener('partnerStatusChanged', handleStatusChange);
         return () => window.removeEventListener('partnerStatusChanged', handleStatusChange);
     }, []);
+
+    // Socket.io for real-time order broadcasts
+    useEffect(() => {
+        const partnerId = JSON.parse(localStorage.getItem('partnerInfo') || '{}')?._id;
+        if (!partnerId) return;
+
+        const socket = io(window.location.origin.replace(':5174', ':5000').replace(':5173', ':5000'), {
+            transports: ['websocket', 'polling']
+        });
+
+        // Authenticate as partner
+        socket.emit('authenticate-delivery-partner', { partnerId });
+
+        // Listen for new broadcast orders
+        socket.on('new_order_available', (data) => {
+            console.log('📡 New order available:', data.order);
+            setAvailableOrders(prev => {
+                // Avoid duplicates
+                if (prev.some(o => o.deliveryId === data.order.deliveryId)) return prev;
+                return [data.order, ...prev];
+            });
+
+            // Show notification
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: '📡 New Order Available!',
+                text: `₹${data.order.totalAmount} • ${data.order.deliveryAddress?.slice(0, 30)}...`,
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true
+            });
+        });
+
+        // Listen for order taken by another partner
+        socket.on('order_taken', (data) => {
+            console.log('📦 Order taken:', data);
+            setAvailableOrders(prev => prev.filter(o => o.orderId?.toString() !== data.orderId?.toString()));
+        });
+
+        // Sync status from server
+        socket.on('status_synced', (data) => {
+            setIsOnline(data.isAvailable);
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
+
+    // Fetch available broadcast orders on load
+    useEffect(() => {
+        fetchAvailableOrders();
+    }, []);
+
+    const fetchAvailableOrders = async () => {
+        try {
+            const token = localStorage.getItem('partnerToken');
+            const response = await axios.get('/delivery/available-orders', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setAvailableOrders(response.data || []);
+        } catch (error) {
+            console.log('Error fetching available orders:', error);
+        }
+    };
 
     const fetchPartnerProfile = async () => {
         try {
@@ -199,12 +272,77 @@ const PartnerDashboard = () => {
         }
     };
 
+    // Claim a broadcast order (first-come-first-served)
+    const handleClaimOrder = async (deliveryId) => {
+        setClaimingOrder(deliveryId);
+        try {
+            const token = localStorage.getItem('partnerToken');
+            const response = await axios.post('/delivery/claim',
+                { deliveryId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            Swal.fire({
+                icon: 'success',
+                title: '🎉 Order Claimed!',
+                html: `<p>You got the order!</p>
+                       <p style="margin-top: 10px; font-size: 14px;">OTP: <strong>${response.data.delivery.otp}</strong></p>`,
+                confirmButtonText: 'Go to Deliveries'
+            }).then(() => {
+                window.location.href = '/partner/deliveries';
+            });
+
+            // Remove from available orders
+            setAvailableOrders(prev => prev.filter(o => o.deliveryId !== deliveryId));
+        } catch (error) {
+            if (error.response?.data?.code === 'ORDER_TAKEN') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Order Already Taken',
+                    text: 'Another partner was faster! Try the next order.',
+                    timer: 3000
+                });
+                // Remove from list since it's taken
+                setAvailableOrders(prev => prev.filter(o => o.deliveryId !== deliveryId));
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.response?.data?.message || 'Failed to claim order'
+                });
+            }
+        } finally {
+            setClaimingOrder(null);
+        }
+    };
+
     return (
         <div className="partner-dashboard">
             <div className="dashboard-header">
                 <div className="header-content">
                     <h1>Welcome back, {partnerInfo?.name}!</h1>
-                    <p>Here's your delivery overview for today</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                        <span style={{
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            color: 'white',
+                            padding: '4px 10px',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: '700',
+                            fontFamily: 'monospace',
+                            letterSpacing: '1px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                        }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="5" width="20" height="14" rx="2" />
+                                <line x1="2" y1="10" x2="22" y2="10" />
+                            </svg>
+                            {partnerInfo?.partnerId || 'ID Pending'}
+                        </span>
+                        <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Here's your delivery overview for today</p>
+                    </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                     {/* Online/Offline Toggle */}
@@ -233,6 +371,61 @@ const PartnerDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Available Broadcast Orders Section */}
+            {availableOrders.length > 0 && (
+                <div className="pending-deliveries-section" style={{
+                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(234, 88, 12, 0.1))',
+                    border: '2px solid rgba(245, 158, 11, 0.3)'
+                }}>
+                    <h2 className="section-title" style={{ color: '#f59e0b' }}>
+                        <span style={{ animation: 'pulse 1s infinite', display: 'inline-block' }}>📡</span>
+                        {' '}Available Orders ({availableOrders.length})
+                    </h2>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', fontSize: '13px' }}>
+                        First to claim gets the order!
+                    </p>
+                    {availableOrders.map(order => (
+                        <div key={order.deliveryId} className="pending-delivery-card" style={{
+                            background: 'var(--card-bg)',
+                            border: '1px solid rgba(245, 158, 11, 0.2)'
+                        }}>
+                            <div className="delivery-card-content">
+                                <div className="delivery-info">
+                                    <p className="order-id" style={{ color: '#f59e0b' }}>
+                                        Order #{order.orderNumber}
+                                    </p>
+                                    <p className="delivery-address">
+                                        {order.deliveryAddress?.slice(0, 50) || 'Address not available'}...
+                                    </p>
+                                    <p className="customer-name">
+                                        {order.customerName} • ₹{order.totalAmount?.toLocaleString()}
+                                    </p>
+                                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                        Est: {order.estimatedMinutes} mins
+                                    </p>
+                                </div>
+                                <div className="delivery-actions">
+                                    <button
+                                        onClick={() => handleClaimOrder(order.deliveryId)}
+                                        disabled={claimingOrder === order.deliveryId}
+                                        className="accept-btn"
+                                        style={{
+                                            background: claimingOrder === order.deliveryId
+                                                ? '#9ca3af'
+                                                : 'linear-gradient(135deg, #f59e0b, #ea580c)',
+                                            fontSize: '14px',
+                                            padding: '12px 20px'
+                                        }}
+                                    >
+                                        {claimingOrder === order.deliveryId ? 'Claiming...' : '🏃 CLAIM'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {/* Pending Deliveries Section */}
             {pendingDeliveries.length > 0 && (

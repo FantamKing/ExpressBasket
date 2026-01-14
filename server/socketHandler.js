@@ -401,6 +401,66 @@ const broadcastOrderStatusChange = (orderId, newStatus, extraData = {}) => {
     return true;
 };
 
+// ==================== BROADCAST ORDER TO ALL PARTNERS ====================
+
+// Broadcast new delivery order to ALL online partners (first-come-first-served)
+const broadcastOrderToAllPartners = (orderData) => {
+    if (!io) return false;
+
+    io.to('all_partners').emit('new_order_available', {
+        order: orderData,
+        timestamp: new Date().toISOString()
+    });
+
+    console.log(`📦 Order broadcast to ALL partners: #${orderData.orderId?.toString().slice(-6) || orderData._id?.toString().slice(-6)}`);
+    return true;
+};
+
+// Notify all partners that an order has been claimed (remove from their list)
+const broadcastOrderTaken = (orderId, acceptedByPartnerId, acceptedByPartnerName) => {
+    if (!io) return false;
+
+    io.to('all_partners').emit('order_taken', {
+        orderId: orderId,
+        acceptedBy: {
+            partnerId: acceptedByPartnerId,
+            partnerName: acceptedByPartnerName
+        },
+        timestamp: new Date().toISOString()
+    });
+
+    console.log(`📦 Order taken notification: #${orderId?.toString().slice(-6)} claimed by ${acceptedByPartnerName}`);
+    return true;
+};
+
+// Broadcast partner availability status change
+const broadcastPartnerStatus = (partnerId, isAvailable) => {
+    if (!io) return false;
+
+    // Notify all admins about partner status change
+    io.to('all_admins').emit('partner_status_changed', {
+        partnerId: partnerId,
+        isAvailable: isAvailable,
+        timestamp: new Date().toISOString()
+    });
+
+    // Also notify the specific partner (sync their UI)
+    io.to(`partner_${partnerId.toString()}`).emit('status_synced', {
+        isAvailable: isAvailable,
+        timestamp: new Date().toISOString()
+    });
+
+    console.log(`👤 Partner ${partnerId} status: ${isAvailable ? 'online' : 'offline'}`);
+    return true;
+};
+
+// Get count of online partners
+const getOnlinePartnersCount = () => {
+    if (!io) return 0;
+    const room = io.sockets.adapter.rooms.get('all_partners');
+    return room ? room.size : 0;
+};
+
 module.exports = {
     initSocketHandler,
     sendMailNotification,
@@ -424,5 +484,10 @@ module.exports = {
     broadcastSupportClosed,
     // Order functions
     broadcastNewOrder,
-    broadcastOrderStatusChange
+    broadcastOrderStatusChange,
+    // Broadcast order to partners functions
+    broadcastOrderToAllPartners,
+    broadcastOrderTaken,
+    broadcastPartnerStatus,
+    getOnlinePartnersCount
 };

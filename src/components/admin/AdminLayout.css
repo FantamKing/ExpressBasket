@@ -336,6 +336,11 @@
   .admin-theme-toggle-new {
     display: none !important;
   }
+
+  /* Hide logout button on mobile - users can logout from profile modal */
+  .logout-btn-animated {
+    display: none !important;
+  }
 }
 
 .sidebar-header {
@@ -1860,9 +1865,9 @@
   color: #f1f5f9 !important;
 }
 
-[data-theme="dark"] p,
-[data-theme="dark"] span:not(.badge):not([class*="icon"]):not([class*="status"]):not(.hp-promo-btn span),
-[data-theme="dark"] label {
+[data-theme="dark"] p:not(.order-bill-modal p):not(.order-bill-modal *),
+[data-theme="dark"] span:not(.badge):not([class*="icon"]):not([class*="status"]):not(.hp-promo-btn span):not(.order-bill-modal span):not(.order-bill-modal *),
+[data-theme="dark"] label:not(.order-bill-modal label):not(.order-bill-modal *) {
   color: #f1f5f9 !important;
 }
 

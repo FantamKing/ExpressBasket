@@ -468,159 +468,200 @@
         padding: 0;
     }
 
+    /* Compact Hero Header */
     .dashboard-header {
         flex-direction: column;
-        margin-bottom: 20px;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding: 14px;
+        background: var(--card-bg);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+
+    .header-content {
+        width: 100%;
     }
 
     .header-content h1 {
-        font-size: 20px;
+        font-size: 18px;
+        margin-bottom: 4px;
     }
 
-    .header-content p {
-        font-size: 13px;
+    .header-content p,
+    .header-content>div>p {
+        font-size: 11px !important;
+        display: none;
     }
 
-    /* Stats grid - 2 columns on mobile */
+    .header-date {
+        display: none;
+    }
+
+    /* Inline Status Toggle */
+    .dashboard-status-toggle {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 8px;
+    }
+
+    .dashboard-status-toggle .status-text {
+        font-size: 12px;
+    }
+
+    .dashboard-status-toggle .modern-toggle {
+        width: 40px;
+        height: 22px;
+    }
+
+    .dashboard-status-toggle .toggle-slider {
+        width: 16px;
+        height: 16px;
+        top: 3px;
+        left: 3px;
+    }
+
+    .dashboard-status-toggle .modern-toggle.active .toggle-slider {
+        transform: translateX(18px);
+    }
+
+    /* Compact 2x2 Stats Grid */
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        margin-bottom: 20px;
+        gap: 8px;
+        margin-bottom: 16px;
     }
 
     .stat-card {
-        padding: 14px;
-        flex-direction: column;
-        align-items: flex-start;
+        padding: 12px;
+        border-radius: 10px;
+        flex-direction: row;
         gap: 10px;
     }
 
     .stat-icon {
-        width: 40px;
-        height: 40px;
-    }
-
-    .stat-value {
-        font-size: 20px;
-    }
-
-    .stat-label {
-        font-size: 11px;
-    }
-
-    /* Quick actions - single column */
-    .quick-actions {
-        margin-bottom: 20px;
-    }
-
-    .quick-actions h2 {
-        font-size: 16px;
-        margin-bottom: 12px;
-    }
-
-    .actions-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .action-card {
-        padding: 14px;
-    }
-
-    .action-icon {
-        width: 42px;
-        height: 42px;
-    }
-
-    .action-content h3 {
-        font-size: 14px;
-    }
-
-    .action-content p {
-        font-size: 12px;
-    }
-
-    /* Info section - compact on mobile */
-    .info-section {
-        padding: 16px;
-        border-radius: 12px;
-    }
-
-    .info-section h2 {
-        font-size: 16px;
-        margin-bottom: 16px;
-    }
-
-    .steps {
-        gap: 12px;
-    }
-
-    .step {
-        padding: 12px;
-        background: rgba(15, 23, 42, 0.3);
-        border-radius: 10px;
-        gap: 12px;
-    }
-
-    .step-number {
         width: 36px;
         height: 36px;
-        font-size: 14px;
+        border-radius: 8px;
     }
 
-    .step-number svg {
+    .stat-icon svg {
         width: 18px;
         height: 18px;
     }
 
-    .step-content h3 {
-        font-size: 13px;
-        margin-bottom: 4px;
+    .stat-value {
+        font-size: 18px;
     }
 
-    .step-content p {
-        font-size: 11px;
-        line-height: 1.4;
+    .stat-label {
+        font-size: 10px;
     }
 
-    /* Pending deliveries section */
-    .pending-deliveries-section {
-        padding: 16px;
+    /* Slim Quick Actions */
+    .quick-actions {
         margin-bottom: 16px;
-        border-radius: 12px;
+    }
+
+    .quick-actions h2 {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .actions-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .action-card {
+        padding: 10px 12px;
+        border-radius: 10px;
+    }
+
+    .action-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+    }
+
+    .action-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .action-content h3 {
+        font-size: 13px;
+        margin-bottom: 0;
+    }
+
+    .action-content p {
+        display: none;
+    }
+
+    .action-arrow {
+        display: none;
+    }
+
+    /* Hide How It Works on mobile */
+    .info-section {
+        display: none;
+    }
+
+    /* Pending Deliveries - Compact */
+    .pending-deliveries-section {
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 10px;
     }
 
     .pending-deliveries-section .section-title {
-        font-size: 16px;
-        margin-bottom: 14px;
+        font-size: 14px;
+        margin-bottom: 10px;
+        gap: 8px;
+    }
+
+    .pending-deliveries-section .section-title svg {
+        width: 18px;
+        height: 18px;
     }
 
     .pending-delivery-card {
-        padding: 14px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        border-radius: 8px;
     }
 
     .delivery-card-content {
-        flex-direction: column;
-        gap: 12px;
+        gap: 10px;
+    }
+
+    .delivery-info .order-id {
+        font-size: 13px;
+    }
+
+    .delivery-info .delivery-address {
+        font-size: 11px;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .delivery-info .customer-name {
+        font-size: 11px;
     }
 
     .delivery-actions {
         flex-direction: row;
-        width: 100%;
     }
 
     .accept-btn,
     .reject-btn {
-        flex: 1;
-        padding: 10px 16px;
-        font-size: 13px;
-    }
-
-    /* Status toggle (in header) */
-    .dashboard-status-toggle {
-        width: 100%;
-        justify-content: space-between;
-        padding: 10px 14px;
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 6px;
     }
 }
 

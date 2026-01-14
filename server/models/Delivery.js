@@ -35,8 +35,14 @@ const deliverySchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending_acceptance', 'accepted', 'assigned', 'picked_up', 'in_transit', 'delivered', 'cancelled', 'rejected', 'cancellation_requested'],
+        enum: ['pending_broadcast', 'pending_acceptance', 'accepted', 'assigned', 'picked_up', 'in_transit', 'delivered', 'cancelled', 'rejected', 'cancellation_requested'],
         default: 'pending_acceptance'
+    },
+    // Assignment type: 'direct' (admin assigns specific partner) or 'broadcast' (first-come-first-served)
+    assignmentType: {
+        type: String,
+        enum: ['direct', 'broadcast'],
+        default: 'direct'
     },
     otp: {
         type: String,
@@ -60,6 +66,11 @@ const deliverySchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    broadcastedAt: Date,  // When order was broadcasted to all partners
+    acceptedAt: Date,     // When partner accepted the order
+    rejectedAt: Date,     // When partner rejected the order
+    rejectionReason: String,
+    inTransitAt: Date,    // When partner started delivery
     pickedUpAt: Date,
     deliveredAt: Date,
     notes: String,

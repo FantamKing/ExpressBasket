@@ -152,9 +152,35 @@ const PartnerProfile = () => {
                         <div className="avatar-info">
                             <h2>{partnerInfo.name}</h2>
                             <span className="email">{partnerInfo.email}</span>
-                            <span className={`status-badge ${partnerInfo.isApproved ? 'approved' : 'pending'}`}>
-                                {partnerInfo.isApproved ? 'Verified Partner' : 'Pending Approval'}
-                            </span>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                marginTop: '8px'
+                            }}>
+                                <span style={{
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    color: 'white',
+                                    padding: '4px 12px',
+                                    borderRadius: '6px',
+                                    fontSize: '13px',
+                                    fontWeight: '700',
+                                    fontFamily: 'monospace',
+                                    letterSpacing: '1px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px'
+                                }}>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                                        <line x1="2" y1="10" x2="22" y2="10" />
+                                    </svg>
+                                    {partnerInfo.partnerId || 'ID Pending'}
+                                </span>
+                                <span className={`status-badge ${partnerInfo.isApproved ? 'approved' : 'pending'}`}>
+                                    {partnerInfo.isApproved ? 'Verified Partner' : 'Pending Approval'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

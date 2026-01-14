@@ -181,11 +181,19 @@ router.get('/partner/deliveries', authenticatePartnerToken, async (req, res) => 
 // Get partner's profile
 router.get('/partner/profile', authenticatePartnerToken, async (req, res) => {
     try {
-        const partner = await DeliveryPartner.findById(req.partner.partnerId)
+        let partner = await DeliveryPartner.findById(req.partner.partnerId)
             .select('-password');
 
         if (!partner) {
             return res.status(404).json({ message: 'Partner not found' });
+        }
+
+        // Generate partnerId if missing (for existing partners)
+        if (!partner.partnerId) {
+            const code = Math.random().toString(36).substring(2, 6).toUpperCase();
+            partner.partnerId = `DP-${code}`;
+            await partner.save();
+            console.log(`📍 Generated partnerId for ${partner.name}: ${partner.partnerId}`);
         }
 
         res.json(partner);
@@ -249,6 +257,91 @@ router.get('/admin/available-partners', authenticateAdminToken, async (req, res)
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
+
+// Search partners by partnerId, vehicle number, phone, or name
+router.get('/admin/partners/search', authenticateAdminToken, async (req, res) => {
+    try {
+        const { q } = req.query;
+
+        if (!q || q.trim().length < 2) {
+            return res.status(400).json({ message: 'Search query must be at least 2 characters' });
+        }
+
+        const searchTerm = q.trim();
+        const searchRegex = new RegExp(searchTerm, 'i');
+
+        // Search across multiple fields
+        const partners = await DeliveryPartner.find({
+            isApproved: true,
+            isActive: true,
+            $or: [
+                { partnerId: searchRegex },
+                { 'vehicle.number': searchRegex },
+                { phone: searchRegex },
+                { name: searchRegex },
+                { email: searchRegex }
+            ]
+        })
+            .select('_id partnerId name phone email vehicle isAvailable activeOrders rating totalDeliveries')
+            .limit(10)
+            .sort({ isAvailable: -1, rating: -1 });
+
+        // Add status field based on activeOrders count
+        const MAX_ACTIVE_ORDERS = 3;
+        const enrichedPartners = partners.map(p => {
+            const activeCount = p.activeOrders?.length || 0;
+            let status = 'Offline';
+            let canAcceptOrders = false;
+
+            if (p.isAvailable) {
+                if (activeCount === 0) {
+                    status = 'Online';
+                    canAcceptOrders = true;
+                } else if (activeCount < MAX_ACTIVE_ORDERS) {
+                    status = `Handling (${activeCount}/${MAX_ACTIVE_ORDERS})`;
+                    canAcceptOrders = true;
+                } else {
+                    status = `Full (${activeCount}/${MAX_ACTIVE_ORDERS})`;
+                    canAcceptOrders = false;
+                }
+            }
+
+            return {
+                ...p.toObject(),
+                activeOrderCount: activeCount,
+                status,
+                canAcceptOrders
+            };
+        });
+
+        res.json(enrichedPartners);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// Get online partners count
+router.get('/admin/partners/online-count', authenticateAdminToken, async (req, res) => {
+    try {
+        const { getOnlinePartnersCount } = require('../socketHandler.js');
+        const count = getOnlinePartnersCount();
+
+        // Also get DB-based available count
+        const dbCount = await DeliveryPartner.countDocuments({
+            isApproved: true,
+            isActive: true,
+            isAvailable: true
+        });
+
+        res.json({
+            socketConnected: count,
+            availableInDB: dbCount
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 
 
 // Get all delivery partners
@@ -492,6 +585,140 @@ router.post('/admin/delivery/assign', [authenticateAdminToken, requirePermission
     }
 });
 
+// ==================== BROADCAST ORDER TO ALL PARTNERS ====================
+
+// Broadcast order to ALL online partners (first-come-first-served)
+router.post('/admin/delivery/broadcast', [authenticateAdminToken, requirePermission('manage_orders')], async (req, res) => {
+    try {
+        const { orderId } = req.body;
+
+        console.log('📡 Broadcast delivery request:', { orderId });
+
+        if (!orderId) {
+            return res.status(400).json({ message: 'orderId is required' });
+        }
+
+        // Get order details
+        const order = await Order.findById(orderId).populate('userId');
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Validate order status
+        if (order.status !== 'packed') {
+            return res.status(400).json({
+                message: `Cannot broadcast delivery. Order must be 'packed' status. Current status: ${order.status}`,
+                currentStatus: order.status
+            });
+        }
+
+        // Check if already broadcasted
+        const existingDelivery = await Delivery.findOne({ order: orderId, status: 'pending_broadcast' });
+        if (existingDelivery) {
+            return res.status(400).json({
+                message: 'Order already broadcasted to partners',
+                deliveryId: existingDelivery._id
+            });
+        }
+
+        // Calculate delivery time
+        let estimatedMinutes = 30 + Math.floor(Math.random() * 25);
+        try {
+            const membershipTier = order.userId?.membershipTier || order.userId?.loyaltyBadge?.type || 'none';
+            const membershipTime = generateDeliveryTime(membershipTier);
+            if (membershipTime) estimatedMinutes = membershipTime;
+        } catch (e) {
+            console.log('📡 Using default delivery time');
+        }
+
+        // Generate OTP
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+        // Build delivery address
+        const addr = order.shippingAddress || {};
+        const fullAddress = [addr.houseNo, addr.street, addr.landmark, addr.city, addr.state, addr.pincode]
+            .filter(Boolean).join(', ') || 'Address not provided';
+
+        // Get coordinates
+        const lat = addr.coordinates?.lat || order.deliveryLocation?.coordinates?.lat || 28.6139;
+        const lng = addr.coordinates?.lng || order.deliveryLocation?.coordinates?.lng || 77.2090;
+
+        // Create delivery with 'pending_broadcast' status (no partner assigned yet)
+        const delivery = new Delivery({
+            order: orderId,
+            deliveryPartner: null, // No partner assigned yet!
+            status: 'pending_broadcast',
+            assignmentType: 'broadcast', // New field to track assignment type
+            deliveryLocation: {
+                address: fullAddress,
+                coordinates: { lat, lng }
+            },
+            otp,
+            estimatedTime: estimatedMinutes,
+            broadcastedAt: new Date()
+        });
+
+        await delivery.save();
+        console.log('📡 Broadcast delivery created:', delivery._id);
+
+        // Update order status to 'broadcasting'
+        order.status = 'broadcasting';
+        order.estimatedDeliveryMinutes = estimatedMinutes;
+        await order.save();
+
+        // Broadcast to ALL online partners via socket
+        const { broadcastOrderToAllPartners, getOnlinePartnersCount } = require('../socketHandler.js');
+        const onlineCount = getOnlinePartnersCount();
+
+        const broadcastData = {
+            deliveryId: delivery._id,
+            orderId: order._id,
+            orderNumber: order._id.toString().slice(-6).toUpperCase(),
+            customerName: order.userId?.name || 'Customer',
+            customerPhone: order.userId?.phone || '',
+            deliveryAddress: fullAddress,
+            coordinates: { lat, lng },
+            estimatedMinutes,
+            itemCount: order.products?.length || 0,
+            totalAmount: order.totalAmount,
+            assignedHub: order.assignedHub,
+            createdAt: new Date()
+        };
+
+        broadcastOrderToAllPartners(broadcastData);
+
+        res.status(201).json({
+            message: `Order broadcasted to ${onlineCount} online partner(s)`,
+            delivery: {
+                _id: delivery._id,
+                status: delivery.status,
+                estimatedTime: estimatedMinutes
+            },
+            otp,
+            onlinePartnersCount: onlineCount
+        });
+    } catch (error) {
+        console.error('❌ Broadcast delivery error:', error.message);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// Get broadcasted orders (pending acceptance by any partner)
+router.get('/admin/delivery/broadcasted', authenticateAdminToken, async (req, res) => {
+    try {
+        const deliveries = await Delivery.find({ status: 'pending_broadcast' })
+            .populate({
+                path: 'order',
+                populate: { path: 'userId', select: 'name phone' }
+            })
+            .sort({ broadcastedAt: -1 });
+
+        res.json(deliveries);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 // Get all active deliveries
 router.get('/admin/delivery/active', authenticateAdminToken, async (req, res) => {
     try {
@@ -527,7 +754,164 @@ router.get('/admin/delivery/order/:orderId', authenticateAdminToken, async (req,
 
 // ==================== DELIVERY PARTNER ROUTES ====================
 
-// Accept delivery (starts the timer)
+// ==================== PARTNER BROADCAST ORDER ACCEPTANCE ====================
+
+// Get available broadcast orders for partners
+router.get('/delivery/available-orders', authenticatePartnerToken, async (req, res) => {
+    try {
+        const deliveries = await Delivery.find({
+            status: 'pending_broadcast',
+            deliveryPartner: null
+        })
+            .populate({
+                path: 'order',
+                populate: { path: 'userId', select: 'name phone' }
+            })
+            .sort({ broadcastedAt: -1 });
+
+        // Format for partner view
+        const orders = deliveries.map(d => ({
+            deliveryId: d._id,
+            orderId: d.order._id,
+            orderNumber: d.order._id.toString().slice(-6).toUpperCase(),
+            customerName: d.order.userId?.name || 'Customer',
+            deliveryAddress: d.deliveryLocation?.address || 'No address',
+            coordinates: d.deliveryLocation?.coordinates,
+            estimatedMinutes: d.estimatedTime,
+            itemCount: d.order.products?.length || 0,
+            totalAmount: d.order.totalAmount,
+            assignedHub: d.order.assignedHub,
+            broadcastedAt: d.broadcastedAt
+        }));
+
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// Claim/Accept a broadcast order (first-come-first-served with race condition protection)
+router.post('/delivery/claim', authenticatePartnerToken, async (req, res) => {
+    try {
+        const { deliveryId } = req.body;
+        const partnerId = req.partner.partnerId;
+
+        console.log(`🏃 Partner ${partnerId} attempting to claim delivery ${deliveryId}`);
+
+        // Get partner info first
+        const partner = await DeliveryPartner.findById(partnerId);
+        if (!partner) {
+            return res.status(404).json({ message: 'Partner not found' });
+        }
+
+        if (!partner.isApproved || !partner.isActive) {
+            return res.status(403).json({ message: 'Partner account not active or approved' });
+        }
+
+        // Check max 3 active orders limit
+        const MAX_ACTIVE_ORDERS = 3;
+        const activeOrderCount = partner.activeOrders?.length || 0;
+        if (activeOrderCount >= MAX_ACTIVE_ORDERS) {
+            return res.status(400).json({
+                message: `You already have ${activeOrderCount} active orders. Complete some before accepting more.`,
+                code: 'MAX_ORDERS_REACHED',
+                activeOrders: activeOrderCount,
+                maxAllowed: MAX_ACTIVE_ORDERS
+            });
+        }
+
+        // ATOMIC operation - claim the order if still available
+        // This prevents race conditions: only one partner can claim
+        const delivery = await Delivery.findOneAndUpdate(
+            {
+                _id: deliveryId,
+                status: 'pending_broadcast',
+                deliveryPartner: null  // Must be unclaimed
+            },
+            {
+                $set: {
+                    deliveryPartner: partnerId,
+                    status: 'accepted',
+                    acceptedAt: new Date()
+                }
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        ).populate({
+            path: 'order',
+            populate: { path: 'userId' }
+        });
+
+        // If no delivery found, it was already claimed by someone else
+        if (!delivery) {
+            console.log(`❌ Order ${deliveryId} already claimed or not found`);
+            return res.status(409).json({
+                message: 'Order already claimed by another partner',
+                code: 'ORDER_TAKEN'
+            });
+        }
+
+        console.log(`✅ Partner ${partner.name} claimed delivery ${deliveryId}`);
+
+        // Update order status
+        const order = delivery.order;
+        order.status = 'assigned';
+        order.assignedPartner = partnerId;
+        await order.save();
+
+        // Update partner
+        await DeliveryPartner.findByIdAndUpdate(partnerId, {
+            currentDelivery: delivery._id,
+            $push: { activeOrders: order._id }
+        });
+
+        // Broadcast to ALL partners that this order is taken
+        const { broadcastOrderTaken, broadcastDeliveryStatus } = require('../socketHandler.js');
+        broadcastOrderTaken(order._id, partnerId, partner.name);
+
+        // Notify customer
+        if (order.userId?._id) {
+            broadcastDeliveryStatus(order.userId._id, {
+                orderId: order._id,
+                status: 'accepted',
+                partnerName: partner.name,
+                message: 'A delivery partner has accepted your order!',
+                estimatedTime: order.estimatedDeliveryMinutes
+            });
+        }
+
+        // Notify admin
+        const { broadcastOrderStatusChange } = require('../socketHandler.js');
+        broadcastOrderStatusChange(order._id, 'assigned', {
+            partnerId,
+            partnerName: partner.name,
+            claimedAt: new Date()
+        });
+
+        res.json({
+            message: 'Order claimed successfully!',
+            delivery: {
+                _id: delivery._id,
+                otp: delivery.otp,
+                status: delivery.status,
+                order: {
+                    _id: order._id,
+                    totalAmount: order.totalAmount,
+                    products: order.products
+                },
+                deliveryLocation: delivery.deliveryLocation,
+                estimatedTime: delivery.estimatedTime
+            }
+        });
+    } catch (error) {
+        console.error('❌ Claim delivery error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// Accept delivery (for direct assignments - starts the timer)
 router.post('/delivery/accept', authenticatePartnerToken, async (req, res) => {
     try {
         const { deliveryId } = req.body;
@@ -563,10 +947,8 @@ router.post('/delivery/accept', authenticatePartnerToken, async (req, res) => {
         const order = delivery.order;
         // order stays as 'assigned' - no timer start yet
 
-        // Set partner as unavailable (they have an active assignment)
-        await DeliveryPartner.findByIdAndUpdate(partnerId, {
-            isAvailable: false
-        });
+        // Partner stays online but is now "Handling" orders (tracked via activeOrders array)
+        // They can still receive more orders until max limit (3)
 
         // Notify customer - delivery has been accepted
         broadcastDeliveryStatus(order.userId._id, {

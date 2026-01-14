@@ -92,12 +92,8 @@ export const hasPermission = (admin, requiredPermission) => {
     if (permissions.includes('view_everything')) return true;
 
     // Check if admin has the exact required permission
+    // NOTE: manage_* permissions require exact match - view_* does NOT grant access to manage routes
     if (permissions.includes(requiredPermission)) return true;
-
-    // Also check for view permission when manage permission is required
-    // This allows users with view_* to see sections even if they can't manage
-    const viewPermission = requiredPermission.replace('manage_', 'view_');
-    if (permissions.includes(viewPermission)) return true;
 
     return false;
 };

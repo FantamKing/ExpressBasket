@@ -83,29 +83,114 @@ const OrderBill = ({ order, user, onClose }) => {
             zIndex: 10000,
             padding: '20px'
         }} onClick={onClose}>
-            {/* Style tag for invoice title color - ensures black color regardless of other CSS */}
+            {/* FORCE light theme - reset CSS variables and override all colors */}
             <style>
                 {`
-                    #invoice-title-black,
-                    [data-theme="light"] #invoice-title-black,
-                    [data-theme="dark"] #invoice-title-black,
-                    div#invoice-title-black {
-                        color: #000000 !important;
+                    /* Reset CSS variables to light theme inside invoice modal */
+                    .order-bill-modal,
+                    .order-bill-modal *,
+                    [data-theme="dark"] .order-bill-modal,
+                    [data-theme="dark"] .order-bill-modal * {
+                        --text-color: #1a1a2e !important;
+                        --text-secondary: #4a5568 !important;
+                        --bg-color: #ffffff !important;
+                        --card-bg: #ffffff !important;
+                    }
+                    
+                    /* Force all text inside modal to be dark */
+                    .order-bill-modal,
+                    .order-bill-modal h1,
+                    .order-bill-modal h2,
+                    .order-bill-modal h3,
+                    .order-bill-modal h4,
+                    .order-bill-modal p,
+                    .order-bill-modal span,
+                    .order-bill-modal div,
+                    .order-bill-modal td,
+                    .order-bill-modal label,
+                    .order-bill-modal strong,
+                    [data-theme="dark"] .order-bill-modal,
+                    [data-theme="dark"] .order-bill-modal h1,
+                    [data-theme="dark"] .order-bill-modal h2,
+                    [data-theme="dark"] .order-bill-modal h3,
+                    [data-theme="dark"] .order-bill-modal h4,
+                    [data-theme="dark"] .order-bill-modal p,
+                    [data-theme="dark"] .order-bill-modal span,
+                    [data-theme="dark"] .order-bill-modal div,
+                    [data-theme="dark"] .order-bill-modal td,
+                    [data-theme="dark"] .order-bill-modal label,
+                    [data-theme="dark"] .order-bill-modal strong {
+                        color: #1a1a2e !important;
+                    }
+                    
+                    /* Bill container white background */
+                    .order-bill-modal .bill-container,
+                    [data-theme="dark"] .order-bill-modal .bill-container {
+                        background: #ffffff !important;
+                        color: #1a1a2e !important;
+                    }
+                    
+                    /* Table headers - white text on green */
+                    .order-bill-modal table th,
+                    [data-theme="dark"] .order-bill-modal table th {
+                        color: #ffffff !important;
+                        background: #28a745 !important;
+                    }
+                    
+                    /* Keep button text white */
+                    .order-bill-modal button,
+                    .order-bill-modal button span,
+                    [data-theme="dark"] .order-bill-modal button,
+                    [data-theme="dark"] .order-bill-modal button span {
+                        color: #ffffff !important;
+                    }
+                    
+                    /* Invoice header bar h3 stays green */
+                    .order-bill-modal .bill-header-bar h3,
+                    .order-bill-modal .bill-header-bar h3 span,
+                    [data-theme="dark"] .order-bill-modal .bill-header-bar h3,
+                    [data-theme="dark"] .order-bill-modal .bill-header-bar h3 span {
+                        color: #28a745 !important;
+                    }
+                    
+                    /* Payment info - dark green text */
+                    .order-bill-modal .payment-info,
+                    .order-bill-modal .payment-info span,
+                    [data-theme="dark"] .order-bill-modal .payment-info,
+                    [data-theme="dark"] .order-bill-modal .payment-info span {
+                        color: #155724 !important;
+                    }
+                    
+                    /* Totals section */
+                    .order-bill-modal .totals,
+                    .order-bill-modal .totals span,
+                    .order-bill-modal .totals div,
+                    [data-theme="dark"] .order-bill-modal .totals,
+                    [data-theme="dark"] .order-bill-modal .totals span,
+                    [data-theme="dark"] .order-bill-modal .totals div {
+                        color: #1a1a2e !important;
+                    }
+                    
+                    /* Company info text */
+                    .order-bill-modal .company-info p,
+                    [data-theme="dark"] .order-bill-modal .company-info p {
+                        color: #1e293b !important;
                     }
                 `}
             </style>
-            <div style={{
+            <div className="order-bill-modal" style={{
                 background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #d1fae5 100%)',
                 borderRadius: '20px',
                 maxWidth: '850px',
                 width: '100%',
                 maxHeight: '90vh',
                 overflow: 'auto',
-                position: 'relative'
+                position: 'relative',
+                color: '#1a1a2e'
             }} onClick={e => e.stopPropagation()}>
 
                 {/* Action Buttons */}
-                <div style={{
+                <div className="bill-header-bar" style={{
                     position: 'sticky',
                     top: 0,
                     background: 'white',
@@ -201,14 +286,14 @@ const OrderBill = ({ order, user, onClose }) => {
                                 </svg>
                                 <span style={{ color: '#28a745' }}>Express Basket</span>
                             </div>
-                            <p style={{ color: '#4a5568', fontSize: '11px', marginBottom: '2px', fontWeight: '500' }}>Your Trusted Online Grocery Store</p>
-                            <p style={{ color: '#4a5568', fontSize: '11px', fontWeight: '500' }}>contact: expressbasket.help@gmail.com</p>
+                            <p style={{ color: '#1e293b', fontSize: '11px', marginBottom: '2px', fontWeight: '500' }}>Your Trusted Online Grocery Store</p>
+                            <p style={{ color: '#1e293b', fontSize: '11px', fontWeight: '500' }}>contact: expressbasket.help@gmail.com</p>
                         </div>
 
                         {/* Invoice Info - Center */}
                         <div className="invoice-info" style={{ textAlign: 'center', flex: '1' }}>
                             <div id="invoice-title-black" style={{ fontSize: '26px', marginBottom: '6px', letterSpacing: '3px', fontWeight: '800' }}>INVOICE</div>
-                            <p className="order-date" style={{ color: '#4a5568', fontSize: '12px', fontWeight: '500' }}>
+                            <p className="order-date" style={{ color: '#1e293b', fontSize: '12px', fontWeight: '500' }}>
                                 {new Date(order.orderDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </p>
                         </div>
@@ -285,11 +370,11 @@ const OrderBill = ({ order, user, onClose }) => {
 
                     {/* Totals */}
                     <div className="totals" style={{ marginLeft: 'auto', width: '280px', background: '#f8fafc', padding: '18px 22px', borderRadius: '12px' }}>
-                        <div className="totals-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '14px', color: '#4a5568' }}>
+                        <div className="totals-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '14px', color: '#1e293b' }}>
                             <span>Subtotal:</span>
                             <span>₹{subtotal.toFixed(2)}</span>
                         </div>
-                        <div className="totals-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '14px', color: '#4a5568' }}>
+                        <div className="totals-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '14px', color: '#1e293b' }}>
                             <span>Delivery:</span>
                             <span>{deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge.toFixed(2)}`}</span>
                         </div>
