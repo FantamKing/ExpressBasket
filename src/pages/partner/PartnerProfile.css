@@ -365,7 +365,10 @@
 /* Responsive Design - 2 Column Compact Grid */
 @media (max-width: 768px) {
     .partner-profile {
-        padding: 0;
+        padding: 10px 12px;
+        max-width: 100%;
+        margin: 0 auto;
+        box-sizing: border-box;
     }
 
     /* Hide page header on mobile */
@@ -374,13 +377,20 @@
     }
 
     .partner-profile .profile-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
         gap: 10px !important;
+        width: 100%;
+        max-width: 100%;
     }
 
-    /* Compact Hero Card */
+    /* Compact Hero Card - Full Width */
     .partner-profile .profile-card.main-info {
         padding: 14px !important;
         border-radius: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     .partner-profile .avatar-section {
@@ -410,11 +420,13 @@
         padding: 2px 6px;
     }
 
-    /* 2-Column Grid */
+    /* 2-Column Grid - Full Width */
     .partner-profile .profile-grid {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     /* Mini Cards */
