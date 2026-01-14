@@ -1999,7 +1999,7 @@ router.get('/profile/me', verifyAdmin, async (req, res) => {
 router.get('/directory', verifyAdmin, async (req, res) => {
     try {
         const admins = await Admin.find({ isActive: true })
-            .select('username email role profilePicture avatarFrame customFrameUrl likes likeBoost tags createdAt');
+            .select('username email role profilePicture avatarFrame customFrameUrl profileAnimation customAnimationCss animationFileUrl animationLoopMode animationAfterFile animationOpacity likes likeBoost tags createdAt');
 
         // Add likeCount and hasLiked for current user
         const adminsWithLikes = admins.map(admin => ({
@@ -2010,6 +2010,12 @@ router.get('/directory', verifyAdmin, async (req, res) => {
             profilePicture: admin.profilePicture,
             avatarFrame: admin.avatarFrame,
             customFrameUrl: admin.customFrameUrl,
+            profileAnimation: admin.profileAnimation,
+            customAnimationCss: admin.customAnimationCss,
+            animationFileUrl: admin.animationFileUrl,
+            animationLoopMode: admin.animationLoopMode,
+            animationAfterFile: admin.animationAfterFile,
+            animationOpacity: admin.animationOpacity,
             tags: admin.tags,
             createdAt: admin.createdAt,
             likeCount: (admin.likes?.length || 0) + (admin.likeBoost || 0),
@@ -2035,7 +2041,7 @@ router.get('/directory', verifyAdmin, async (req, res) => {
 router.get('/directory/:id', verifyAdmin, async (req, res) => {
     try {
         const admin = await Admin.findById(req.params.id)
-            .select('username email role profilePicture avatarFrame customFrameUrl likes likeBoost tags createdAt permissions');
+            .select('username email role profilePicture avatarFrame customFrameUrl profileAnimation customAnimationCss animationFileUrl animationLoopMode animationAfterFile animationOpacity likes likeBoost tags createdAt permissions');
 
         if (!admin) {
             return res.status(404).json({ message: 'Admin not found' });
@@ -2057,6 +2063,12 @@ router.get('/directory/:id', verifyAdmin, async (req, res) => {
             profilePicture: admin.profilePicture,
             avatarFrame: admin.avatarFrame,
             customFrameUrl: admin.customFrameUrl,
+            profileAnimation: admin.profileAnimation,
+            customAnimationCss: admin.customAnimationCss,
+            animationFileUrl: admin.animationFileUrl,
+            animationLoopMode: admin.animationLoopMode,
+            animationAfterFile: admin.animationAfterFile,
+            animationOpacity: admin.animationOpacity,
             tags: admin.tags,
             permissions: admin.permissions,
             createdAt: admin.createdAt,
@@ -2402,6 +2414,191 @@ router.delete('/profile/custom-frame', verifyAdmin, async (req, res) => {
         res.json({
             success: true,
             message: 'Custom frame removed'
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// ============================================
+// PROFILE ANIMATION ROUTES (Discord-style effects)
+// ============================================
+
+// Get available animations list
+router.get('/profile/animations', verifyAdmin, async (req, res) => {
+    try {
+        const animations = [
+            { id: 'sparkles', name: 'Sparkles', description: 'Glittering particle effect', category: 'particles' },
+            { id: 'fireworks', name: 'Fireworks', description: 'Colorful bursts radiating from center', category: 'burst' },
+            { id: 'rain', name: 'Digital Rain', description: 'Matrix-style digital rain', category: 'falling' },
+            { id: 'stars', name: 'Stars', description: 'Floating and twinkling stars', category: 'particles' },
+            { id: 'confetti', name: 'Confetti', description: 'Colorful paper confetti falling', category: 'falling' },
+            { id: 'aurora', name: 'Aurora', description: 'Northern lights color gradient waves', category: 'ambient' }
+        ];
+
+        res.json({
+            success: true,
+            animations,
+            customAllowed: true
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Update profile animation
+router.put('/profile/animation', verifyAdmin, async (req, res) => {
+    try {
+        const { animation, customAnimationCss } = req.body;
+        const admin = await Admin.findById(req.admin.id);
+        if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+        // Validate animation type
+        const validAnimations = ['sparkles', 'fireworks', 'rain', 'stars', 'confetti', 'aurora', 'custom', null];
+        if (animation !== null && !validAnimations.includes(animation)) {
+            return res.status(400).json({ message: 'Invalid animation type' });
+        }
+
+        admin.profileAnimation = animation;
+
+        // Only update customAnimationCss if it's for custom animation
+        if (animation === 'custom' && customAnimationCss) {
+            // Basic validation - ensure CSS is not too long
+            if (customAnimationCss.length > 10000) {
+                return res.status(400).json({ message: 'Custom CSS is too long (max 10000 characters)' });
+            }
+
+            // Security sanitization - block dangerous patterns
+            const dangerousPatterns = [
+                /javascript\s*:/gi,
+                /expression\s*\(/gi,
+                /behavior\s*:/gi,
+                /@import/gi,
+                /-moz-binding/gi,
+                /vbscript\s*:/gi,
+                /<script/gi,
+                /<\/script/gi,
+                /url\s*\(\s*["']?(?!data:)(?!#)/gi  // Block external URLs but allow data: URIs and local refs
+            ];
+
+            for (const pattern of dangerousPatterns) {
+                if (pattern.test(customAnimationCss)) {
+                    return res.status(400).json({ message: 'Invalid CSS content: contains potentially unsafe patterns' });
+                }
+            }
+
+            admin.customAnimationCss = customAnimationCss;
+        }
+
+        await admin.save();
+
+        // Log contribution
+        await Contribution.log(req.admin.id, 'admin_updated', `Updated profile animation to ${animation || 'none'}`);
+
+        res.json({
+            success: true,
+            message: 'Profile animation updated',
+            profileAnimation: admin.profileAnimation,
+            customAnimationCss: admin.customAnimationCss
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Clear custom animation CSS
+router.delete('/profile/animation/custom', verifyAdmin, async (req, res) => {
+    try {
+        const admin = await Admin.findById(req.admin.id);
+        if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+        admin.profileAnimation = null;
+        admin.customAnimationCss = null;
+        admin.animationFileUrl = null;
+        await admin.save();
+
+        res.json({
+            success: true,
+            message: 'Custom animation removed'
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Upload animation file (GIF/WebM/MP4)
+router.post('/profile/animation/upload', verifyAdmin, async (req, res) => {
+    try {
+        const { animationUrl, loopMode, afterFile, opacity } = req.body;
+
+        if (!animationUrl) {
+            return res.status(400).json({ message: 'Animation URL is required' });
+        }
+
+        // Validate URL pattern (allow data URLs and normal URLs)
+        const isValidUrl = animationUrl.startsWith('data:') ||
+            animationUrl.startsWith('http://') ||
+            animationUrl.startsWith('https://') ||
+            animationUrl.startsWith('/');
+
+        if (!isValidUrl) {
+            return res.status(400).json({ message: 'Invalid animation URL format' });
+        }
+
+        const admin = await Admin.findById(req.admin.id);
+        if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+        admin.profileAnimation = 'file';
+        admin.animationFileUrl = animationUrl;
+        admin.customAnimationCss = null;
+
+        // Set new fields
+        if (loopMode === 'loop' || loopMode === 'once') {
+            admin.animationLoopMode = loopMode;
+        }
+        if (afterFile !== undefined) {
+            admin.animationAfterFile = afterFile;
+        }
+        if (typeof opacity === 'number' && opacity >= 0.1 && opacity <= 1) {
+            admin.animationOpacity = opacity;
+        }
+
+        await admin.save();
+
+        res.json({
+            success: true,
+            message: 'Animation file uploaded',
+            profileAnimation: admin.profileAnimation,
+            animationFileUrl: admin.animationFileUrl,
+            animationLoopMode: admin.animationLoopMode,
+            animationAfterFile: admin.animationAfterFile,
+            animationOpacity: admin.animationOpacity
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Set exclusive demon-aura frame (SUPER ADMIN ONLY)
+router.post('/profile/exclusive-frame', verifySuperAdmin, async (req, res) => {
+    try {
+        const { frame } = req.body;
+
+        // Only super_admin can use demon-aura frame
+        if (frame === 'demon-aura' && req.admin.role !== 'super_admin') {
+            return res.status(403).json({ message: 'This frame is exclusive to super admins' });
+        }
+
+        const admin = await Admin.findById(req.admin.id);
+        if (!admin) return res.status(404).json({ message: 'Admin not found' });
+
+        admin.avatarFrame = frame;
+        await admin.save();
+
+        res.json({
+            success: true,
+            message: 'Exclusive frame equipped!',
+            avatarFrame: admin.avatarFrame
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

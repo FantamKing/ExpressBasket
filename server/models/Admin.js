@@ -46,12 +46,43 @@ const adminSchema = new mongoose.Schema({
     },
     avatarFrame: {
         type: String,
-        enum: ['fire', 'neon', 'galaxy', 'gold', 'electric', 'rainbow', 'ice', 'phantom', 'custom', null],
+        enum: ['fire', 'neon', 'galaxy', 'gold', 'electric', 'rainbow', 'ice', 'phantom', 'demon-aura', 'custom', null],
         default: null
     },
     customFrameUrl: {
         type: String,
         default: null
+    },
+    // Profile Animation fields (Discord-style effects)
+    profileAnimation: {
+        type: String,
+        enum: ['sparkles', 'fireworks', 'rain', 'stars', 'confetti', 'aurora', 'binary-rain', 'electric-arc', 'cyber-grid', 'hologram-scan', 'custom', 'file', null],
+        default: null
+    },
+    customAnimationCss: {
+        type: String,
+        default: null
+    },
+    animationFileUrl: {
+        type: String,
+        default: null
+    },
+    // Animation file settings
+    animationLoopMode: {
+        type: String,
+        enum: ['loop', 'once'],
+        default: 'loop'
+    },
+    animationAfterFile: {
+        type: String,
+        enum: ['sparkles', 'fireworks', 'rain', 'stars', 'confetti', 'aurora', 'binary-rain', 'electric-arc', 'cyber-grid', 'hologram-scan', null],
+        default: null
+    },
+    animationOpacity: {
+        type: Number,
+        default: 0.7,
+        min: 0.1,
+        max: 1
     },
     likes: [{
         type: mongoose.Schema.Types.ObjectId,

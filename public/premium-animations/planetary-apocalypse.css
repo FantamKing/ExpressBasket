@@ -1,0 +1,342 @@
+/* ============================================
+   PLANETARY APOCALYPSE
+   Epic Planetary Collision Animation
+   
+   Phase 1: Two planets collide (plays once)
+   Phase 2: Debris particles drift forever
+   Phase 3: Space waves ripple periodically
+   ============================================ */
+
+/* === PHASE 1: THE COLLISION (plays once) === */
+
+/* Planet 1 - Coming from left */
+.custom-particle:nth-child(1) {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    left: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 30%, #ff6b35 0%, #c41e3a 40%, #8b0000 70%, #2d0a0a 100%);
+    box-shadow:
+        inset -10px -10px 20px rgba(0, 0, 0, 0.6),
+        inset 5px 5px 15px rgba(255, 200, 100, 0.3),
+        0 0 40px rgba(255, 100, 50, 0.6),
+        0 0 80px rgba(255, 50, 0, 0.4);
+    animation: planet1Collide 3s ease-in forwards;
+    z-index: 10;
+}
+
+/* Planet 2 - Coming from right */
+.custom-particle:nth-child(2) {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    right: -25px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 70% 30%, #4a90d9 0%, #1e3a5f 40%, #0a1929 70%, #050a10 100%);
+    box-shadow:
+        inset 10px -10px 20px rgba(0, 0, 0, 0.6),
+        inset -5px 5px 15px rgba(150, 200, 255, 0.3),
+        0 0 40px rgba(50, 150, 255, 0.6),
+        0 0 80px rgba(0, 100, 255, 0.4);
+    animation: planet2Collide 3s ease-in forwards;
+    z-index: 10;
+}
+
+/* === COLLISION EXPLOSION FLASH === */
+.custom-particle:nth-child(3) {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0;
+    animation: collisionFlash 3s ease-out forwards;
+    z-index: 20;
+}
+
+/* === PHASE 2: DEBRIS PARTICLES (infinite) === */
+.custom-particle:nth-child(4),
+.custom-particle:nth-child(5),
+.custom-particle:nth-child(6),
+.custom-particle:nth-child(7),
+.custom-particle:nth-child(8),
+.custom-particle:nth-child(9) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    opacity: 0;
+    animation: debrisFloat 8s ease-out infinite;
+    animation-delay: 2.8s;
+}
+
+.custom-particle:nth-child(4) {
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #ff6b35, #8b0000);
+    box-shadow: 0 0 10px #ff6b35, 0 0 20px rgba(255, 100, 50, 0.5);
+    --drift-x: -80px;
+    --drift-y: -60px;
+    --rotate: 720deg;
+}
+
+.custom-particle:nth-child(5) {
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #4a90d9, #0a1929);
+    box-shadow: 0 0 10px #4a90d9, 0 0 20px rgba(50, 150, 255, 0.5);
+    --drift-x: 90px;
+    --drift-y: -50px;
+    --rotate: -540deg;
+    animation-delay: 3s;
+}
+
+.custom-particle:nth-child(6) {
+    width: 5px;
+    height: 5px;
+    background: radial-gradient(circle, #ffaa00, #ff4400);
+    box-shadow: 0 0 8px #ffaa00;
+    --drift-x: -60px;
+    --drift-y: 70px;
+    --rotate: 900deg;
+    animation-delay: 3.2s;
+}
+
+.custom-particle:nth-child(7) {
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, #88ccff, #1e3a5f);
+    box-shadow: 0 0 8px #88ccff;
+    --drift-x: 70px;
+    --drift-y: 80px;
+    --rotate: -810deg;
+    animation-delay: 3.1s;
+}
+
+.custom-particle:nth-child(8) {
+    width: 7px;
+    height: 7px;
+    background: radial-gradient(circle, #ff8855, #660000);
+    box-shadow: 0 0 12px #ff8855;
+    --drift-x: -100px;
+    --drift-y: 20px;
+    --rotate: 630deg;
+    animation-delay: 2.9s;
+}
+
+.custom-particle:nth-child(9) {
+    width: 3px;
+    height: 3px;
+    background: #fff;
+    box-shadow: 0 0 6px #fff, 0 0 12px rgba(255, 200, 100, 0.8);
+    --drift-x: 50px;
+    --drift-y: -90px;
+    --rotate: -1080deg;
+    animation-delay: 3.3s;
+}
+
+/* === PHASE 3: SPACE WAVES (periodic) === */
+.custom-particle:nth-child(10),
+.custom-particle:nth-child(11) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid;
+    background: transparent;
+    opacity: 0;
+    animation: spaceWave 6s ease-out infinite;
+}
+
+.custom-particle:nth-child(10) {
+    width: 20px;
+    height: 20px;
+    border-color: rgba(255, 150, 100, 0.6);
+    box-shadow:
+        0 0 20px rgba(255, 100, 50, 0.4),
+        inset 0 0 20px rgba(255, 100, 50, 0.2);
+    animation-delay: 4s;
+}
+
+.custom-particle:nth-child(11) {
+    width: 20px;
+    height: 20px;
+    border-color: rgba(100, 150, 255, 0.6);
+    box-shadow:
+        0 0 20px rgba(50, 100, 255, 0.4),
+        inset 0 0 20px rgba(50, 100, 255, 0.2);
+    animation-delay: 7s;
+}
+
+/* === AMBIENT DUST (continuous) === */
+.custom-particle:nth-child(12) {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background:
+        radial-gradient(circle at 50% 50%,
+            rgba(255, 100, 50, 0.15) 0%,
+            rgba(100, 50, 150, 0.1) 30%,
+            transparent 60%);
+    opacity: 0;
+    animation: ambientGlow 4s ease-in-out infinite;
+    animation-delay: 3s;
+    filter: blur(10px);
+}
+
+/* === KEYFRAMES === */
+
+@keyframes planet1Collide {
+    0% {
+        left: -30px;
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+
+    70% {
+        left: calc(50% - 35px);
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+
+    85% {
+        left: calc(50% - 30px);
+        opacity: 1;
+        transform: translateY(-50%) scale(0.8);
+        filter: brightness(2);
+    }
+
+    100% {
+        left: calc(50% - 30px);
+        opacity: 0;
+        transform: translateY(-50%) scale(0);
+        filter: brightness(5);
+    }
+}
+
+@keyframes planet2Collide {
+    0% {
+        right: -25px;
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+
+    70% {
+        right: calc(50% - 30px);
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+
+    85% {
+        right: calc(50% - 25px);
+        opacity: 1;
+        transform: translateY(-50%) scale(0.8);
+        filter: brightness(2);
+    }
+
+    100% {
+        right: calc(50% - 25px);
+        opacity: 0;
+        transform: translateY(-50%) scale(0);
+        filter: brightness(5);
+    }
+}
+
+@keyframes collisionFlash {
+
+    0%,
+    75% {
+        opacity: 0;
+        width: 10px;
+        height: 10px;
+        box-shadow: none;
+    }
+
+    80% {
+        opacity: 1;
+        width: 200px;
+        height: 200px;
+        background: #fff;
+        box-shadow:
+            0 0 60px #fff,
+            0 0 120px #ffaa00,
+            0 0 200px #ff4400,
+            0 0 300px rgba(255, 100, 0, 0.5);
+    }
+
+    100% {
+        opacity: 0;
+        width: 400px;
+        height: 400px;
+        background: transparent;
+        box-shadow:
+            0 0 100px rgba(255, 150, 100, 0.2),
+            0 0 200px rgba(255, 100, 50, 0.1);
+    }
+}
+
+@keyframes debrisFloat {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    5% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        opacity: 0.3;
+        transform:
+            translate(calc(-50% + var(--drift-x, 0px)),
+                calc(-50% + var(--drift-y, 0px))) rotate(var(--rotate, 360deg));
+    }
+}
+
+@keyframes spaceWave {
+    0% {
+        opacity: 0;
+        width: 20px;
+        height: 20px;
+        border-width: 3px;
+    }
+
+    10% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0;
+        width: 300px;
+        height: 300px;
+        border-width: 1px;
+    }
+}
+
+@keyframes ambientGlow {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(1.1);
+    }
+}

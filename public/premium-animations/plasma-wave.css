@@ -1,0 +1,119 @@
+/* ============================================
+   PLASMA WAVE - Flowing Plasma Energy
+   Premium Profile Animation
+   ============================================ */
+
+.custom-particle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: radial-gradient(ellipse at var(--x, 50%) var(--y, 50%),
+            rgba(138, 43, 226, 0.4) 0%,
+            rgba(0, 191, 255, 0.2) 30%,
+            transparent 60%);
+    animation: plasmaWave 4s ease-in-out infinite;
+    mix-blend-mode: screen;
+    filter: blur(20px);
+}
+
+.custom-particle:nth-child(1) {
+    --x: 20%;
+    --y: 30%;
+    animation-delay: 0s;
+}
+
+.custom-particle:nth-child(2) {
+    --x: 80%;
+    --y: 70%;
+    animation-delay: 1s;
+    background: radial-gradient(ellipse at var(--x) var(--y), rgba(255, 0, 128, 0.4) 0%, rgba(255, 165, 0, 0.2) 30%, transparent 60%);
+}
+
+.custom-particle:nth-child(3) {
+    --x: 50%;
+    --y: 20%;
+    animation-delay: 2s;
+}
+
+.custom-particle:nth-child(4) {
+    --x: 30%;
+    --y: 80%;
+    animation-delay: 3s;
+    background: radial-gradient(ellipse at var(--x) var(--y), rgba(0, 255, 127, 0.4) 0%, rgba(0, 191, 255, 0.2) 30%, transparent 60%);
+}
+
+.custom-particle:nth-child(5) {
+    --x: 70%;
+    --y: 40%;
+    animation-delay: 0.5s;
+}
+
+.custom-particle:nth-child(6) {
+    --x: 40%;
+    --y: 60%;
+    animation-delay: 1.5s;
+    background: radial-gradient(ellipse at var(--x) var(--y), rgba(255, 0, 255, 0.4) 0%, rgba(128, 0, 255, 0.2) 30%, transparent 60%);
+}
+
+.custom-particle:nth-child(7) {
+    --x: 60%;
+    --y: 90%;
+    animation-delay: 2.5s;
+}
+
+.custom-particle:nth-child(8) {
+    --x: 10%;
+    --y: 50%;
+    animation-delay: 3.5s;
+}
+
+.custom-particle:nth-child(9) {
+    --x: 90%;
+    --y: 30%;
+    animation-delay: 0.75s;
+    background: radial-gradient(ellipse at var(--x) var(--y), rgba(0, 255, 255, 0.5) 0%, rgba(0, 128, 255, 0.2) 30%, transparent 60%);
+}
+
+.custom-particle:nth-child(10) {
+    --x: 25%;
+    --y: 10%;
+    animation-delay: 1.75s;
+}
+
+.custom-particle:nth-child(11) {
+    --x: 75%;
+    --y: 85%;
+    animation-delay: 2.75s;
+}
+
+.custom-particle:nth-child(12) {
+    --x: 45%;
+    --y: 45%;
+    animation-delay: 3.25s;
+}
+
+@keyframes plasmaWave {
+
+    0%,
+    100% {
+        opacity: 0.4;
+        transform: scale(1) rotate(0deg);
+    }
+
+    25% {
+        opacity: 0.7;
+        transform: scale(1.2) rotate(5deg);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(0.9) rotate(-3deg);
+    }
+
+    75% {
+        opacity: 0.8;
+        transform: scale(1.1) rotate(2deg);
+    }
+}

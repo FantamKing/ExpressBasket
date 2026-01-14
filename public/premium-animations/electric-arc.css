@@ -1,0 +1,154 @@
+/* ============================================
+   ELECTRIC ARC - Lightning/Electric Effect
+   Premium Profile Animation
+   ============================================ */
+
+.custom-particle {
+    position: absolute;
+    width: 2px;
+    background: linear-gradient(180deg,
+            transparent,
+            #00d4ff 20%,
+            #fff 50%,
+            #00d4ff 80%,
+            transparent);
+    box-shadow:
+        0 0 10px #00d4ff,
+        0 0 20px #00d4ff,
+        0 0 30px rgba(0, 212, 255, 0.5);
+    animation: electricArc 0.3s ease-in-out infinite;
+    opacity: 0;
+}
+
+.custom-particle:nth-child(odd) {
+    background: linear-gradient(180deg, transparent, #ff00ff 20%, #fff 50%, #ff00ff 80%, transparent);
+    box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+}
+
+.custom-particle:nth-child(1) {
+    left: 20%;
+    top: 10%;
+    height: 40%;
+    animation-delay: 0s;
+    transform: rotate(15deg);
+}
+
+.custom-particle:nth-child(2) {
+    left: 50%;
+    top: 5%;
+    height: 50%;
+    animation-delay: 0.1s;
+    transform: rotate(-10deg);
+}
+
+.custom-particle:nth-child(3) {
+    left: 80%;
+    top: 15%;
+    height: 35%;
+    animation-delay: 0.05s;
+    transform: rotate(20deg);
+}
+
+.custom-particle:nth-child(4) {
+    left: 35%;
+    top: 50%;
+    height: 45%;
+    animation-delay: 0.15s;
+    transform: rotate(-15deg);
+}
+
+.custom-particle:nth-child(5) {
+    left: 65%;
+    top: 45%;
+    height: 50%;
+    animation-delay: 0.08s;
+    transform: rotate(12deg);
+}
+
+.custom-particle:nth-child(6) {
+    left: 10%;
+    top: 40%;
+    height: 30%;
+    animation-delay: 0.2s;
+    transform: rotate(-25deg);
+}
+
+.custom-particle:nth-child(7) {
+    left: 90%;
+    top: 55%;
+    height: 40%;
+    animation-delay: 0.12s;
+    transform: rotate(18deg);
+}
+
+.custom-particle:nth-child(8) {
+    left: 45%;
+    top: 30%;
+    height: 25%;
+    animation-delay: 0.03s;
+    transform: rotate(-8deg);
+}
+
+.custom-particle:nth-child(9) {
+    left: 25%;
+    top: 65%;
+    height: 30%;
+    animation-delay: 0.18s;
+    transform: rotate(22deg);
+}
+
+.custom-particle:nth-child(10) {
+    left: 75%;
+    top: 70%;
+    height: 25%;
+    animation-delay: 0.07s;
+    transform: rotate(-18deg);
+}
+
+.custom-particle:nth-child(11) {
+    left: 55%;
+    top: 80%;
+    height: 15%;
+    animation-delay: 0.22s;
+    transform: rotate(10deg);
+}
+
+.custom-particle:nth-child(12) {
+    left: 40%;
+    top: 75%;
+    height: 20%;
+    animation-delay: 0.13s;
+    transform: rotate(-12deg);
+}
+
+@keyframes electricArc {
+    0% {
+        opacity: 0;
+        transform: scaleY(0.5) translateX(0);
+    }
+
+    20% {
+        opacity: 1;
+        transform: scaleY(1) translateX(-3px);
+    }
+
+    40% {
+        opacity: 0.8;
+        transform: scaleY(0.9) translateX(4px);
+    }
+
+    60% {
+        opacity: 1;
+        transform: scaleY(1.1) translateX(-2px);
+    }
+
+    80% {
+        opacity: 0.6;
+        transform: scaleY(0.8) translateX(3px);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scaleY(0.5) translateX(0);
+    }
+}

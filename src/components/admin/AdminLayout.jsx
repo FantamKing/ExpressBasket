@@ -1205,6 +1205,16 @@ const AdminLayout = ({ children }) => {
                   Avatar Frames
                 </button>
                 <button
+                  className={`profile-tab ${activeTab === 'animations' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('animations')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 3L2 12l10 9 10-9-10-9z"></path>
+                    <path d="M12 8l-4 4 4 4 4-4-4-4z"></path>
+                  </svg>
+                  Animations
+                </button>
+                <button
                   className={`profile-tab ${activeTab === 'mail' ? 'active' : ''}`}
                   onClick={() => setActiveTab('mail')}
                 >
@@ -2328,6 +2338,1009 @@ const AdminLayout = ({ children }) => {
                       </button>
 
                       {/* Spacer for scroll visibility */}
+                      <div style={{ height: '40px' }}></div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Animations Tab (Discord-style profile effects) */}
+                {activeTab === 'animations' && (
+                  <div className="profile-tab-content">
+                    <div className="frames-section">
+                      <h3 style={{ marginBottom: '16px', color: 'var(--text-color)' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--btn-primary)" strokeWidth="2" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+                          <path d="M12 3L2 12l10 9 10-9-10-9z"></path>
+                          <path d="M12 8l-4 4 4 4 4-4-4-4z"></path>
+                        </svg>
+                        Profile Animations
+                      </h3>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                        Select an animation effect that plays when someone views your profile
+                      </p>
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
+                        gap: '16px',
+                        maxHeight: '350px',
+                        overflowY: 'auto',
+                        padding: '4px'
+                      }}>
+                        {/* No Animation Option */}
+                        <div
+                          className={`frame-option ${!admin?.profileAnimation ? 'selected' : ''}`}
+                          onClick={async () => {
+                            const token = localStorage.getItem('adminToken');
+                            try {
+                              const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/animation`, {
+                                method: 'PUT',
+                                headers: {
+                                  'Authorization': `Bearer ${token}`,
+                                  'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ animation: null })
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                const updatedAdmin = { ...admin, profileAnimation: null };
+                                setAdmin(updatedAdmin);
+                                localStorage.setItem('admin', JSON.stringify(updatedAdmin));
+                              }
+                            } catch (e) { console.error(e); }
+                          }}
+                          style={{
+                            background: !admin?.profileAnimation ? 'linear-gradient(135deg, var(--btn-primary), #764ba2)' : 'var(--nav-link-hover)',
+                            border: !admin?.profileAnimation ? '2px solid var(--btn-primary)' : '1px solid var(--border-color)',
+                            borderRadius: '12px',
+                            padding: '16px 12px',
+                            textAlign: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease'
+                          }}
+                        >
+                          <div style={{
+                            width: '50px',
+                            height: '50px',
+                            borderRadius: '50%',
+                            background: 'var(--bg-color)',
+                            margin: '0 auto 10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '20px'
+                          }}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                            </svg>
+                          </div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-color)', fontWeight: '500' }}>None</div>
+                        </div>
+
+                        {/* Animation Options */}
+                        {[
+                          { id: 'sparkles', name: 'Sparkles', desc: 'Glitter effect', colors: ['#ffd700', '#fff', '#ff6b9d'] },
+                          { id: 'fireworks', name: 'Fireworks', desc: 'Burst effect', colors: ['#ff6b6b', '#ffd93d', '#4d96ff'] },
+                          { id: 'rain', name: 'Digital Rain', desc: 'Matrix style', colors: ['#00ff41', '#00d4ff', '#fff'] },
+                          { id: 'stars', name: 'Stars', desc: 'Twinkling stars', colors: ['#ffd700', '#87ceeb', '#ff6b9d'] },
+                          { id: 'confetti', name: 'Confetti', desc: 'Celebration', colors: ['#ff6b6b', '#6bcb77', '#9d4edd'] },
+                          { id: 'aurora', name: 'Aurora', desc: 'Northern lights', colors: ['#00ff7f', '#00bfff', '#8a2be2'] },
+                          { id: 'binary-rain', name: 'Binary Rain', desc: 'Cyber code', colors: ['#00ff00', '#00ff88', '#004400'] },
+                          { id: 'electric-arc', name: 'Electric Arc', desc: 'Lightning', colors: ['#00ffff', '#ffffff', '#4488ff'] },
+                          { id: 'cyber-grid', name: 'Cyber Grid', desc: 'Tech lines', colors: ['#ff00ff', '#00ffff', '#ffff00'] },
+                          { id: 'hologram-scan', name: 'Hologram', desc: 'Scan lines', colors: ['#00ff88', '#00ffff', '#0088ff'] }
+                        ].map(anim => (
+                          <div
+                            key={anim.id}
+                            className={`frame-option ${admin?.profileAnimation === anim.id ? 'selected' : ''}`}
+                            onClick={async () => {
+                              const token = localStorage.getItem('adminToken');
+                              try {
+                                const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/animation`, {
+                                  method: 'PUT',
+                                  headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({ animation: anim.id })
+                                });
+                                const data = await res.json();
+                                if (data.success) {
+                                  const updatedAdmin = { ...admin, profileAnimation: data.profileAnimation };
+                                  setAdmin(updatedAdmin);
+                                  localStorage.setItem('admin', JSON.stringify(updatedAdmin));
+                                }
+                              } catch (e) { console.error(e); }
+                            }}
+                            style={{
+                              background: admin?.profileAnimation === anim.id ? 'linear-gradient(135deg, var(--btn-primary), #764ba2)' : 'var(--nav-link-hover)',
+                              border: admin?.profileAnimation === anim.id ? '2px solid var(--btn-primary)' : '1px solid var(--border-color)',
+                              borderRadius: '12px',
+                              padding: '16px 12px',
+                              textAlign: 'center',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              position: 'relative',
+                              overflow: 'hidden'
+                            }}
+                          >
+                            {/* Animated Preview Background */}
+                            <div style={{
+                              position: 'absolute',
+                              inset: 0,
+                              background: `linear-gradient(135deg, ${anim.colors[0]}20, ${anim.colors[1]}20, ${anim.colors[2]}20)`,
+                              opacity: admin?.profileAnimation === anim.id ? 0.5 : 0.2,
+                              animation: 'animationPreviewPulse 2s ease-in-out infinite',
+                              borderRadius: '12px'
+                            }}></div>
+                            <div style={{
+                              width: '50px',
+                              height: '50px',
+                              borderRadius: '50%',
+                              background: `linear-gradient(135deg, ${anim.colors[0]}40, ${anim.colors[1]}40)`,
+                              margin: '0 auto 10px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              position: 'relative',
+                              zIndex: 1
+                            }}>
+                              {/* Lucide-style SVG Icons */}
+                              {anim.id === 'sparkles' && (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={anim.colors[0]} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'sparkle-icon-pulse 1.5s ease-in-out infinite' }}>
+                                  <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
+                                  <path d="M5 19l1 3 1-3M18 5l1 3 1-3" />
+                                </svg>
+                              )}
+                              {anim.id === 'fireworks' && (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={anim.colors[0]} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'firework-icon-burst 2s ease-out infinite' }}>
+                                  <circle cx="12" cy="12" r="2" />
+                                  <path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                                </svg>
+                              )}
+                              {anim.id === 'rain' && (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={anim.colors[0]} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'rain-icon-drop 1s linear infinite' }}>
+                                  <path d="M4 14.5L4 18M8 11.5L8 18M12 8.5L12 18M16 11.5L16 18M20 14.5L20 18" />
+                                  <path d="M4 4h.01M8 6h.01M12 4h.01M16 6h.01M20 4h.01" />
+                                </svg>
+                              )}
+                              {anim.id === 'stars' && (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={anim.colors[0]} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'star-icon-twinkle 2s ease-in-out infinite' }}>
+                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                </svg>
+                              )}
+                              {anim.id === 'confetti' && (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={anim.colors[0]} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'confetti-icon-shake 0.5s ease-in-out infinite' }}>
+                                  <path d="M5.8 11.3L2 22l10.7-3.8" />
+                                  <path d="M4 3h.01M22 8h.01M15 2h.01M22 20h.01" />
+                                  <rect x="8" y="4" width="4" height="4" rx="1" transform="rotate(15 10 6)" />
+                                  <rect x="16" y="12" width="3" height="3" rx="1" transform="rotate(-10 17.5 13.5)" />
+                                </svg>
+                              )}
+                              {anim.id === 'aurora' && (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={anim.colors[0]} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'aurora-icon-wave 3s ease-in-out infinite' }}>
+                                  <path d="M3 17c3-2 6-4 9-4s6 2 9 4" />
+                                  <path d="M3 12c3-2 6-4 9-4s6 2 9 4" stroke={anim.colors[1]} />
+                                  <path d="M3 7c3-2 6-4 9-4s6 2 9 4" stroke={anim.colors[2]} />
+                                </svg>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-color)', fontWeight: '500', position: 'relative', zIndex: 1 }}>{anim.name}</div>
+                            <div style={{ fontSize: '9px', color: 'var(--text-secondary)', marginTop: '2px', position: 'relative', zIndex: 1 }}>{anim.desc}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Current Animation Info */}
+                      {admin?.profileAnimation && admin.profileAnimation !== 'custom' && (
+                        <div style={{
+                          marginTop: '20px',
+                          padding: '14px',
+                          background: 'var(--nav-link-hover)',
+                          borderRadius: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px'
+                        }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--btn-primary)" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                          </svg>
+                          <div>
+                            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-color)', fontWeight: '500' }}>
+                              {admin.profileAnimation.charAt(0).toUpperCase() + admin.profileAnimation.slice(1)} animation active
+                            </p>
+                            <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                              This effect will display when others view your profile
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ========== CUSTOM ANIMATION SECTION ========== */}
+                      <div style={{
+                        marginTop: '24px',
+                        padding: '20px',
+                        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1))',
+                        borderRadius: '12px',
+                        border: '1px dashed var(--border-color)'
+                      }}>
+                        <h4 style={{
+                          margin: '0 0 16px',
+                          fontSize: '14px',
+                          color: 'var(--text-color)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--btn-primary)" strokeWidth="2">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                          </svg>
+                          Create Custom Animation
+                        </h4>
+
+                        {/* Animation Builder - Simple Controls */}
+                        <div style={{ marginBottom: '16px' }}>
+                          <label style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
+                            Quick Builder
+                          </label>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                            {/* Color Picker */}
+                            <div>
+                              <label style={{ fontSize: '10px', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Color</label>
+                              <input
+                                type="color"
+                                id="customAnimColor"
+                                defaultValue="#ffd700"
+                                style={{
+                                  width: '100%',
+                                  height: '36px',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  background: 'var(--card-bg)'
+                                }}
+                              />
+                            </div>
+                            {/* Speed */}
+                            <div>
+                              <label style={{ fontSize: '10px', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Speed</label>
+                              <select
+                                id="customAnimSpeed"
+                                defaultValue="medium"
+                                style={{
+                                  width: '100%',
+                                  padding: '8px',
+                                  borderRadius: '6px',
+                                  border: '1px solid var(--border-color)',
+                                  background: 'var(--card-bg)',
+                                  color: 'var(--text-color)',
+                                  fontSize: '12px'
+                                }}
+                              >
+                                <option value="slow">Slow</option>
+                                <option value="medium">Medium</option>
+                                <option value="fast">Fast</option>
+                              </select>
+                            </div>
+                            {/* Effect Type */}
+                            <div>
+                              <label style={{ fontSize: '10px', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Effect</label>
+                              <select
+                                id="customAnimEffect"
+                                defaultValue="float"
+                                style={{
+                                  width: '100%',
+                                  padding: '8px',
+                                  borderRadius: '6px',
+                                  border: '1px solid var(--border-color)',
+                                  background: 'var(--card-bg)',
+                                  color: 'var(--text-color)',
+                                  fontSize: '12px'
+                                }}
+                              >
+                                <option value="float">Floating</option>
+                                <option value="fall">Falling</option>
+                                <option value="pulse">Pulsing</option>
+                                <option value="orbit">Orbiting</option>
+                              </select>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              const color = document.getElementById('customAnimColor').value;
+                              const speed = document.getElementById('customAnimSpeed').value;
+                              const effect = document.getElementById('customAnimEffect').value;
+
+                              const speedMap = { slow: '4s', medium: '2s', fast: '1s' };
+                              const duration = speedMap[speed];
+
+                              let css = '';
+                              if (effect === 'float') {
+                                css = `.custom-particle { position: absolute; width: 8px; height: 8px; background: ${color}; border-radius: 50%; animation: customFloat ${duration} ease-in-out infinite; } @keyframes customFloat { 0%, 100% { transform: translateY(0); opacity: 0.7; } 50% { transform: translateY(-20px); opacity: 1; } }`;
+                              } else if (effect === 'fall') {
+                                css = `.custom-particle { position: absolute; width: 3px; height: 12px; background: linear-gradient(to bottom, transparent, ${color}); animation: customFall ${duration} linear infinite; } @keyframes customFall { 0% { top: -20px; opacity: 0; } 20% { opacity: 1; } 100% { top: 100%; opacity: 0; } }`;
+                              } else if (effect === 'pulse') {
+                                css = `.custom-particle { position: absolute; width: 10px; height: 10px; background: ${color}; border-radius: 50%; animation: customPulse ${duration} ease-in-out infinite; } @keyframes customPulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.5); opacity: 1; } }`;
+                              } else if (effect === 'orbit') {
+                                css = `.custom-particle { position: absolute; width: 6px; height: 6px; background: ${color}; border-radius: 50%; left: 50%; top: 50%; animation: customOrbit ${duration} linear infinite; } @keyframes customOrbit { from { transform: rotate(0deg) translateX(40px) rotate(0deg); } to { transform: rotate(360deg) translateX(40px) rotate(-360deg); } }`;
+                              }
+
+                              document.getElementById('customCssTextarea').value = css;
+                            }}
+                            style={{
+                              marginTop: '10px',
+                              padding: '8px 14px',
+                              background: 'var(--nav-link-hover)',
+                              color: 'var(--text-color)',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '11px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px'
+                            }}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M12 3v18M3 12h18" />
+                            </svg>
+                            Generate CSS
+                          </button>
+                        </div>
+
+                        {/* CSS Text Editor */}
+                        <div style={{ marginBottom: '16px' }}>
+                          <label style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
+                            CSS Editor (Advanced)
+                          </label>
+                          <textarea
+                            id="customCssTextarea"
+                            placeholder={`.custom-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ffd700;
+  border-radius: 50%;
+  animation: customAnim 2s ease-in-out infinite;
+}
+
+@keyframes customAnim {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}`}
+                            style={{
+                              width: '100%',
+                              minHeight: '120px',
+                              padding: '12px',
+                              borderRadius: '8px',
+                              border: '1px solid var(--border-color)',
+                              background: 'var(--bg-color)',
+                              color: 'var(--text-color)',
+                              fontFamily: 'monospace',
+                              fontSize: '11px',
+                              resize: 'vertical'
+                            }}
+                          />
+                          <p style={{ margin: '6px 0 0', fontSize: '10px', color: 'var(--text-secondary)' }}>
+                            Use .custom-particle class for particle elements. Avoid external URLs and scripts.
+                          </p>
+                        </div>
+
+                        {/* File Upload */}
+                        <div style={{ marginBottom: '16px' }}>
+                          <label style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
+                            Or Upload CSS File
+                          </label>
+                          <input
+                            type="file"
+                            accept=".css"
+                            id="customCssFileInput"
+                            style={{ display: 'none' }}
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (evt) => {
+                                  document.getElementById('customCssTextarea').value = evt.target.result;
+                                };
+                                reader.readAsText(file);
+                              }
+                              e.target.value = '';
+                            }}
+                          />
+                          <button
+                            onClick={() => document.getElementById('customCssFileInput').click()}
+                            style={{
+                              padding: '10px 16px',
+                              background: 'var(--nav-link-hover)',
+                              color: 'var(--text-color)',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                              <polyline points="17 8 12 3 7 8" />
+                              <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            Upload .css File
+                          </button>
+                        </div>
+
+                        {/* Apply Custom Animation Button */}
+                        <button
+                          onClick={async () => {
+                            const css = document.getElementById('customCssTextarea').value.trim();
+                            if (!css) {
+                              alert('Please enter or generate CSS first');
+                              return;
+                            }
+
+                            // Security sanitization
+                            const dangerousPatterns = [
+                              /javascript\s*:/gi,
+                              /expression\s*\(/gi,
+                              /behavior\s*:/gi,
+                              /@import/gi,
+                              /-moz-binding/gi,
+                              /vbscript\s*:/gi,
+                              /<script/gi,
+                              /<\/script/gi,
+                              /url\s*\(\s*["']?(?!data:)/gi  // Block external URLs but allow data: URIs
+                            ];
+
+                            for (const pattern of dangerousPatterns) {
+                              if (pattern.test(css)) {
+                                alert('Invalid CSS: Contains potentially unsafe content');
+                                return;
+                              }
+                            }
+
+                            if (css.length > 10000) {
+                              alert('CSS is too long (max 10000 characters)');
+                              return;
+                            }
+
+                            const token = localStorage.getItem('adminToken');
+                            try {
+                              const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/animation`, {
+                                method: 'PUT',
+                                headers: {
+                                  'Authorization': `Bearer ${token}`,
+                                  'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ animation: 'custom', customAnimationCss: css })
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                const updatedAdmin = { ...admin, profileAnimation: 'custom', customAnimationCss: css };
+                                setAdmin(updatedAdmin);
+                                localStorage.setItem('admin', JSON.stringify(updatedAdmin));
+                                alert('Custom animation applied!');
+                              } else {
+                                alert(data.message || 'Failed to apply animation');
+                              }
+                            } catch (e) {
+                              console.error(e);
+                              alert('Error applying animation');
+                            }
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '12px 20px',
+                            background: 'linear-gradient(135deg, #9d4edd, #667eea)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px'
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                          </svg>
+                          Apply Custom Animation
+                        </button>
+
+                        {/* Custom Animation Active Info */}
+                        {admin?.profileAnimation === 'custom' && (
+                          <div style={{
+                            marginTop: '12px',
+                            padding: '10px',
+                            background: 'rgba(157, 78, 221, 0.1)',
+                            borderRadius: '8px',
+                            fontSize: '11px',
+                            color: '#9d4edd',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Custom animation is currently active
+                          </div>
+                        )}
+                      </div>
+
+                      {/* ========== GIF/VIDEO ANIMATION UPLOAD ========== */}
+                      <div style={{
+                        marginTop: '20px',
+                        padding: '20px',
+                        background: 'linear-gradient(135deg, rgba(255, 100, 50, 0.1), rgba(255, 180, 0, 0.1))',
+                        borderRadius: '12px',
+                        border: '1px dashed rgba(255, 150, 50, 0.4)'
+                      }}>
+                        <h4 style={{
+                          margin: '0 0 16px',
+                          fontSize: '14px',
+                          color: 'var(--text-color)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff8800" strokeWidth="2">
+                            <rect x="2" y="2" width="20" height="20" rx="2" ry="2" />
+                            <circle cx="8" cy="8" r="2" />
+                            <path d="M21 15l-5-5L5 21" />
+                          </svg>
+                          Upload GIF/Video Animation
+                        </h4>
+                        <p style={{ margin: '0 0 12px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                          Upload a GIF, WebM, or MP4 file for realistic animated effects
+                        </p>
+
+                        {/* File Upload */}
+                        <input
+                          type="file"
+                          accept=".gif,.webm,.mp4,image/gif,video/webm,video/mp4"
+                          id="animationFileInput"
+                          style={{ display: 'none' }}
+                          onChange={async (e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              // Check file size (max 30MB)
+                              if (file.size > 30 * 1024 * 1024) {
+                                alert('File is too large. Maximum size is 30MB.');
+                                return;
+                              }
+
+                              // Convert to base64
+                              const reader = new FileReader();
+                              reader.onload = async (evt) => {
+                                const base64 = evt.target.result;
+                                const token = localStorage.getItem('adminToken');
+
+                                // Get settings from UI
+                                const loopMode = document.getElementById('loopModeOnce')?.dataset?.selected === 'true' ? 'once' : 'loop';
+                                const opacity = parseInt(document.getElementById('animationOpacitySlider')?.value || 70) / 100;
+                                const afterFile = document.getElementById('afterFileSelect')?.value || null;
+
+                                try {
+                                  const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/animation/upload`, {
+                                    method: 'POST',
+                                    headers: {
+                                      'Authorization': `Bearer ${token}`,
+                                      'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                      animationUrl: base64,
+                                      loopMode,
+                                      opacity,
+                                      afterFile
+                                    })
+                                  });
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    const updatedAdmin = {
+                                      ...admin,
+                                      profileAnimation: 'file',
+                                      animationFileUrl: base64,
+                                      animationLoopMode: loopMode,
+                                      animationOpacity: opacity,
+                                      animationAfterFile: afterFile
+                                    };
+                                    setAdmin(updatedAdmin);
+                                    localStorage.setItem('admin', JSON.stringify(updatedAdmin));
+                                    alert('Animation uploaded successfully!');
+                                  } else {
+                                    alert(data.message || 'Failed to upload animation');
+                                  }
+                                } catch (err) {
+                                  console.error(err);
+                                  alert('Error uploading animation');
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                            e.target.value = '';
+                          }}
+                        />
+
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => document.getElementById('animationFileInput').click()}
+                            style={{
+                              flex: 1,
+                              padding: '12px 16px',
+                              background: 'linear-gradient(135deg, #ff8800, #ff5500)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '8px'
+                            }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                              <polyline points="17 8 12 3 7 8" />
+                              <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            Upload GIF/Video
+                          </button>
+                        </div>
+
+                        {/* Animation Settings */}
+                        <div style={{
+                          marginTop: '16px',
+                          padding: '14px',
+                          background: 'var(--nav-link-hover)',
+                          borderRadius: '8px'
+                        }}>
+                          <p style={{ margin: '0 0 12px', fontSize: '12px', color: 'var(--text-color)', fontWeight: '500' }}>
+                            Animation Settings
+                          </p>
+
+                          {/* Loop Mode Toggle */}
+                          <div style={{ marginBottom: '12px' }}>
+                            <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                              Play Mode
+                            </label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                id="loopModeLoop"
+                                data-selected="true"
+                                onClick={(e) => {
+                                  const loopBtn = document.getElementById('loopModeLoop');
+                                  const onceBtn = document.getElementById('loopModeOnce');
+                                  loopBtn.dataset.selected = 'true';
+                                  onceBtn.dataset.selected = 'false';
+                                  loopBtn.style.background = 'var(--btn-primary)';
+                                  loopBtn.style.color = 'white';
+                                  onceBtn.style.background = 'transparent';
+                                  onceBtn.style.color = 'var(--text-color)';
+                                }}
+                                style={{
+                                  flex: 1,
+                                  padding: '8px 12px',
+                                  border: '1px solid var(--border-color)',
+                                  borderRadius: '6px',
+                                  background: 'var(--btn-primary)',
+                                  color: 'white',
+                                  cursor: 'pointer',
+                                  fontSize: '11px',
+                                  fontWeight: '500'
+                                }}
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}><path d="M17 2.1l4 4-4 4" /><path d="M3 12.2v-2a4 4 0 0 1 4-4h12.8M7 21.9l-4-4 4-4" /><path d="M21 11.8v2a4 4 0 0 1-4 4H4.2" /></svg>
+                                Loop Forever
+                              </button>
+                              <button
+                                id="loopModeOnce"
+                                data-selected="false"
+                                onClick={(e) => {
+                                  const loopBtn = document.getElementById('loopModeLoop');
+                                  const onceBtn = document.getElementById('loopModeOnce');
+                                  loopBtn.dataset.selected = 'false';
+                                  onceBtn.dataset.selected = 'true';
+                                  onceBtn.style.background = 'var(--btn-primary)';
+                                  onceBtn.style.color = 'white';
+                                  loopBtn.style.background = 'transparent';
+                                  loopBtn.style.color = 'var(--text-color)';
+                                }}
+                                style={{
+                                  flex: 1,
+                                  padding: '8px 12px',
+                                  border: '1px solid var(--border-color)',
+                                  borderRadius: '6px',
+                                  background: 'transparent',
+                                  color: 'var(--text-color)',
+                                  cursor: 'pointer',
+                                  fontSize: '11px',
+                                  fontWeight: '500'
+                                }}
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}><polygon points="6 3 20 12 6 21 6 3" /></svg>
+                                Play Once
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Opacity Slider */}
+                          <div style={{ marginBottom: '12px' }}>
+                            <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                              Transparency: <span id="opacityValue">{Math.round((admin?.animationOpacity || 0.7) * 100)}%</span>
+                            </label>
+                            <input
+                              type="range"
+                              id="animationOpacitySlider"
+                              min="10"
+                              max="100"
+                              defaultValue={Math.round((admin?.animationOpacity || 0.7) * 100)}
+                              onChange={(e) => {
+                                document.getElementById('opacityValue').textContent = e.target.value + '%';
+                              }}
+                              style={{
+                                width: '100%',
+                                accentColor: '#ff8800'
+                              }}
+                            />
+                          </div>
+
+                          {/* Fallback Animation (only when "Play Once" is selected) */}
+                          <div style={{ marginBottom: '4px' }}>
+                            <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                              After File Ends (if Play Once)
+                            </label>
+                            <select
+                              id="afterFileSelect"
+                              defaultValue={admin?.animationAfterFile || ''}
+                              style={{
+                                width: '100%',
+                                padding: '8px 10px',
+                                borderRadius: '6px',
+                                border: '1px solid var(--border-color)',
+                                background: 'var(--card-bg)',
+                                color: 'var(--text-color)',
+                                fontSize: '11px'
+                              }}
+                            >
+                              <option value="">None</option>
+                              <option value="sparkles">Sparkles</option>
+                              <option value="fireworks">Fireworks</option>
+                              <option value="rain">Digital Rain</option>
+                              <option value="stars">Stars</option>
+                              <option value="confetti">Confetti</option>
+                              <option value="aurora">Aurora</option>
+                              <option value="binary-rain">Binary Rain</option>
+                              <option value="electric-arc">Electric Arc</option>
+                              <option value="cyber-grid">Cyber Grid</option>
+                              <option value="hologram-scan">Hologram Scan</option>
+                            </select>
+                          </div>
+
+                          {/* Save Settings Button */}
+                          <button
+                            onClick={async () => {
+                              const loopMode = document.getElementById('loopModeOnce')?.dataset?.selected === 'true' ? 'once' : 'loop';
+                              const opacity = parseInt(document.getElementById('animationOpacitySlider')?.value || 70) / 100;
+                              const afterFile = document.getElementById('afterFileSelect')?.value || null;
+
+                              const token = localStorage.getItem('adminToken');
+                              try {
+                                const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/animation/upload`, {
+                                  method: 'POST',
+                                  headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({
+                                    animationUrl: admin?.animationFileUrl || '',
+                                    loopMode,
+                                    opacity,
+                                    afterFile
+                                  })
+                                });
+                                const data = await res.json();
+                                if (data.success) {
+                                  const updatedAdmin = {
+                                    ...admin,
+                                    animationLoopMode: loopMode,
+                                    animationOpacity: opacity,
+                                    animationAfterFile: afterFile
+                                  };
+                                  setAdmin(updatedAdmin);
+                                  localStorage.setItem('admin', JSON.stringify(updatedAdmin));
+                                  alert('Settings saved!');
+                                } else {
+                                  alert(data.message || 'Failed to save settings');
+                                }
+                              } catch (err) {
+                                console.error(err);
+                                alert('Error saving settings');
+                              }
+                            }}
+                            style={{
+                              marginTop: '12px',
+                              width: '100%',
+                              padding: '10px 14px',
+                              background: 'linear-gradient(135deg, #00cc66, #00aa55)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px'
+                            }}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
+                            Save Animation Settings
+                          </button>
+                        </div>
+
+                        {/* Or URL Input */}
+                        <div style={{ marginTop: '12px' }}>
+                          <input
+                            type="text"
+                            id="animationUrlInput"
+                            placeholder="Or paste animation URL (GIF/WebM/MP4)..."
+                            style={{
+                              width: '100%',
+                              padding: '10px 12px',
+                              borderRadius: '6px',
+                              border: '1px solid var(--border-color)',
+                              background: 'var(--bg-color)',
+                              color: 'var(--text-color)',
+                              fontSize: '12px'
+                            }}
+                          />
+                          <button
+                            onClick={async () => {
+                              const url = document.getElementById('animationUrlInput').value.trim();
+                              if (!url) {
+                                alert('Please enter a URL');
+                                return;
+                              }
+
+                              // Get settings from UI
+                              const loopMode = document.getElementById('loopModeOnce')?.dataset?.selected === 'true' ? 'once' : 'loop';
+                              const opacity = parseInt(document.getElementById('animationOpacitySlider')?.value || 70) / 100;
+                              const afterFile = document.getElementById('afterFileSelect')?.value || null;
+
+                              const token = localStorage.getItem('adminToken');
+                              try {
+                                const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/profile/animation/upload`, {
+                                  method: 'POST',
+                                  headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({
+                                    animationUrl: url,
+                                    loopMode,
+                                    opacity,
+                                    afterFile
+                                  })
+                                });
+                                const data = await res.json();
+                                if (data.success) {
+                                  const updatedAdmin = {
+                                    ...admin,
+                                    profileAnimation: 'file',
+                                    animationFileUrl: url,
+                                    animationLoopMode: loopMode,
+                                    animationOpacity: opacity,
+                                    animationAfterFile: afterFile
+                                  };
+                                  setAdmin(updatedAdmin);
+                                  localStorage.setItem('admin', JSON.stringify(updatedAdmin));
+                                  alert('Animation saved!');
+                                } else {
+                                  alert(data.message || 'Failed to save animation URL');
+                                }
+                              } catch (err) {
+                                console.error(err);
+                                alert('Error saving animation');
+                              }
+                            }}
+                            style={{
+                              marginTop: '8px',
+                              padding: '8px 14px',
+                              background: 'var(--nav-link-hover)',
+                              color: 'var(--text-color)',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '11px'
+                            }}
+                          >
+                            Apply URL
+                          </button>
+                        </div>
+
+                        {/* File Animation Active Info */}
+                        {admin?.profileAnimation === 'file' && admin?.animationFileUrl && (
+                          <div style={{
+                            marginTop: '12px',
+                            padding: '10px',
+                            background: 'rgba(255, 136, 0, 0.1)',
+                            borderRadius: '8px',
+                            fontSize: '11px',
+                            color: '#ff8800'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                              GIF/Video animation active
+                            </div>
+                            {/* Preview */}
+                            <div style={{
+                              width: '100%',
+                              height: '80px',
+                              borderRadius: '6px',
+                              overflow: 'hidden',
+                              background: '#000'
+                            }}>
+                              {admin.animationFileUrl.includes('video') || admin.animationFileUrl.endsWith('.mp4') || admin.animationFileUrl.endsWith('.webm') ? (
+                                <video
+                                  src={admin.animationFileUrl}
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <img
+                                  src={admin.animationFileUrl}
+                                  alt="Animation preview"
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Save Button */}
+                      <button
+                        onClick={() => setActiveTab('profile')}
+                        style={{
+                          width: '100%',
+                          padding: '14px 20px',
+                          background: 'var(--btn-primary)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '10px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          marginTop: '16px'
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        Done
+                      </button>
+
+                      {/* Spacer */}
                       <div style={{ height: '40px' }}></div>
                     </div>
                   </div>

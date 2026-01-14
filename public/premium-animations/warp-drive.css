@@ -1,0 +1,102 @@
+/* ============================================
+   WARP DRIVE - Hyperspace Star Warp Effect
+   Premium Profile Animation
+   ============================================ */
+
+.custom-particle {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    animation: warpDrive 1.5s ease-in infinite;
+    transform-origin: center center;
+}
+
+.custom-particle:nth-child(1) {
+    --angle: 0deg;
+    animation-delay: 0s;
+}
+
+.custom-particle:nth-child(2) {
+    --angle: 30deg;
+    animation-delay: 0.1s;
+}
+
+.custom-particle:nth-child(3) {
+    --angle: 60deg;
+    animation-delay: 0.2s;
+}
+
+.custom-particle:nth-child(4) {
+    --angle: 90deg;
+    animation-delay: 0.05s;
+}
+
+.custom-particle:nth-child(5) {
+    --angle: 120deg;
+    animation-delay: 0.15s;
+}
+
+.custom-particle:nth-child(6) {
+    --angle: 150deg;
+    animation-delay: 0.25s;
+}
+
+.custom-particle:nth-child(7) {
+    --angle: 180deg;
+    animation-delay: 0.08s;
+}
+
+.custom-particle:nth-child(8) {
+    --angle: 210deg;
+    animation-delay: 0.18s;
+}
+
+.custom-particle:nth-child(9) {
+    --angle: 240deg;
+    animation-delay: 0.28s;
+}
+
+.custom-particle:nth-child(10) {
+    --angle: 270deg;
+    animation-delay: 0.12s;
+}
+
+.custom-particle:nth-child(11) {
+    --angle: 300deg;
+    animation-delay: 0.22s;
+}
+
+.custom-particle:nth-child(12) {
+    --angle: 330deg;
+    animation-delay: 0.03s;
+}
+
+@keyframes warpDrive {
+    0% {
+        transform: rotate(var(--angle, 0deg)) translateX(0) scaleX(1);
+        opacity: 0;
+        width: 2px;
+        height: 2px;
+    }
+
+    20% {
+        opacity: 1;
+        width: 3px;
+        height: 3px;
+    }
+
+    100% {
+        transform: rotate(var(--angle, 0deg)) translateX(150px) scaleX(20);
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        box-shadow:
+            0 0 10px #fff,
+            0 0 20px rgba(100, 200, 255, 0.5),
+            0 0 40px rgba(100, 200, 255, 0.3);
+    }
+}

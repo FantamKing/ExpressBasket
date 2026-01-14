@@ -262,6 +262,209 @@ const AdminDirectory = () => {
                             </svg>
                         </button>
 
+                        {/* Profile Animation Background */}
+                        {selectedAdmin.profileAnimation && (
+                            <div className={`profile-animation-container profile-animation-${selectedAdmin.profileAnimation}`}>
+                                {/* Particle elements for animations */}
+                                {selectedAdmin.profileAnimation === 'sparkles' && (
+                                    <>
+                                        {[...Array(10)].map((_, i) => <div key={i} className="sparkle"></div>)}
+                                    </>
+                                )}
+                                {selectedAdmin.profileAnimation === 'fireworks' && (
+                                    <>
+                                        {[...Array(16)].map((_, i) => <div key={i} className="firework"></div>)}
+                                    </>
+                                )}
+                                {selectedAdmin.profileAnimation === 'rain' && (
+                                    <>
+                                        {[...Array(14)].map((_, i) => <div key={i} className="rain-drop"></div>)}
+                                    </>
+                                )}
+                                {selectedAdmin.profileAnimation === 'stars' && (
+                                    <>
+                                        {[...Array(12)].map((_, i) => <div key={i} className="star"></div>)}
+                                    </>
+                                )}
+                                {selectedAdmin.profileAnimation === 'confetti' && (
+                                    <>
+                                        {[...Array(20)].map((_, i) => <div key={i} className="confetti-piece"></div>)}
+                                    </>
+                                )}
+                                {selectedAdmin.profileAnimation === 'aurora' && (
+                                    <>
+                                        {[...Array(3)].map((_, i) => <div key={i} className="aurora-wave"></div>)}
+                                        {[...Array(6)].map((_, i) => <div key={`p${i}`} className="aurora-particle"></div>)}
+                                    </>
+                                )}
+                                {/* Premium Animations */}
+                                {selectedAdmin.profileAnimation === 'binary-rain' && (
+                                    <>
+                                        <link rel="stylesheet" href="/premium-animations/binary-rain.css" />
+                                        {[...Array(12)].map((_, i) => <div key={i} className="custom-particle"></div>)}
+                                    </>
+                                )}
+                                {selectedAdmin.profileAnimation === 'electric-arc' && (
+                                    <>
+                                        <link rel="stylesheet" href="/premium-animations/electric-arc.css" />
+                                        {[...Array(12)].map((_, i) => <div key={i} className="custom-particle"></div>)}
+                                    </>
+                                )}
+                                {selectedAdmin.profileAnimation === 'cyber-grid' && (
+                                    <>
+                                        <link rel="stylesheet" href="/premium-animations/cyber-grid.css" />
+                                        {[...Array(12)].map((_, i) => <div key={i} className="custom-particle"></div>)}
+                                    </>
+                                )}
+                                {selectedAdmin.profileAnimation === 'hologram-scan' && (
+                                    <>
+                                        <link rel="stylesheet" href="/premium-animations/hologram-scan.css" />
+                                        {[...Array(12)].map((_, i) => <div key={i} className="custom-particle"></div>)}
+                                    </>
+                                )}
+                                {/* Custom Animation */}
+                                {selectedAdmin.profileAnimation === 'custom' && selectedAdmin.customAnimationCss && (
+                                    <>
+                                        <style dangerouslySetInnerHTML={{
+                                            __html: selectedAdmin.customAnimationCss
+                                                .replace(/javascript\s*:/gi, '')
+                                                .replace(/expression\s*\(/gi, '')
+                                                .replace(/@import/gi, '')
+                                                .replace(/-moz-binding/gi, '')
+                                        }} />
+                                        {[...Array(12)].map((_, i) => (
+                                            <div
+                                                key={i}
+                                                className="custom-particle"
+                                                style={{
+                                                    left: `${8 + (i * 7)}%`,
+                                                    top: `${10 + (i % 4) * 20}%`,
+                                                    animationDelay: `${i * 0.2}s`
+                                                }}
+                                            ></div>
+                                        ))}
+                                    </>
+                                )}
+                                {/* GIF/Video Animation (shows IN FRONT of content) */}
+                                {selectedAdmin.profileAnimation === 'file' && selectedAdmin.animationFileUrl && (
+                                    <div
+                                        id="fileAnimationContainer"
+                                        style={{
+                                            position: 'absolute',
+                                            inset: 0,
+                                            overflow: 'hidden',
+                                            borderRadius: 'inherit',
+                                            zIndex: 50,
+                                            pointerEvents: 'none'
+                                        }}
+                                    >
+                                        {selectedAdmin.animationFileUrl.includes('video') ||
+                                            selectedAdmin.animationFileUrl.endsWith('.mp4') ||
+                                            selectedAdmin.animationFileUrl.endsWith('.webm') ? (
+                                            <video
+                                                key={selectedAdmin._id + '-video-' + Date.now()}
+                                                src={selectedAdmin.animationFileUrl}
+                                                autoPlay
+                                                loop={selectedAdmin.animationLoopMode !== 'once'}
+                                                muted
+                                                playsInline
+                                                onEnded={(e) => {
+                                                    if (selectedAdmin.animationLoopMode === 'once') {
+                                                        // Fade out the video smoothly
+                                                        e.target.style.transition = 'opacity 0.8s ease-out';
+                                                        e.target.style.opacity = '0';
+
+                                                        // Show fallback animation with fade in after video fades
+                                                        setTimeout(() => {
+                                                            e.target.style.display = 'none';
+                                                            const container = document.getElementById('fallbackAnimationContainer');
+                                                            if (container) {
+                                                                container.style.opacity = '0';
+                                                                container.style.display = 'block';
+                                                                container.style.transition = 'opacity 0.8s ease-in';
+                                                                // Trigger reflow for animation
+                                                                container.offsetHeight;
+                                                                container.style.opacity = '1';
+                                                            }
+                                                        }, 600);
+                                                    }
+                                                }}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    opacity: selectedAdmin.animationOpacity || 0.7,
+                                                    transition: 'opacity 0.8s ease-out'
+                                                }}
+                                            />
+                                        ) : (
+                                            /* Note: GIFs inherently loop - Play Once only works for MP4/WebM videos */
+                                            <img
+                                                key={selectedAdmin._id + '-img'}
+                                                src={selectedAdmin.animationFileUrl}
+                                                alt=""
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    opacity: selectedAdmin.animationOpacity || 0.7
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                )}
+                                {/* Fallback Animation Container (hidden initially, shown after file ends) */}
+                                {selectedAdmin.profileAnimation === 'file' && selectedAdmin.animationLoopMode === 'once' && selectedAdmin.animationAfterFile && (
+                                    <div
+                                        id="fallbackAnimationContainer"
+                                        className={`profile-animation-${selectedAdmin.animationAfterFile}`}
+                                        style={{
+                                            display: 'none',
+                                            opacity: 0,
+                                            transition: 'opacity 0.8s ease-in'
+                                        }}
+                                    >
+                                        {selectedAdmin.animationAfterFile === 'sparkles' && [...Array(8)].map((_, i) => <div key={`s${i}`} className="sparkle"></div>)}
+                                        {selectedAdmin.animationAfterFile === 'fireworks' && [...Array(6)].map((_, i) => <div key={`f${i}`} className="firework"></div>)}
+                                        {selectedAdmin.animationAfterFile === 'rain' && [...Array(20)].map((_, i) => <div key={`r${i}`} className="rain-drop"></div>)}
+                                        {selectedAdmin.animationAfterFile === 'stars' && [...Array(15)].map((_, i) => <div key={`st${i}`} className="star"></div>)}
+                                        {selectedAdmin.animationAfterFile === 'confetti' && [...Array(12)].map((_, i) => <div key={`c${i}`} className="confetti-piece"></div>)}
+                                        {selectedAdmin.animationAfterFile === 'aurora' && (
+                                            <>
+                                                {[...Array(3)].map((_, i) => <div key={`a${i}`} className="aurora-wave"></div>)}
+                                                {[...Array(6)].map((_, i) => <div key={`ap${i}`} className="aurora-particle"></div>)}
+                                            </>
+                                        )}
+                                        {/* Premium animations fallback */}
+                                        {selectedAdmin.animationAfterFile === 'binary-rain' && (
+                                            <>
+                                                <link rel="stylesheet" href="/premium-animations/binary-rain.css" />
+                                                {[...Array(12)].map((_, i) => <div key={i} className="custom-particle"></div>)}
+                                            </>
+                                        )}
+                                        {selectedAdmin.animationAfterFile === 'electric-arc' && (
+                                            <>
+                                                <link rel="stylesheet" href="/premium-animations/electric-arc.css" />
+                                                {[...Array(12)].map((_, i) => <div key={i} className="custom-particle"></div>)}
+                                            </>
+                                        )}
+                                        {selectedAdmin.animationAfterFile === 'cyber-grid' && (
+                                            <>
+                                                <link rel="stylesheet" href="/premium-animations/cyber-grid.css" />
+                                                {[...Array(12)].map((_, i) => <div key={i} className="custom-particle"></div>)}
+                                            </>
+                                        )}
+                                        {selectedAdmin.animationAfterFile === 'hologram-scan' && (
+                                            <>
+                                                <link rel="stylesheet" href="/premium-animations/hologram-scan.css" />
+                                                {[...Array(12)].map((_, i) => <div key={i} className="custom-particle"></div>)}
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className="ad-modal-header">
                             <div className="ad-modal-avatar-wrapper" style={{
                                 position: 'relative',

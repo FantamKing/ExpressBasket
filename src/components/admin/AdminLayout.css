@@ -2542,3 +2542,140 @@
     font-size: 11px !important;
   }
 }
+
+/* ========================================
+   PROFILE ANIMATION ICON KEYFRAMES
+   Lucide-style animated icons
+   ======================================== */
+
+/* Sparkle icon pulse */
+@keyframes sparkle-icon-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+/* Firework icon burst */
+@keyframes firework-icon-burst {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  25% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+
+  75% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+/* Rain icon drop */
+@keyframes rain-icon-drop {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translateY(2px);
+    opacity: 0.7;
+  }
+}
+
+/* Star icon twinkle */
+@keyframes star-icon-twinkle {
+
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+
+  25% {
+    transform: scale(1.1) rotate(5deg);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(0.95) rotate(-5deg);
+    opacity: 1;
+  }
+
+  75% {
+    transform: scale(1.05) rotate(3deg);
+    opacity: 0.9;
+  }
+}
+
+/* Confetti icon shake */
+@keyframes confetti-icon-shake {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(5deg);
+  }
+
+  75% {
+    transform: rotate(-5deg);
+  }
+}
+
+/* Aurora icon wave */
+@keyframes aurora-icon-wave {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  33% {
+    transform: translateY(-2px);
+    opacity: 0.9;
+  }
+
+  66% {
+    transform: translateY(1px);
+    opacity: 1;
+  }
+}
+
+/* Animation preview pulse for selection cards */
+@keyframes animationPreviewPulse {
+
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(1.02);
+  }
+}

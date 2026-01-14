@@ -1,0 +1,143 @@
+/* ============================================
+   BINARY RAIN - Matrix Code Rain Effect
+   Premium Profile Animation
+   ============================================ */
+
+.custom-particle {
+    position: absolute;
+    width: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: #00ff41;
+    text-shadow:
+        0 0 5px #00ff41,
+        0 0 10px #00ff41,
+        0 0 20px #00ff41;
+    animation: binaryRain 2s linear infinite;
+    opacity: 0;
+}
+
+.custom-particle::before {
+    content: '01';
+    display: block;
+    animation: binaryFlicker 0.1s steps(1) infinite;
+}
+
+.custom-particle:nth-child(2n)::before {
+    content: '10';
+}
+
+.custom-particle:nth-child(3n)::before {
+    content: '11';
+}
+
+.custom-particle:nth-child(5n)::before {
+    content: '00';
+}
+
+.custom-particle:nth-child(3n+1) {
+    color: #00ffff;
+    text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff;
+}
+
+.custom-particle:nth-child(1) {
+    left: 5%;
+    animation-delay: 0s;
+    animation-duration: 1.8s;
+}
+
+.custom-particle:nth-child(2) {
+    left: 15%;
+    animation-delay: 0.3s;
+    animation-duration: 2.2s;
+}
+
+.custom-particle:nth-child(3) {
+    left: 25%;
+    animation-delay: 0.1s;
+    animation-duration: 1.6s;
+}
+
+.custom-particle:nth-child(4) {
+    left: 35%;
+    animation-delay: 0.5s;
+    animation-duration: 2s;
+}
+
+.custom-particle:nth-child(5) {
+    left: 45%;
+    animation-delay: 0.2s;
+    animation-duration: 1.9s;
+}
+
+.custom-particle:nth-child(6) {
+    left: 55%;
+    animation-delay: 0.7s;
+    animation-duration: 2.1s;
+}
+
+.custom-particle:nth-child(7) {
+    left: 65%;
+    animation-delay: 0.4s;
+    animation-duration: 1.7s;
+}
+
+.custom-particle:nth-child(8) {
+    left: 75%;
+    animation-delay: 0.6s;
+    animation-duration: 2.3s;
+}
+
+.custom-particle:nth-child(9) {
+    left: 85%;
+    animation-delay: 0.15s;
+    animation-duration: 1.5s;
+}
+
+.custom-particle:nth-child(10) {
+    left: 95%;
+    animation-delay: 0.45s;
+    animation-duration: 2s;
+}
+
+.custom-particle:nth-child(11) {
+    left: 10%;
+    animation-delay: 0.8s;
+    animation-duration: 1.8s;
+}
+
+.custom-particle:nth-child(12) {
+    left: 60%;
+    animation-delay: 0.25s;
+    animation-duration: 2.2s;
+}
+
+@keyframes binaryRain {
+    0% {
+        top: -10%;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 0.8;
+    }
+
+    100% {
+        top: 110%;
+        opacity: 0;
+    }
+}
+
+@keyframes binaryFlicker {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
