@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from '../../utils/axios.js';
 import Swal from 'sweetalert2';
 import { useTheme } from '../../context/ThemeContext.jsx';
+import { canModify } from '../../components/admin/ProtectedAdminRoute.jsx';
 import './ManageDeliveryPartners.css';
 
 const ManageDeliveryPartners = () => {
     const { theme } = useTheme();
+    const admin = JSON.parse(localStorage.getItem('admin') || '{}');
+    const canEdit = canModify(admin); // Check if user can modify data
     const [partners, setPartners] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -191,7 +194,7 @@ const ManageDeliveryPartners = () => {
                     </h1>
                     <p>Manage your delivery team</p>
                 </div>
-                <button onClick={() => setShowAddModal(true)} className="add-partner-btn">
+                <button onClick={() => setShowAddModal(true)} className="add-partner-btn" disabled={!canEdit} style={!canEdit ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -278,21 +281,23 @@ const ManageDeliveryPartners = () => {
                                     </div>
                                 </div>
 
-                                <div className="partner-actions">
-                                    <button className="approve-btn" onClick={() => handleApprove(partner._id)}>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        Approve
-                                    </button>
-                                    <button className="reject-btn" onClick={() => handleReject(partner._id)}>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <line x1="18" y1="6" x2="6" y2="18" />
-                                            <line x1="6" y1="6" x2="18" y2="18" />
-                                        </svg>
-                                        Reject
-                                    </button>
-                                </div>
+                                {canEdit && (
+                                    <div className="partner-actions">
+                                        <button className="approve-btn" onClick={() => handleApprove(partner._id)}>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                            Approve
+                                        </button>
+                                        <button className="reject-btn" onClick={() => handleReject(partner._id)}>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <line x1="18" y1="6" x2="6" y2="18" />
+                                                <line x1="6" y1="6" x2="18" y2="18" />
+                                            </svg>
+                                            Reject
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

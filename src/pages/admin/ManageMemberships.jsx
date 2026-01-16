@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../utils/axios';
+import { canEdit, isViewOnly } from '../../utils/adminPermissions';
 import './ManageAdmins.css';
 
 const ManageMemberships = () => {
@@ -23,16 +24,16 @@ const ManageMemberships = () => {
     const [customExpiry, setCustomExpiry] = useState('');
     const [useCustomExpiry, setUseCustomExpiry] = useState(false);
 
-    // Check admin role
+    // Check admin role and permissions
     const admin = (() => {
         try {
             return JSON.parse(localStorage.getItem('admin') || '{}');
         } catch { return {}; }
     })();
     const role = (admin?.role || '').toLowerCase().replace(/[\s_-]/g, '');
-    // Force viewOnly to false for testing - allow all admins to edit
-    const viewOnly = false;
-    const isSuperAdmin = role === 'superadmin' || role === 'god';
+    // Check for view-only permissions using proper utilities
+    const viewOnly = isViewOnly(admin) || !canEdit(admin, 'memberships');
+    const isSuperAdmin = role === 'superadmin' || role === 'god' || admin?.role === 'super_admin';
 
     // Debug logging
     console.log('ManageMemberships - admin:', admin);

@@ -293,6 +293,65 @@ const QuickActionButton = styled.button`
   }
 `;
 
+const ChatInputContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  padding: 15px 20px;
+  background: var(--card-bg, white);
+  border-top: 1px solid var(--border-color, #eee);
+`;
+
+const ChatInput = styled.input`
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 25px;
+  border: 1px solid var(--border-color, #ddd);
+  background: var(--bg-color, #f8f9fa);
+  color: var(--text-color, #333);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  &::placeholder {
+    color: var(--text-secondary, #999);
+  }
+`;
+
+const SendButton = styled.button`
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
 const ProductCard = styled.div`
   background: var(--bg-color, #f8f9fa);
   border-radius: 12px;
@@ -470,6 +529,7 @@ const ChatBot = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
 
   // Drag state
@@ -482,6 +542,336 @@ const ChatBot = () => {
   const { cart } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // ============================================================
+  // COMPREHENSIVE KNOWLEDGE BASE - User Panel FAQ
+  // ============================================================
+  const knowledgeBase = [
+    // ACCOUNT & LOGIN
+    {
+      keywords: ['sign up', 'register', 'create account', 'new account', 'registration'],
+      response: "To create an account:\n\n1. Click on 'Profile' in the header\n2. Select 'Sign Up'\n3. Enter your name, email, phone & password\n4. Verify your email/OTP\n5. You're ready to shop!\n\nYou'll get access to order tracking, wallet, and exclusive offers!"
+    },
+
+    {
+      keywords: ['login', 'sign in', 'log in', 'access account'],
+      response: "To log in:\n\n1. Click 'Profile' in the header\n2. Enter your email/phone and password\n3. Click 'Login'\n\nForgot password? Click 'Forgot Password' to reset it via email."
+    },
+
+    {
+      keywords: ['forgot password', 'reset password', 'change password', 'password reset'],
+      response: "To reset your password:\n\n1. Go to Login page\n2. Click 'Forgot Password'\n3. Enter your email address\n4. Check your email for reset link\n5. Create a new password\n\nMake sure to use a strong password with letters, numbers, and symbols!"
+    },
+
+    {
+      keywords: ['update profile', 'edit profile', 'change name', 'change email', 'change phone'],
+      response: "To update your profile:\n\n1. Go to 'Profile' page\n2. Click on 'Edit Profile' or the edit icon\n3. Update your name, email, phone, or address\n4. Click 'Save Changes'\n\nYour changes will be updated immediately!"
+    },
+
+    {
+      keywords: ['logout', 'sign out', 'log out'],
+      response: "To logout:\n\n1. Go to 'Profile' page\n2. Scroll down and click 'Logout'\n\nYou'll need to login again to access your account, orders, and wallet."
+    },
+
+    // ADDRESS
+    {
+      keywords: ['add address', 'delivery address', 'change address', 'update address', 'address'],
+      response: "To manage your delivery address:\n\n1. Go to 'Profile' → 'Addresses'\n2. Click 'Add New Address'\n3. Enter your full address with pincode\n4. Mark as 'Home' or 'Work'\n5. Save the address\n\nYou can set a default address for faster checkout!"
+    },
+
+    // WALLET
+    {
+      keywords: ['wallet', 'wallet balance', 'check balance', 'my balance'],
+      response: `Your wallet is your digital payment method!\n\n${user ? `Current Balance: ₹${(user.walletBalance || 0).toLocaleString()}` : 'Login to see your balance.'}\n\nBenefits:\n• Instant payments at checkout\n• Cashback rewards\n• Easy refunds directly to wallet`
+    },
+
+    {
+      keywords: ['add money', 'recharge wallet', 'top up', 'add funds'],
+      response: "To add money to your wallet:\n\n1. Go to 'Profile' → 'Wallet'\n2. Click 'Add Money'\n3. Enter the amount\n4. Choose payment method (UPI/Card/NetBanking)\n5. Complete the payment\n\nMoney is added instantly to your wallet!"
+    },
+
+    {
+      keywords: ['wallet history', 'transactions', 'payment history'],
+      response: "To view wallet transactions:\n\n1. Go to 'Profile' → 'Wallet'\n2. Scroll to see 'Transaction History'\n3. View all credits, debits, and refunds\n\nYou can filter by date or transaction type."
+    },
+
+    // SHOPPING & PRODUCTS
+    {
+      keywords: ['browse', 'shop', 'products', 'view products', 'shopping'],
+      response: "To browse products:\n\n1. Click 'Store' in the navigation\n2. Use categories on the left to filter\n3. Use search bar to find specific items\n4. Click any product to view details\n\nYou can sort by price, popularity, or newest arrivals!"
+    },
+
+    {
+      keywords: ['search', 'find product', 'search product', 'looking for'],
+      response: "To search for products:\n\n1. Use the search bar at the top\n2. Type product name or keyword\n3. Press Enter or click search icon\n4. Browse the results\n\nTip: Search by category name to see all items in that category!"
+    },
+
+    {
+      keywords: ['category', 'categories', 'filter', 'filter by category'],
+      response: "To filter by category:\n\n1. Go to 'Store' or 'Categories' page\n2. Click on any category (Vegetables, Fruits, Dairy, etc.)\n3. View all products in that category\n\nYou can also combine category filter with search!"
+    },
+
+    {
+      keywords: ['sort', 'sort by', 'sort products', 'price low to high', 'price high to low'],
+      response: "To sort products:\n\n1. Go to 'Store' page\n2. Look for 'Sort by' dropdown\n3. Choose: Price Low-High, Price High-Low, Newest, or Popular\n\nSorting helps you find the best deals quickly!"
+    },
+
+    // CART
+    {
+      keywords: ['add to cart', 'add item', 'cart add'],
+      response: "To add items to cart:\n\n1. Find your desired product\n2. Click 'Add to Cart' button\n3. Adjust quantity using +/- buttons\n\nThe cart icon in the header shows your total items!"
+    },
+
+    {
+      keywords: ['view cart', 'my cart', 'cart', 'shopping cart', 'cart items'],
+      response: `To view your cart:\n\n1. Click the Cart icon in the header\n2. View all items with quantities\n3. Update quantities or remove items\n4. See total amount\n\n${cart.length > 0 ? `You have ${cart.length} item(s) in your cart.` : 'Your cart is empty.'}`
+    },
+
+    {
+      keywords: ['remove from cart', 'delete from cart', 'remove item'],
+      response: "To remove items from cart:\n\n1. Go to Cart page\n2. Find the item to remove\n3. Click the trash/remove icon\n4. Confirm removal\n\nYou can also reduce quantity to 0 to remove an item."
+    },
+
+    {
+      keywords: ['update quantity', 'change quantity', 'increase quantity', 'decrease quantity'],
+      response: "To update item quantity:\n\n1. Go to Cart page\n2. Find the item\n3. Use +/- buttons to adjust quantity\n4. The total updates automatically\n\nNote: Some items may have maximum quantity limits."
+    },
+
+    // ORDERS & CHECKOUT
+    {
+      keywords: ['place order', 'how to order', 'checkout', 'buy', 'purchase'],
+      response: "To place an order:\n\n1. Add items to cart\n2. Go to Cart → Click 'Checkout'\n3. Choose/add delivery address\n4. Select payment method\n5. Apply coupon if you have one\n6. Click 'Place Order'\n\nYou'll receive order confirmation via email/SMS!"
+    },
+
+    {
+      keywords: ['track order', 'order status', 'where is my order', 'order tracking', 'delivery status'],
+      response: "To track your order:\n\n1. Go to 'Profile' → 'My Orders'\n2. Find your order and click 'Track'\n3. See real-time status:\n   • Confirmed → Being prepared\n   • Packed → Ready for pickup\n   • Out for Delivery → On the way!\n   • Delivered → Enjoy!\n\nYou can see delivery partner location on the map!"
+    },
+
+    {
+      keywords: ['order history', 'my orders', 'past orders', 'previous orders'],
+      response: "To view order history:\n\n1. Go to 'Profile' → 'My Orders'\n2. See all past and current orders\n3. Click any order for details\n\nYou can reorder items from previous orders with one click!"
+    },
+
+    {
+      keywords: ['cancel order', 'order cancellation'],
+      response: "To cancel an order:\n\n1. Go to 'Profile' → 'My Orders'\n2. Select the order to cancel\n3. Click 'Cancel Order'\n4. Select cancellation reason\n5. Confirm cancellation\n\nNote: Orders can only be cancelled before they're packed. Refund will be credited to your wallet."
+    },
+
+    {
+      keywords: ['reorder', 'order again', 'repeat order'],
+      response: "To reorder previous items:\n\n1. Go to 'Profile' → 'My Orders'\n2. Find the order you want to repeat\n3. Click 'Reorder' button\n4. All items will be added to cart\n5. Proceed to checkout\n\nThis is the fastest way to order your regular items!"
+    },
+
+    // PAYMENT
+    {
+      keywords: ['payment', 'payment method', 'pay', 'payment options', 'how to pay'],
+      response: "Payment methods available:\n\n1. **Wallet** - Instant & hassle-free\n2. **UPI** - GPay, PhonePe, Paytm\n3. **Credit/Debit Card**\n4. **Net Banking**\n5. **Cash on Delivery (COD)**\n\nWallet payments are fastest and may offer extra cashback!"
+    },
+
+    {
+      keywords: ['cod', 'cash on delivery', 'pay on delivery', 'pay later'],
+      response: "Cash on Delivery (COD):\n\n• Pay when order arrives\n• Available for orders under ₹5,000\n• Keep exact change ready\n• Delivery partner will collect payment\n\nNote: Some areas may have COD restrictions."
+    },
+
+    {
+      keywords: ['coupon', 'discount code', 'promo code', 'apply coupon', 'discount'],
+      response: "To apply a coupon:\n\n1. Add items to cart\n2. Go to Checkout\n3. Find 'Apply Coupon' section\n4. Enter your coupon code\n5. Click 'Apply'\n\nDiscount will be shown in order summary. Check 'Deals' section for available coupons!"
+    },
+
+    {
+      keywords: ['refund', 'get refund', 'money back', 'refund status'],
+      response: "Refund policy:\n\n• Cancelled orders: Refund to wallet within 24 hours\n• Damaged items: Refund after inspection\n• Wrong items: Immediate replacement or refund\n\nRefunds are credited to your wallet for faster processing. You can withdraw to bank if needed."
+    },
+
+    // MEMBERSHIP & REWARDS
+    {
+      keywords: ['membership', 'loyalty', 'badge', 'rewards', 'loyalty badge'],
+      response: `Loyalty Membership Tiers:\n\n🥈 **Silver** - 5% extra discount\n🥇 **Gold** - 10% extra discount + Free delivery\n💎 **Platinum** - 15% discount + Priority delivery + Exclusive deals\n\n${user?.loyaltyBadge?.type ? `Your badge: ${user.loyaltyBadge.type.toUpperCase()}` : 'Start shopping to earn badges!'}\n\nHigher tiers unlock more benefits!`
+    },
+
+    {
+      keywords: ['silver', 'silver membership', 'silver badge'],
+      response: "🥈 Silver Membership:\n\n• 5% extra discount on all orders\n• Early access to sales\n• Birthday special offers\n• Valid for 1 year\n\nUpgrade to Gold for more benefits!"
+    },
+
+    {
+      keywords: ['gold', 'gold membership', 'gold badge'],
+      response: "🥇 Gold Membership:\n\n• 10% extra discount on all orders\n• Free delivery on all orders\n• Priority customer support\n• Exclusive deals & offers\n• Valid for 1 year\n\nUpgrade to Platinum for maximum benefits!"
+    },
+
+    {
+      keywords: ['platinum', 'platinum membership', 'platinum badge'],
+      response: "💎 Platinum Membership:\n\n• 15% extra discount on all orders\n• Free express delivery\n• Priority delivery (fastest)\n• VIP customer support\n• Early access to new products\n• Exclusive Platinum-only deals\n• Valid for 1 year\n\nThe ultimate shopping experience!"
+    },
+
+    {
+      keywords: ['upgrade', 'upgrade membership', 'buy membership', 'get membership'],
+      response: "To upgrade your membership:\n\n1. Go to 'Profile' → 'Membership'\n2. Compare Silver, Gold, Platinum benefits\n3. Select desired tier\n4. Complete payment\n\nMembership is activated instantly and valid for 1 year!"
+    },
+
+    // DELIVERY
+    {
+      keywords: ['delivery time', 'when will order arrive', 'delivery hours', 'delivery timing'],
+      response: "Delivery information:\n\n• **Standard**: 2-4 hours\n• **Express** (Gold/Platinum): 30-60 minutes\n• **Delivery hours**: 8 AM - 10 PM\n• **Sunday**: Limited delivery in some areas\n\nTrack your order for real-time updates!"
+    },
+
+    {
+      keywords: ['delivery partner', 'delivery person', 'contact delivery', 'call delivery'],
+      response: "To contact delivery partner:\n\n1. Go to 'My Orders' → Select active order\n2. Click on 'Track Order'\n3. You'll see delivery partner details\n4. Click phone icon to call\n\nYou can also chat with the delivery partner through the app!"
+    },
+
+    {
+      keywords: ['delivery charges', 'delivery fee', 'shipping cost', 'delivery cost'],
+      response: "Delivery charges:\n\n• **Free Delivery**: Orders above ₹500\n• **Standard Fee**: ₹40 for orders below ₹500\n• **Gold/Platinum Members**: Always free!\n\nTip: Add more items to get free delivery!"
+    },
+
+    {
+      keywords: ['delivery area', 'deliver to', 'serviceable', 'do you deliver'],
+      response: "To check delivery availability:\n\n1. Enter your pincode on homepage\n2. Or add address in profile\n3. System will confirm if your area is serviceable\n\nWe're constantly expanding our delivery areas!"
+    },
+
+    // SUPPORT
+    {
+      keywords: ['help', 'support', 'customer support', 'contact us', 'contact support'],
+      response: "Need help? We're here for you!\n\n📧 Email: support@expressbasket.com\n📞 Phone: 1800-XXX-XXXX\n💬 Live Chat: Available in Profile → Support\n\nSupport hours: 9 AM - 9 PM, all days\n\nGold/Platinum members get priority support!"
+    },
+
+    {
+      keywords: ['report issue', 'complaint', 'problem', 'issue with order'],
+      response: "To report an issue:\n\n1. Go to 'My Orders'\n2. Select the order with issue\n3. Click 'Report Issue' or 'Help'\n4. Describe the problem\n5. Add photos if needed\n6. Submit\n\nOur team will respond within 2-4 hours!"
+    },
+
+    {
+      keywords: ['return', 'return item', 'return policy', 'exchange'],
+      response: "Return & Exchange Policy:\n\n• Report issues within 24 hours of delivery\n• Damaged/wrong items: Full refund or replacement\n• Quality issues: Refund after verification\n• Fresh produce: Same-day reporting required\n\nGo to 'My Orders' → Select order → 'Report Issue' to initiate return."
+    },
+
+    // GENERAL & CONVERSATIONAL
+    {
+      keywords: ['hello', 'hi', 'hey', 'good morning', 'good evening', 'good afternoon', 'hola'],
+      response: `Hello${user ? ` ${user.name}` : ''}! 👋\n\nI'm your Express Basket shopping assistant. How can I help you today?\n\n• Ask about orders, products, or payments\n• Check your account or wallet\n• Learn about memberships & offers\n• Get help with any issues\n\nJust type your question!`
+    },
+
+    {
+      keywords: ['how are you', 'how r u', 'hows it going', 'how you doing', 'whats up', "what's up", 'sup'],
+      response: `I'm doing great, thank you for asking! 😊\n\nI'm your Express Basket shopping assistant, always ready to help you 24/7!\n\nHow can I assist you today? Ask me about:\n• Products & shopping\n• Orders & delivery\n• Payments & wallet\n• Memberships & rewards`
+    },
+
+    {
+      keywords: ['who are you', 'what are you', 'your name', 'who is this', 'who am i talking to'],
+      response: "I'm your Express Basket Shopping Assistant! 🤖\n\nI'm here to help you with:\n• Finding products & deals\n• Tracking orders\n• Managing your account & wallet\n• Learning about memberships\n• Answering questions about our store\n\nI'm available 24/7 - just type your question!"
+    },
+
+    {
+      keywords: ['what can you do', 'what do you do', 'your capabilities', 'can you help', 'how can you help'],
+      response: "Here's what I can help you with! 🎯\n\n**Shopping**\n• Browse products & categories\n• Find deals & discounts\n• Search for items\n\n**Orders**\n• Track your order\n• Cancel/reorder\n• Report issues\n\n**Account**\n• Profile & addresses\n• Wallet balance\n• Memberships\n\n**Payments**\n• Payment methods\n• Refunds\n• Coupons\n\nJust ask your question!"
+    },
+
+    {
+      keywords: ['i love you', 'love you', 'i like you', 'youre awesome', 'you are awesome', 'youre great'],
+      response: "Aww, thank you so much! 😊💜\n\nI'm just doing my best to help you shop better! Your kind words made my day.\n\nIs there anything I can help you with today? Happy shopping! 🛒✨"
+    },
+
+    {
+      keywords: ['you suck', 'youre bad', 'you are bad', 'useless', 'stupid', 'dumb'],
+      response: "I'm sorry if I couldn't help you properly. 😔\n\nI'm always learning to be better! If you have a specific question, please try asking in a different way and I'll do my best to help.\n\nOr you can contact our human support team:\n📧 support@expressbasket.com\n📞 1800-XXX-XXXX"
+    },
+
+    {
+      keywords: ['lol', 'haha', 'hehe', 'funny', 'joke', 'tell me a joke'],
+      response: "Haha! 😄 Here's a grocery joke for you:\n\nWhy did the tomato turn red?\n🍅 Because it saw the salad dressing!\n\nOkay, okay... I'll stick to helping you shop! 😅\n\nAnything else I can help you with?"
+    },
+
+    {
+      keywords: ['bored', 'im bored', 'nothing to do'],
+      response: "Bored? Let me help! 🎉\n\n**Here are some ideas:**\n• Check out today's **Deals** - new discounts daily!\n• Browse **New Arrivals** - fresh products just added\n• Explore different **Categories**\n• Check your **Rewards** - maybe you can upgrade!\n\nClick the buttons below or ask me about any of these!"
+    },
+
+    {
+      keywords: ['good job', 'well done', 'nice', 'great', 'perfect', 'awesome'],
+      response: "Thank you so much! 🎉😊\n\nI'm glad I could help! Feel free to ask me anything else.\n\nHappy shopping at Express Basket! 🛒"
+    },
+
+    {
+      keywords: ['ok', 'okay', 'alright', 'fine', 'got it', 'understood', 'i see'],
+      response: "Great! 👍\n\nIs there anything else you'd like to know? I'm here to help with:\n• Orders & Tracking\n• Products & Deals\n• Payments & Wallet\n• Memberships\n\nJust ask!"
+    },
+
+    {
+      keywords: ['yes', 'yeah', 'yep', 'sure', 'of course'],
+      response: "Awesome! 👍\n\nWhat would you like to know more about? Just type your question!"
+    },
+
+    {
+      keywords: ['no', 'nope', 'not really', 'nothing'],
+      response: "No problem! 😊\n\nI'm here whenever you need help. Just open this chat and ask me anything!\n\nHappy shopping! 🛒"
+    },
+
+    {
+      keywords: ['thank', 'thanks', 'thank you', 'thx', 'ty'],
+      response: "You're welcome! 😊\n\nIs there anything else I can help you with? Feel free to ask about:\n• Orders & Tracking\n• Products & Deals\n• Payments & Wallet\n• Memberships & Rewards\n\nHappy shopping! 🛒"
+    },
+
+    {
+      keywords: ['bye', 'goodbye', 'see you', 'later', 'cya', 'gtg'],
+      response: "Goodbye! 👋\n\nThank you for shopping with Express Basket!\n\nCome back anytime - I'm always here to help 24/7.\n\nHappy shopping! 🛒✨"
+    },
+
+    {
+      keywords: ['offers', 'deals', 'sale', 'discount', 'best deals'],
+      response: "Current Offers & Deals:\n\n🔥 Check our 'Deals' section for:\n• Daily price drops\n• Combo offers\n• Buy 1 Get 1 deals\n• Seasonal discounts\n\n💎 Membership holders get extra discounts!\n\nClick 'Deals' in the navigation or ask me to 'show deals'!"
+    },
+
+    {
+      keywords: ['time', 'what time', 'current time'],
+      response: `The current time is: ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}\n\nOur delivery hours are 8 AM - 10 PM, all days!\n\nAnything else I can help you with?`
+    },
+
+    {
+      keywords: ['today', 'date', 'what day', 'what date'],
+      response: `Today is: ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n\nReady to shop? Check out today's fresh deals! 🛒`
+    },
+  ];
+
+  // Smart query processor with fuzzy matching
+  const processQuery = (query) => {
+    const normalizedQuery = query.toLowerCase().trim();
+
+    // Check each knowledge base entry
+    let bestMatch = null;
+    let highestScore = 0;
+
+    for (const entry of knowledgeBase) {
+      let score = 0;
+
+      for (const keyword of entry.keywords) {
+        // Exact match
+        if (normalizedQuery.includes(keyword)) {
+          score += keyword.split(' ').length * 3; // Multi-word matches score higher
+        }
+        // Partial word matches
+        const keywordWords = keyword.split(' ');
+        for (const word of keywordWords) {
+          if (word.length > 3 && normalizedQuery.includes(word)) {
+            score += 1;
+          }
+        }
+      }
+
+      if (score > highestScore) {
+        highestScore = score;
+        bestMatch = entry;
+      }
+    }
+
+    if (bestMatch && highestScore >= 1) {
+      return bestMatch.response;
+    }
+
+    // Default response when no match found
+    return `I'm not sure about that, but I can help you with:\n\n• **Orders** - Track, cancel, reorder\n• **Products** - Search, browse, deals\n• **Payments** - Wallet, methods, refunds\n• **Membership** - Silver, Gold, Platinum\n• **Support** - Report issues, returns\n\nTry asking something like:\n"How do I track my order?"\n"What's my wallet balance?"\n"Tell me about gold membership"`;
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -634,6 +1024,30 @@ const ChatBot = () => {
 
   const addUserMessage = (text) => {
     setMessages(prev => [...prev, { text, isUser: true, time: new Date() }]);
+  };
+
+  // Handle sending messages from the input field
+  const handleSendMessage = () => {
+    const message = inputValue.trim();
+    if (!message) return;
+
+    // Add user message
+    addUserMessage(message);
+    setInputValue('');
+
+    // Process the query and get response
+    const response = processQuery(message);
+
+    // Add bot response with typing effect
+    addBotMessage(response);
+  };
+
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   const handleClose = () => {
@@ -889,6 +1303,23 @@ I know everything about this website and can guide you around!`);
               <HelpCircleIcon /> Help
             </QuickActionButton>
           </QuickActions>
+
+          {/* Chat Input Field */}
+          <ChatInputContainer onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
+            <ChatInput
+              type="text"
+              placeholder="Ask me anything..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+            />
+            <SendButton onClick={handleSendMessage} disabled={!inputValue.trim()}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </SendButton>
+          </ChatInputContainer>
         </ChatWindow>
       )}
 

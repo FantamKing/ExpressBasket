@@ -16,8 +16,10 @@
     aspect-ratio: 4/3;
     border-radius: 16px;
     overflow: hidden;
-    background: #1a1a2e;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background: #2a2a3e;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 0 0 2px rgba(74, 222, 128, 0.3);
 }
 
 .ffc-webcam {
@@ -26,6 +28,8 @@
     object-fit: cover;
     /* Mirror effect - flip horizontally so movements are natural */
     transform: scaleX(-1);
+    /* Ensure video is bright and clear */
+    filter: brightness(1.05) contrast(1.02);
 }
 
 .ffc-captured-image {
@@ -159,7 +163,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.35);
 }
 
 .ffc-spinner {

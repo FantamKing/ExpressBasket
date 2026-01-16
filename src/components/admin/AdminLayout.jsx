@@ -137,6 +137,9 @@ const AdminLayout = ({ children }) => {
   const [frameUploadProgress, setFrameUploadProgress] = React.useState(0);
   const [isUploadingFrame, setIsUploadingFrame] = React.useState(false);
 
+  // Animation settings saving state
+  const [savingAnimationSettings, setSavingAnimationSettings] = React.useState(false);
+
   // Profile picture state with crop modal
   const [uploadingPicture, setUploadingPicture] = React.useState(false);
   const [showCropModal, setShowCropModal] = React.useState(false);
@@ -3016,7 +3019,7 @@ const AdminLayout = ({ children }) => {
                             <div style={{ display: 'flex', gap: '8px' }}>
                               <button
                                 id="loopModeLoop"
-                                data-selected="true"
+                                data-selected={admin?.animationLoopMode !== 'once' ? 'true' : 'false'}
                                 onClick={(e) => {
                                   const loopBtn = document.getElementById('loopModeLoop');
                                   const onceBtn = document.getElementById('loopModeOnce');
@@ -3032,8 +3035,8 @@ const AdminLayout = ({ children }) => {
                                   padding: '8px 12px',
                                   border: '1px solid var(--border-color)',
                                   borderRadius: '6px',
-                                  background: 'var(--btn-primary)',
-                                  color: 'white',
+                                  background: admin?.animationLoopMode !== 'once' ? 'var(--btn-primary)' : 'transparent',
+                                  color: admin?.animationLoopMode !== 'once' ? 'white' : 'var(--text-color)',
                                   cursor: 'pointer',
                                   fontSize: '11px',
                                   fontWeight: '500'
@@ -3044,7 +3047,7 @@ const AdminLayout = ({ children }) => {
                               </button>
                               <button
                                 id="loopModeOnce"
-                                data-selected="false"
+                                data-selected={admin?.animationLoopMode === 'once' ? 'true' : 'false'}
                                 onClick={(e) => {
                                   const loopBtn = document.getElementById('loopModeLoop');
                                   const onceBtn = document.getElementById('loopModeOnce');
@@ -3060,8 +3063,8 @@ const AdminLayout = ({ children }) => {
                                   padding: '8px 12px',
                                   border: '1px solid var(--border-color)',
                                   borderRadius: '6px',
-                                  background: 'transparent',
-                                  color: 'var(--text-color)',
+                                  background: admin?.animationLoopMode === 'once' ? 'var(--btn-primary)' : 'transparent',
+                                  color: admin?.animationLoopMode === 'once' ? 'white' : 'var(--text-color)',
                                   cursor: 'pointer',
                                   fontSize: '11px',
                                   fontWeight: '500'
@@ -3128,7 +3131,9 @@ const AdminLayout = ({ children }) => {
 
                           {/* Save Settings Button */}
                           <button
+                            disabled={savingAnimationSettings}
                             onClick={async () => {
+                              setSavingAnimationSettings(true);
                               const loopMode = document.getElementById('loopModeOnce')?.dataset?.selected === 'true' ? 'once' : 'loop';
                               const opacity = parseInt(document.getElementById('animationOpacitySlider')?.value || 70) / 100;
                               const afterFile = document.getElementById('afterFileSelect')?.value || null;
@@ -3165,27 +3170,42 @@ const AdminLayout = ({ children }) => {
                               } catch (err) {
                                 console.error(err);
                                 alert('Error saving settings');
+                              } finally {
+                                setSavingAnimationSettings(false);
                               }
                             }}
                             style={{
                               marginTop: '12px',
                               width: '100%',
                               padding: '10px 14px',
-                              background: 'linear-gradient(135deg, #00cc66, #00aa55)',
+                              background: savingAnimationSettings ? 'linear-gradient(135deg, #00aa55, #008844)' : 'linear-gradient(135deg, #00cc66, #00aa55)',
                               color: 'white',
                               border: 'none',
                               borderRadius: '6px',
-                              cursor: 'pointer',
+                              cursor: savingAnimationSettings ? 'wait' : 'pointer',
                               fontSize: '12px',
                               fontWeight: '600',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              gap: '6px'
+                              gap: '6px',
+                              opacity: savingAnimationSettings ? 0.8 : 1,
+                              transition: 'all 0.3s ease'
                             }}
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
-                            Save Animation Settings
+                            {savingAnimationSettings ? (
+                              <>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}>
+                                  <circle cx="12" cy="12" r="10" strokeDasharray="32" strokeDashoffset="12" />
+                                </svg>
+                                Saving...
+                              </>
+                            ) : (
+                              <>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
+                                Save Animation Settings
+                              </>
+                            )}
                           </button>
                         </div>
 

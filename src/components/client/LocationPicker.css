@@ -189,6 +189,15 @@
     box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }
 
+/* Scrollable content area */
+.location-picker-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    /* Important for flex children to shrink */
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
     .location-picker-modal {
@@ -198,15 +207,36 @@
     .location-picker-content {
         max-width: 100%;
         max-height: 100vh;
+        height: 100vh;
         border-radius: 0;
     }
 
+    .location-picker-header {
+        padding: 15px;
+        flex-shrink: 0;
+    }
+
+    .location-picker-header h2 {
+        font-size: 16px;
+    }
+
+    .location-picker-actions {
+        padding: 10px 15px;
+        flex-shrink: 0;
+    }
+
+    .current-location-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
     .location-picker-map-container {
-        min-height: 300px;
+        min-height: 200px;
+        max-height: 35vh;
     }
 
     .location-picker-map {
-        min-height: 300px;
+        min-height: 200px;
     }
 
     .map-hint {
@@ -214,7 +244,56 @@
         padding: 8px 16px;
     }
 
+    .location-info {
+        padding: 15px;
+    }
+
+    .coordinates p,
+    .address p {
+        font-size: 13px;
+    }
+
+    .hub-warning {
+        font-size: 13px;
+        padding: 10px;
+    }
+
     .location-picker-footer {
         flex-direction: column;
+        padding: 15px;
+        flex-shrink: 0;
+        background: var(--card-bg, #1e293b);
+    }
+
+    .cancel-btn,
+    .save-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+    .location-picker-header h2 {
+        font-size: 14px;
+    }
+
+    .close-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+    }
+
+    .location-picker-map-container {
+        min-height: 180px;
+        max-height: 30vh;
+    }
+
+    .location-picker-map {
+        min-height: 180px;
+    }
+
+    .location-info {
+        padding: 12px;
     }
 }

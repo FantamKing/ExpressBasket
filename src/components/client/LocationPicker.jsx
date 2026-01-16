@@ -146,67 +146,69 @@ const LocationPicker = ({ initialLocation, onSave, onCancel }) => {
                     <button onClick={onCancel} className="close-btn">✕</button>
                 </div>
 
-                <div className="location-picker-actions">
-                    <button
-                        onClick={getCurrentLocation}
-                        className="current-location-btn"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? '⏳ Getting location...' : '📍 Use Current Location'}
-                    </button>
-                </div>
+                <div className="location-picker-scrollable">
+                    <div className="location-picker-actions">
+                        <button
+                            onClick={getCurrentLocation}
+                            className="current-location-btn"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? '⏳ Getting location...' : '📍 Use Current Location'}
+                        </button>
+                    </div>
 
-                <div className="location-picker-map-container">
-                    <MapContainer
-                        center={[mapCenter.lat, mapCenter.lng]}
-                        zoom={13}
-                        className="location-picker-map"
-                        scrollWheelZoom={true}
-                    >
-                        <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                        />
-
-                        <MapClickHandler onLocationSelect={handleLocationSelect} />
-
-                        {markerPosition && (
-                            <Marker
-                                position={[markerPosition.lat, markerPosition.lng]}
-                                icon={redPinIcon}
-                                draggable={true}
-                                ref={markerRef}
-                                eventHandlers={{
-                                    dragend: handleMarkerDrag
-                                }}
+                    <div className="location-picker-map-container">
+                        <MapContainer
+                            center={[mapCenter.lat, mapCenter.lng]}
+                            zoom={13}
+                            className="location-picker-map"
+                            scrollWheelZoom={true}
+                        >
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                             />
+
+                            <MapClickHandler onLocationSelect={handleLocationSelect} />
+
+                            {markerPosition && (
+                                <Marker
+                                    position={[markerPosition.lat, markerPosition.lng]}
+                                    icon={redPinIcon}
+                                    draggable={true}
+                                    ref={markerRef}
+                                    eventHandlers={{
+                                        dragend: handleMarkerDrag
+                                    }}
+                                />
+                            )}
+                        </MapContainer>
+
+                        <div className="map-hint">
+                            💡 Click on the map to place pin, or drag the pin to adjust
+                        </div>
+                    </div>
+
+                    <div className="location-info">
+                        <div className="coordinates">
+                            <strong>Selected Location:</strong>
+                            <p>Latitude: {markerPosition.lat.toFixed(6)}</p>
+                            <p>Longitude: {markerPosition.lng.toFixed(6)}</p>
+                        </div>
+
+                        {address && (
+                            <div className="address">
+                                <strong>Address:</strong>
+                                <p>{address}</p>
+                            </div>
                         )}
-                    </MapContainer>
 
-                    <div className="map-hint">
-                        💡 Click on the map to place pin, or drag the pin to adjust
+                        {hubWarning && (
+                            <div className={`hub-warning ${hubWarning.includes('✅') ? 'success' : 'warning'}`}>
+                                {hubWarning}
+                            </div>
+                        )}
                     </div>
-                </div>
-
-                <div className="location-info">
-                    <div className="coordinates">
-                        <strong>Selected Location:</strong>
-                        <p>Latitude: {markerPosition.lat.toFixed(6)}</p>
-                        <p>Longitude: {markerPosition.lng.toFixed(6)}</p>
-                    </div>
-
-                    {address && (
-                        <div className="address">
-                            <strong>Address:</strong>
-                            <p>{address}</p>
-                        </div>
-                    )}
-
-                    {hubWarning && (
-                        <div className={`hub-warning ${hubWarning.includes('✅') ? 'success' : 'warning'}`}>
-                            {hubWarning}
-                        </div>
-                    )}
                 </div>
 
                 <div className="location-picker-footer">

@@ -612,6 +612,17 @@
 
 /* Camera wrapper */
 [data-theme="light"] .face-recognition-modal .camera-wrapper {
-    background: linear-gradient(135deg, #0a0a0f, #1a1a2e) !important;
-    border-color: rgba(40, 167, 69, 0.4) !important;
+    background: linear-gradient(135deg, #1a1a2e, #2a2a3e) !important;
+    border-color: rgba(74, 222, 128, 0.4) !important;
+}
+
+/* Ensure camera video is clear and visible */
+.face-recognition-modal .ffc-camera-container {
+    background: #2a2a3e;
+    border: 2px solid rgba(74, 222, 128, 0.4);
+}
+
+.face-recognition-modal video,
+.face-recognition-modal .ffc-webcam {
+    filter: brightness(1.08) contrast(1.02);
 }
