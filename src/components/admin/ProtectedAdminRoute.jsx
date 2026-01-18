@@ -69,9 +69,10 @@ const AccessDenied = () => (
  * 
  * @param {Object} admin - Admin object with role and permissions
  * @param {string} requiredPermission - The permission needed to access the route
+ * @param {boolean} allowViewOnly - If true, also check for corresponding view_ permission (for sidebar visibility)
  * @returns {boolean} - Whether admin has access
  */
-export const hasPermission = (admin, requiredPermission) => {
+export const hasPermission = (admin, requiredPermission, allowViewOnly = true) => {
     if (!admin) return false;
 
     // Super admin has access to everything - no restrictions
@@ -92,8 +93,15 @@ export const hasPermission = (admin, requiredPermission) => {
     if (permissions.includes('view_everything')) return true;
 
     // Check if admin has the exact required permission
-    // NOTE: manage_* permissions require exact match - view_* does NOT grant access to manage routes
     if (permissions.includes(requiredPermission)) return true;
+
+    // If allowViewOnly is true and the required permission is a manage_ permission,
+    // also check for the corresponding view_ permission (allows viewing the section)
+    if (allowViewOnly && requiredPermission.startsWith('manage_')) {
+        const section = requiredPermission.replace('manage_', '');
+        const viewPermission = `view_${section}`;
+        if (permissions.includes(viewPermission)) return true;
+    }
 
     return false;
 };
@@ -211,8 +219,9 @@ const ProtectedAdminRoute = ({ children, requiredPermission }) => {
         return <Navigate to="/admin" replace />;
     }
 
-    // Check permission
-    if (!hasPermission(admin, requiredPermission)) {
+    // Check permission - use strict mode (allowViewOnly=false) for route protection
+    // This ensures users with view_products cannot access add/edit routes
+    if (!hasPermission(admin, requiredPermission, false)) {
         return <AccessDenied />;
     }
 

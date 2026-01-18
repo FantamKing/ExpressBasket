@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import axios from 'axios';
@@ -321,7 +322,7 @@ const DeliveryTrackingMap = ({ order, onClose }) => {
 
     // Don't render until customer location is loaded
     if (!customerLocation) {
-        return (
+        return createPortal(
             <div className="delivery-tracking-modal">
                 <div className="tracking-header">
                     <h2><Truck size={24} /> Live Delivery Tracking</h2>
@@ -331,11 +332,12 @@ const DeliveryTrackingMap = ({ order, onClose }) => {
                     <div className="loading-spinner"></div>
                     <p>Loading delivery location...</p>
                 </div>
-            </div>
+            </div>,
+            document.body
         );
     }
 
-    return (
+    return createPortal(
         <div className="delivery-tracking-modal">
             <div className="tracking-header">
                 <h2><Truck size={24} /> Live Delivery Tracking</h2>
@@ -455,7 +457,8 @@ const DeliveryTrackingMap = ({ order, onClose }) => {
                     </p>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

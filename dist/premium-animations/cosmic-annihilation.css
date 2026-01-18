@@ -1,0 +1,506 @@
+/* ============================================
+   COSMIC ANNIHILATION
+   Discord-Style 3D Planet Destruction
+   
+   - Two realistic 3D planets collide ONCE
+   - Massive explosion with shockwave
+   - Continuous debris fragments + periodic waves
+   ============================================ */
+
+/* === PLANET 1 - Fiery Red Giant (3D Realistic) === */
+.custom-particle:nth-child(1) {
+    position: absolute;
+    width: 55px;
+    height: 55px;
+    left: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 25%,
+            rgba(255, 255, 200, 1) 0%,
+            rgba(255, 180, 80, 1) 8%,
+            rgba(255, 100, 30, 1) 20%,
+            rgba(200, 50, 10, 1) 40%,
+            rgba(120, 20, 0, 1) 60%,
+            rgba(40, 5, 0, 1) 80%,
+            rgba(10, 0, 0, 1) 100%);
+    box-shadow:
+        inset -15px -10px 25px rgba(0, 0, 0, 0.8),
+        inset 8px 8px 20px rgba(255, 200, 100, 0.4),
+        0 0 30px rgba(255, 100, 0, 0.8),
+        0 0 60px rgba(255, 50, 0, 0.5),
+        0 0 100px rgba(200, 30, 0, 0.3);
+    animation: planet1Impact 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 10;
+}
+
+/* Planet 1 surface detail */
+.custom-particle:nth-child(1)::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background:
+        radial-gradient(ellipse 30% 20% at 60% 30%, rgba(255, 200, 100, 0.3) 0%, transparent 100%),
+        radial-gradient(ellipse 20% 40% at 30% 60%, rgba(150, 50, 0, 0.4) 0%, transparent 100%),
+        radial-gradient(ellipse 25% 15% at 70% 70%, rgba(100, 20, 0, 0.5) 0%, transparent 100%);
+    animation: planetRotate 20s linear infinite;
+}
+
+/* === PLANET 2 - Frozen Ice World (3D Realistic) === */
+.custom-particle:nth-child(2) {
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    right: -50px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 65% 30%,
+            rgba(255, 255, 255, 1) 0%,
+            rgba(200, 230, 255, 1) 10%,
+            rgba(100, 180, 255, 1) 25%,
+            rgba(50, 120, 200, 1) 45%,
+            rgba(20, 60, 120, 1) 65%,
+            rgba(5, 20, 50, 1) 85%,
+            rgba(0, 5, 20, 1) 100%);
+    box-shadow:
+        inset 12px -8px 20px rgba(0, 0, 0, 0.7),
+        inset -6px 6px 15px rgba(200, 230, 255, 0.5),
+        0 0 25px rgba(100, 180, 255, 0.7),
+        0 0 50px rgba(50, 120, 200, 0.4),
+        0 0 80px rgba(30, 80, 150, 0.2);
+    animation: planet2Impact 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 10;
+}
+
+/* Planet 2 surface detail */
+.custom-particle:nth-child(2)::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background:
+        radial-gradient(ellipse 40% 10% at 50% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 100%),
+        radial-gradient(ellipse 15% 30% at 70% 50%, rgba(150, 200, 255, 0.2) 0%, transparent 100%);
+    animation: planetRotate 25s linear infinite reverse;
+}
+
+/* === COLLISION EXPLOSION === */
+.custom-particle:nth-child(3) {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0;
+    z-index: 25;
+    animation: collisionExplosion 4s ease-out forwards;
+}
+
+/* === SHOCKWAVE RING 1 === */
+.custom-particle:nth-child(4) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    border: 4px solid rgba(255, 200, 100, 0.9);
+    border-radius: 50%;
+    background: transparent;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    z-index: 20;
+    animation: shockwave1 6s ease-out infinite;
+    animation-delay: 3.5s;
+    box-shadow:
+        0 0 20px rgba(255, 150, 50, 0.6),
+        inset 0 0 15px rgba(255, 200, 100, 0.3);
+}
+
+/* === SHOCKWAVE RING 2 === */
+.custom-particle:nth-child(5) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(150, 200, 255, 0.8);
+    border-radius: 50%;
+    background: transparent;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    z-index: 19;
+    animation: shockwave2 6s ease-out infinite;
+    animation-delay: 5.5s;
+    box-shadow:
+        0 0 15px rgba(100, 180, 255, 0.5),
+        inset 0 0 10px rgba(150, 200, 255, 0.2);
+}
+
+/* === DEBRIS PARTICLES (Infinite) === */
+.custom-particle:nth-child(6) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle at 30% 30%, #ffa050, #801500);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 150, 50, 0.8), 0 0 15px rgba(255, 100, 0, 0.5);
+    opacity: 0;
+    z-index: 15;
+    animation: debris1 8s ease-out infinite;
+    animation-delay: 3.5s;
+}
+
+.custom-particle:nth-child(7) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    background: radial-gradient(circle at 70% 30%, #aaddff, #204080);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(150, 200, 255, 0.8), 0 0 12px rgba(100, 150, 255, 0.5);
+    opacity: 0;
+    z-index: 15;
+    animation: debris2 9s ease-out infinite;
+    animation-delay: 3.7s;
+}
+
+.custom-particle:nth-child(8) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, #fff, #ff8800);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 200, 100, 0.9);
+    opacity: 0;
+    z-index: 15;
+    animation: debris3 7s ease-out infinite;
+    animation-delay: 3.6s;
+}
+
+.custom-particle:nth-child(9) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3px;
+    height: 3px;
+    background: radial-gradient(circle, #fff, #6699ff);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(100, 150, 255, 0.9);
+    opacity: 0;
+    z-index: 15;
+    animation: debris4 10s ease-out infinite;
+    animation-delay: 3.8s;
+}
+
+.custom-particle:nth-child(10) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    background: radial-gradient(circle at 40% 40%, #ffcc80, #993300);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(255, 180, 100, 0.7);
+    opacity: 0;
+    z-index: 15;
+    animation: debris5 8.5s ease-out infinite;
+    animation-delay: 3.9s;
+}
+
+/* === AMBIENT GLOW (Aftermath) === */
+.custom-particle:nth-child(11) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 80px;
+    height: 80px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle,
+            rgba(255, 150, 100, 0.3) 0%,
+            rgba(200, 100, 150, 0.2) 30%,
+            rgba(100, 100, 200, 0.1) 60%,
+            transparent 100%);
+    opacity: 0;
+    z-index: 5;
+    animation: ambientGlow 5s ease-in-out infinite;
+    animation-delay: 4s;
+    filter: blur(15px);
+}
+
+/* === SMALL SPARKS (Continuous) === */
+.custom-particle:nth-child(12) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 4px #fff, 0 0 8px rgba(255, 200, 150, 0.8);
+    opacity: 0;
+    z-index: 16;
+    animation: sparks 3s ease-out infinite;
+    animation-delay: 4s;
+}
+
+/* ========== KEYFRAMES ========== */
+
+@keyframes planet1Impact {
+    0% {
+        left: -60px;
+        opacity: 1;
+        transform: translateY(-50%) scale(1) rotate(0deg);
+    }
+
+    60% {
+        left: calc(50% - 45px);
+        opacity: 1;
+        transform: translateY(-50%) scale(1) rotate(30deg);
+    }
+
+    80% {
+        left: calc(50% - 35px);
+        opacity: 1;
+        transform: translateY(-50%) scale(0.6) rotate(45deg);
+        filter: brightness(3);
+    }
+
+    100% {
+        left: calc(50% - 30px);
+        opacity: 0;
+        transform: translateY(-50%) scale(0) rotate(60deg);
+        filter: brightness(5);
+    }
+}
+
+@keyframes planet2Impact {
+    0% {
+        right: -50px;
+        opacity: 1;
+        transform: translateY(-50%) scale(1) rotate(0deg);
+    }
+
+    60% {
+        right: calc(50% - 40px);
+        opacity: 1;
+        transform: translateY(-50%) scale(1) rotate(-25deg);
+    }
+
+    80% {
+        right: calc(50% - 30px);
+        opacity: 1;
+        transform: translateY(-50%) scale(0.6) rotate(-40deg);
+        filter: brightness(3);
+    }
+
+    100% {
+        right: calc(50% - 25px);
+        opacity: 0;
+        transform: translateY(-50%) scale(0) rotate(-55deg);
+        filter: brightness(5);
+    }
+}
+
+@keyframes planetRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes collisionExplosion {
+
+    0%,
+    70% {
+        opacity: 0;
+        width: 10px;
+        height: 10px;
+    }
+
+    75% {
+        opacity: 1;
+        width: 150px;
+        height: 150px;
+        background: #fff;
+        box-shadow:
+            0 0 50px #fff,
+            0 0 100px #ffaa00,
+            0 0 150px #ff5500,
+            0 0 200px rgba(255, 100, 0, 0.5);
+    }
+
+    100% {
+        opacity: 0;
+        width: 300px;
+        height: 300px;
+        background: transparent;
+    }
+}
+
+@keyframes shockwave1 {
+    0% {
+        opacity: 0;
+        width: 30px;
+        height: 30px;
+        border-width: 4px;
+    }
+
+    10% {
+        opacity: 0.9;
+    }
+
+    100% {
+        opacity: 0;
+        width: 280px;
+        height: 280px;
+        border-width: 1px;
+    }
+}
+
+@keyframes shockwave2 {
+    0% {
+        opacity: 0;
+        width: 30px;
+        height: 30px;
+        border-width: 3px;
+    }
+
+    10% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0;
+        width: 250px;
+        height: 250px;
+        border-width: 1px;
+    }
+}
+
+@keyframes debris1 {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%);
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.2;
+        transform: translate(calc(-50% - 100px), calc(-50% - 70px)) rotate(720deg);
+    }
+}
+
+@keyframes debris2 {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%);
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.2;
+        transform: translate(calc(-50% + 90px), calc(-50% - 80px)) rotate(-540deg);
+    }
+}
+
+@keyframes debris3 {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%);
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.15;
+        transform: translate(calc(-50% - 80px), calc(-50% + 90px)) rotate(900deg);
+    }
+}
+
+@keyframes debris4 {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%);
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.15;
+        transform: translate(calc(-50% + 110px), calc(-50% + 60px)) rotate(-630deg);
+    }
+}
+
+@keyframes debris5 {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%);
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.2;
+        transform: translate(calc(-50% + 40px), calc(-50% - 110px)) rotate(810deg);
+    }
+}
+
+@keyframes ambientGlow {
+
+    0%,
+    100% {
+        opacity: 0.4;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+@keyframes sparks {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%);
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + 60px), calc(-50% - 50px));
+    }
+}

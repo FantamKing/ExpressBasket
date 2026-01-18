@@ -1,4 +1,4 @@
-// Helper function to check if admin has view-only access
+// Helper function to check if admin has view-only access (based on role)
 export const isViewOnly = (admin) => {
     return admin?.role === 'normal_viewer' || admin?.role === 'special_viewer';
 };
@@ -10,27 +10,66 @@ export const canView = (admin, section) => {
     // Super admin can view everything
     if (admin.role === 'super_admin' || admin.role === 'superadmin') return true;
 
+    const permissions = admin.permissions || [];
+
+    // Creator permission means full access
+    if (permissions.includes('creator')) return true;
+
     // Check view_everything permission
-    if (admin.permissions?.includes('view_everything')) return true;
+    if (permissions.includes('view_everything')) return true;
 
     // Check specific view permission
     const viewPermission = `view_${section}`;
-    return admin.permissions?.includes(viewPermission);
+    if (permissions.includes(viewPermission)) return true;
+
+    // If admin has manage permission, they can also view
+    const managePermission = `manage_${section}`;
+    if (permissions.includes(managePermission)) return true;
+
+    return false;
 };
 
-// Helper function to check if admin can edit
+// Helper function to check if admin can edit a specific section
 export const canEdit = (admin, section) => {
     if (!admin) return false;
-
-    // Viewers cannot edit
-    if (isViewOnly(admin)) return false;
 
     // Super admin can edit everything
     if (admin.role === 'super_admin' || admin.role === 'superadmin') return true;
 
-    // Check manage permission
+    const permissions = admin.permissions || [];
+
+    // Creator permission means full access
+    if (permissions.includes('creator')) return true;
+
+    // Viewers (normal_viewer/special_viewer roles) cannot edit even with permissions
+    // This is a safety check based on role
+    if (isViewOnly(admin)) return false;
+
+    // Check manage permission for the section
     const managePermission = `manage_${section}`;
-    return admin.permissions?.includes(managePermission);
+    return permissions.includes(managePermission);
 };
 
-export default { isViewOnly, canView, canEdit };
+// Helper function to check if an admin has view-only access to a section
+// (has view permission but NOT manage permission)
+export const hasViewOnlyAccess = (admin, section) => {
+    if (!admin) return false;
+
+    // Super admin and creators have full access
+    if (admin.role === 'super_admin' || admin.role === 'superadmin') return false;
+
+    const permissions = admin.permissions || [];
+    if (permissions.includes('creator')) return false;
+
+    const viewPermission = `view_${section}`;
+    const managePermission = `manage_${section}`;
+
+    // Has view but not manage = view only
+    const hasView = permissions.includes('view_everything') || permissions.includes(viewPermission);
+    const hasManage = permissions.includes(managePermission);
+
+    return hasView && !hasManage;
+};
+
+export default { isViewOnly, canView, canEdit, hasViewOnlyAccess };
+

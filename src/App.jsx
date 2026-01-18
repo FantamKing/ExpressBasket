@@ -158,14 +158,14 @@ function App() {
                     </ProtectedAdminRoute>
                   } />
                   <Route path="/admin/products" element={
-                    <ProtectedAdminRoute requiredPermission="manage_products">
+                    <ProtectedAdminRoute>
                       <AdminLayout><ManageProducts /></AdminLayout>
                     </ProtectedAdminRoute>
                   } />
 
-                  {/* Categories - requires manage_categories permission */}
+                  {/* Categories */}
                   <Route path="/admin/categories" element={
-                    <ProtectedAdminRoute requiredPermission="manage_categories">
+                    <ProtectedAdminRoute>
                       <AdminLayout><ManageCategories /></AdminLayout>
                     </ProtectedAdminRoute>
                   } />
@@ -184,16 +184,16 @@ function App() {
                     </ProtectedAdminRoute>
                   } />
 
-                  {/* Users - requires manage_users permission */}
+                  {/* Users */}
                   <Route path="/admin/users" element={
-                    <ProtectedAdminRoute requiredPermission="manage_users">
+                    <ProtectedAdminRoute>
                       <AdminLayout><ManageUsers /></AdminLayout>
                     </ProtectedAdminRoute>
                   } />
 
-                  {/* Orders - requires manage_orders permission */}
+                  {/* Orders */}
                   <Route path="/admin/orders" element={
-                    <ProtectedAdminRoute requiredPermission="manage_orders">
+                    <ProtectedAdminRoute>
                       <AdminLayout><ManageOrders /></AdminLayout>
                     </ProtectedAdminRoute>
                   } />
@@ -205,16 +205,16 @@ function App() {
                     </ProtectedAdminRoute>
                   } />
 
-                  {/* Memberships - requires manage_memberships permission */}
+                  {/* Memberships */}
                   <Route path="/admin/memberships" element={
-                    <ProtectedAdminRoute requiredPermission="manage_memberships">
+                    <ProtectedAdminRoute>
                       <AdminLayout><ManageMemberships /></AdminLayout>
                     </ProtectedAdminRoute>
                   } />
 
-                  {/* Wallets - requires manage_wallets permission */}
+                  {/* Wallets */}
                   <Route path="/admin/wallets" element={
-                    <ProtectedAdminRoute requiredPermission="manage_wallets">
+                    <ProtectedAdminRoute>
                       <AdminLayout><ManageWallets /></AdminLayout>
                     </ProtectedAdminRoute>
                   } />

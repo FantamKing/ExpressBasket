@@ -4,6 +4,7 @@ import axios from '../../utils/axios';
 import './AdminLogin.css';
 import { useTheme } from '../../context/ThemeContext';
 import FaceRecognitionLogin from '../../components/admin/FaceRecognitionLogin';
+import { preloadFaceModels } from '../../utils/faceModelPreloader';
 import { Shield, Mail, Lock, Eye, EyeOff, ScanFace, ArrowLeft, Sun, Moon, Sparkles } from 'lucide-react';
 
 const AdminLogin = ({ setIsAdmin }) => {
@@ -22,6 +23,12 @@ const AdminLogin = ({ setIsAdmin }) => {
     const containerRef = useRef(null);
     const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
+
+    // Preload face recognition models in background when page loads
+    // This eliminates the delay when user clicks Face Recognition
+    useEffect(() => {
+        preloadFaceModels();
+    }, []);
 
 
 
@@ -77,12 +84,29 @@ const AdminLogin = ({ setIsAdmin }) => {
     };
 
     const handleFaceLoginSuccess = (data) => {
+        // Store tokens in localStorage
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('admin', JSON.stringify(data.admin));
+
+        // Verify tokens are stored
+        const storedToken = localStorage.getItem('adminToken');
+        const storedAdmin = localStorage.getItem('admin');
+
+        if (!storedToken || !storedAdmin) {
+            console.error('❌ Failed to store login tokens');
+            return;
+        }
+
+        console.log('✅ Tokens stored successfully, navigating...');
         setIsAdmin(true);
         setShowFaceLogin(false);
         setRedirecting(true);
-        navigate('/admin/dashboard', { replace: true });
+
+        // Add a small delay to ensure localStorage is fully synced
+        // This fixes race conditions on deployed environments with higher latency
+        setTimeout(() => {
+            navigate('/admin/dashboard', { replace: true });
+        }, 500);
     };
 
     // Hide everything when redirecting to prevent flash

@@ -622,7 +622,10 @@
     border: 2px solid rgba(74, 222, 128, 0.4);
 }
 
+/* Ensure camera video is bright and clear */
 .face-recognition-modal video,
-.face-recognition-modal .ffc-webcam {
-    filter: brightness(1.08) contrast(1.02);
+.face-recognition-modal .ffc-webcam,
+.face-recognition-modal .webcam {
+    filter: brightness(1.5) contrast(1.05) saturate(1.1) !important;
+    /* No mirror transform - let the camera output naturally */
 }

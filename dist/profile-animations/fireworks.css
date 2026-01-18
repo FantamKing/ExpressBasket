@@ -1,0 +1,207 @@
+/* ============================================
+   PROFILE ANIMATION: FIREWORKS
+   Colorful bursts radiating from center
+   ============================================ */
+
+.profile-animation-fireworks {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+}
+
+.firework {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    animation: firework-burst 2s ease-out infinite;
+}
+
+/* Burst particles */
+.firework:nth-child(1) {
+    background: #ff6b6b;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0s;
+    --angle: 0deg;
+}
+
+.firework:nth-child(2) {
+    background: #ffd93d;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0s;
+    --angle: 45deg;
+}
+
+.firework:nth-child(3) {
+    background: #6bcb77;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0s;
+    --angle: 90deg;
+}
+
+.firework:nth-child(4) {
+    background: #4d96ff;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0s;
+    --angle: 135deg;
+}
+
+.firework:nth-child(5) {
+    background: #ff6b9d;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0s;
+    --angle: 180deg;
+}
+
+.firework:nth-child(6) {
+    background: #c9b037;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0s;
+    --angle: 225deg;
+}
+
+.firework:nth-child(7) {
+    background: #9d4edd;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0s;
+    --angle: 270deg;
+}
+
+.firework:nth-child(8) {
+    background: #00d4ff;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0s;
+    --angle: 315deg;
+}
+
+/* Second wave */
+.firework:nth-child(9) {
+    background: #ff8c42;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0.7s;
+    --angle: 22deg;
+}
+
+.firework:nth-child(10) {
+    background: #ff3f8e;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0.7s;
+    --angle: 67deg;
+}
+
+.firework:nth-child(11) {
+    background: #04e762;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0.7s;
+    --angle: 112deg;
+}
+
+.firework:nth-child(12) {
+    background: #89f7fe;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0.7s;
+    --angle: 157deg;
+}
+
+.firework:nth-child(13) {
+    background: #f9d423;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0.7s;
+    --angle: 202deg;
+}
+
+.firework:nth-child(14) {
+    background: #ff0099;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0.7s;
+    --angle: 247deg;
+}
+
+.firework:nth-child(15) {
+    background: #00ff87;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0.7s;
+    --angle: 292deg;
+}
+
+.firework:nth-child(16) {
+    background: #f857a6;
+    left: 50%;
+    top: 50%;
+    animation-delay: 0.7s;
+    --angle: 337deg;
+}
+
+/* Third wave - smaller */
+.firework:nth-child(n+17) {
+    width: 3px;
+    height: 3px;
+    animation-delay: 1.4s;
+}
+
+@keyframes firework-burst {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(0) scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(-80px) scale(1.2);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(-120px) scale(0);
+    }
+}
+
+/* Center glow */
+.profile-animation-fireworks::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+    animation: firework-center-glow 2s ease-in-out infinite;
+}
+
+@keyframes firework-center-glow {
+
+    0%,
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    25% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+
+    50% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2);
+    }
+}

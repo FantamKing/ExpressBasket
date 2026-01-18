@@ -51,12 +51,12 @@ function euclideanDistance(descriptor1, descriptor2) {
 // Configuration for face matching
 const FACE_CONFIG = {
     // Threshold levels - lower is more strict
-    STRICT_THRESHOLD: 0.4,      // Very strict - same lighting, angle
-    NORMAL_THRESHOLD: 0.5,      // Normal - allows minor variations
-    LENIENT_THRESHOLD: 0.6,     // Lenient - allows glasses, expressions
+    STRICT_THRESHOLD: 0.35,     // Very strict - requires near-identical conditions
+    NORMAL_THRESHOLD: 0.45,     // Normal - allows glasses/minor changes
+    LENIENT_THRESHOLD: 0.5,     // Lenient - allows more variations
 
-    // Use normal threshold by default for good security/usability balance
-    MATCH_THRESHOLD: 0.5,
+    // Balanced threshold - allows some appearance variation while preventing wrong logins
+    MATCH_THRESHOLD: 0.45,
 
     // Maximum descriptors to store per admin
     MAX_DESCRIPTORS: 5
@@ -176,12 +176,12 @@ router.post('/auth/face-login', async (req, res) => {
 
         // Generate JWT token with same structure as regular login
         const token = jwt.sign(
-            { 
-                id: admin._id, 
+            {
+                id: admin._id,
                 email: admin.email,
                 role: admin.role,
                 permissions: admin.permissions,
-                sessionToken 
+                sessionToken
             },
             process.env.JWT_SECRET,
             { expiresIn: '7d' }
@@ -354,8 +354,32 @@ router.post('/approve/:requestId', verifyAdminWithWriteProtection, async (req, r
 
         // Update admin's face recognition
         const admin = await Admin.findById(request.adminId);
-        admin.faceRecognition.enabled = true;
-        admin.faceRecognition.descriptor = request.faceDescriptor;
+
+        // Check if admin already has face recognition enabled
+        if (admin.faceRecognition.enabled && admin.faceRecognition.descriptor) {
+            // ADD as variation instead of replacing
+            if (!admin.faceRecognition.additionalDescriptors) {
+                admin.faceRecognition.additionalDescriptors = [];
+            }
+
+            // Check if max variations reached
+            if (admin.faceRecognition.additionalDescriptors.length >= FACE_CONFIG.MAX_DESCRIPTORS) {
+                return res.status(400).json({
+                    message: `Maximum ${FACE_CONFIG.MAX_DESCRIPTORS + 1} face variations allowed. Please remove one first.`
+                });
+            }
+
+            // Add the new descriptor as a variation
+            admin.faceRecognition.additionalDescriptors.push(request.faceDescriptor);
+            console.log(`✅ Added face variation for ${admin.email}. Total: ${admin.faceRecognition.additionalDescriptors.length + 1}`);
+        } else {
+            // First face registration - set as primary
+            admin.faceRecognition.enabled = true;
+            admin.faceRecognition.descriptor = request.faceDescriptor;
+            admin.faceRecognition.additionalDescriptors = [];
+            console.log(`✅ Primary face registered for ${admin.email}`);
+        }
+
         admin.faceRecognition.registeredAt = new Date();
         admin.faceRecognition.approvedBy = req.admin.id;
         admin.faceRecognition.approvedAt = new Date();
@@ -368,7 +392,11 @@ router.post('/approve/:requestId', verifyAdminWithWriteProtection, async (req, r
         request.reviewedAt = new Date();
         await request.save();
 
-        res.json({ message: 'Face registration approved successfully' });
+        const totalVariations = 1 + (admin.faceRecognition.additionalDescriptors?.length || 0);
+        res.json({
+            message: 'Face registration approved successfully',
+            totalVariations
+        });
 
     } catch (error) {
         console.error('Error approving face registration:', error);

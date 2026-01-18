@@ -12,18 +12,19 @@
     text-align: center !important;
 }
 
-/* ============== CAMERA WRAPPER - CLEAN DARK STYLE ============== */
+/* ============== CAMERA WRAPPER - CLEAN STYLE ============== */
 .camera-wrapper {
     position: relative;
     width: 100%;
     max-width: 360px;
     aspect-ratio: 4/3;
-    background: linear-gradient(135deg, #0a0a0f, #1a1a2e);
+    background: #1a1a2e;
+    /* Neutral dark background instead of heavy gradient */
     border-radius: 16px;
     overflow: hidden;
     box-shadow:
-        0 15px 50px rgba(0, 0, 0, 0.5),
-        0 0 20px rgba(40, 167, 69, 0.1);
+        0 10px 30px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(40, 167, 69, 0.15);
     border: 2px solid rgba(40, 167, 69, 0.4);
     margin: 0 auto !important;
     margin-left: auto !important;
@@ -80,12 +81,10 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(1.1);
-    /* Mirror effect - flip horizontally so movements are natural */
-    transform: scaleX(-1);
+    /* No mirror transform - display video naturally as received from camera */
 }
 
-/* Face overlay - mirrored to match video */
+/* Face overlay - matches video orientation */
 .face-overlay {
     position: absolute;
     top: 0;
@@ -93,8 +92,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    /* Mirror effect - must match webcam flip */
-    transform: scaleX(-1);
+    /* No mirror transform - matches webcam */
 }
 
 /* ============== STATUS INDICATOR - CLEAN ============== */

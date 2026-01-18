@@ -1,0 +1,218 @@
+/* ============================================
+   PROFILE ANIMATION: CONFETTI
+   Colorful paper confetti falling effect
+   ============================================ */
+
+.profile-animation-confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    animation: confetti-fall 4s linear infinite;
+    opacity: 0;
+}
+
+/* Rectangle confetti */
+.confetti-piece:nth-child(odd) {
+    width: 10px;
+    height: 6px;
+    border-radius: 2px;
+}
+
+/* Circle confetti */
+.confetti-piece:nth-child(even) {
+    border-radius: 50%;
+    width: 6px;
+    height: 6px;
+}
+
+/* Color distribution */
+.confetti-piece:nth-child(1) {
+    background: #ff6b6b;
+    left: 5%;
+    animation-delay: 0s;
+}
+
+.confetti-piece:nth-child(2) {
+    background: #ffd93d;
+    left: 12%;
+    animation-delay: 0.3s;
+}
+
+.confetti-piece:nth-child(3) {
+    background: #6bcb77;
+    left: 19%;
+    animation-delay: 0.6s;
+}
+
+.confetti-piece:nth-child(4) {
+    background: #4d96ff;
+    left: 26%;
+    animation-delay: 0.9s;
+}
+
+.confetti-piece:nth-child(5) {
+    background: #ff6b9d;
+    left: 33%;
+    animation-delay: 0.2s;
+}
+
+.confetti-piece:nth-child(6) {
+    background: #9d4edd;
+    left: 40%;
+    animation-delay: 0.5s;
+}
+
+.confetti-piece:nth-child(7) {
+    background: #00d4ff;
+    left: 47%;
+    animation-delay: 0.8s;
+}
+
+.confetti-piece:nth-child(8) {
+    background: #ff8c42;
+    left: 54%;
+    animation-delay: 0.1s;
+}
+
+.confetti-piece:nth-child(9) {
+    background: #04e762;
+    left: 61%;
+    animation-delay: 0.4s;
+}
+
+.confetti-piece:nth-child(10) {
+    background: #f857a6;
+    left: 68%;
+    animation-delay: 0.7s;
+}
+
+.confetti-piece:nth-child(11) {
+    background: #89f7fe;
+    left: 75%;
+    animation-delay: 1s;
+}
+
+.confetti-piece:nth-child(12) {
+    background: #f9d423;
+    left: 82%;
+    animation-delay: 0.35s;
+}
+
+.confetti-piece:nth-child(13) {
+    background: #ff0099;
+    left: 89%;
+    animation-delay: 0.65s;
+}
+
+.confetti-piece:nth-child(14) {
+    background: #00ff87;
+    left: 95%;
+    animation-delay: 0.95s;
+}
+
+/* Second layer - different timing */
+.confetti-piece:nth-child(n+15) {
+    animation-delay: 2s;
+    animation-duration: 3.5s;
+}
+
+.confetti-piece:nth-child(15) {
+    background: #ff3f8e;
+    left: 8%;
+}
+
+.confetti-piece:nth-child(16) {
+    background: #c9b037;
+    left: 22%;
+}
+
+.confetti-piece:nth-child(17) {
+    background: #667eea;
+    left: 36%;
+}
+
+.confetti-piece:nth-child(18) {
+    background: #f093fb;
+    left: 50%;
+}
+
+.confetti-piece:nth-child(19) {
+    background: #f5af19;
+    left: 64%;
+}
+
+.confetti-piece:nth-child(20) {
+    background: #12c2e9;
+    left: 78%;
+}
+
+@keyframes confetti-fall {
+    0% {
+        top: -20px;
+        opacity: 0;
+        transform: rotate(0deg) translateX(0);
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    25% {
+        transform: rotate(90deg) translateX(15px);
+    }
+
+    50% {
+        transform: rotate(180deg) translateX(-10px);
+    }
+
+    75% {
+        transform: rotate(270deg) translateX(10px);
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 100%;
+        opacity: 0;
+        transform: rotate(360deg) translateX(-5px);
+    }
+}
+
+/* Celebration sparkle */
+.profile-animation-confetti::after {
+    content: '🎉';
+    position: absolute;
+    font-size: 16px;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: celebration-pop 3s ease-in-out infinite;
+    opacity: 0;
+}
+
+@keyframes celebration-pop {
+
+    0%,
+    80%,
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0);
+    }
+
+    85%,
+    95% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+}

@@ -1,0 +1,175 @@
+/* ============================================
+   PROFILE ANIMATION: DIGITAL RAIN
+   Matrix-style digital rain effect
+   ============================================ */
+
+.profile-animation-rain {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+    background: linear-gradient(to bottom, transparent, rgba(0, 50, 0, 0.1));
+}
+
+.rain-drop {
+    position: absolute;
+    width: 2px;
+    height: 15px;
+    background: linear-gradient(to bottom, transparent, #00ff41, transparent);
+    animation: rain-fall 1.5s linear infinite;
+    opacity: 0;
+}
+
+/* Distribute rain drops */
+.rain-drop:nth-child(1) {
+    left: 5%;
+    animation-delay: 0s;
+    animation-duration: 1.2s;
+}
+
+.rain-drop:nth-child(2) {
+    left: 12%;
+    animation-delay: 0.3s;
+    animation-duration: 1.5s;
+}
+
+.rain-drop:nth-child(3) {
+    left: 19%;
+    animation-delay: 0.6s;
+    animation-duration: 1.3s;
+}
+
+.rain-drop:nth-child(4) {
+    left: 26%;
+    animation-delay: 0.1s;
+    animation-duration: 1.7s;
+}
+
+.rain-drop:nth-child(5) {
+    left: 33%;
+    animation-delay: 0.8s;
+    animation-duration: 1.4s;
+}
+
+.rain-drop:nth-child(6) {
+    left: 40%;
+    animation-delay: 0.4s;
+    animation-duration: 1.6s;
+}
+
+.rain-drop:nth-child(7) {
+    left: 47%;
+    animation-delay: 0.9s;
+    animation-duration: 1.2s;
+}
+
+.rain-drop:nth-child(8) {
+    left: 54%;
+    animation-delay: 0.2s;
+    animation-duration: 1.5s;
+}
+
+.rain-drop:nth-child(9) {
+    left: 61%;
+    animation-delay: 0.7s;
+    animation-duration: 1.3s;
+}
+
+.rain-drop:nth-child(10) {
+    left: 68%;
+    animation-delay: 0.5s;
+    animation-duration: 1.8s;
+}
+
+.rain-drop:nth-child(11) {
+    left: 75%;
+    animation-delay: 0.15s;
+    animation-duration: 1.4s;
+}
+
+.rain-drop:nth-child(12) {
+    left: 82%;
+    animation-delay: 0.65s;
+    animation-duration: 1.6s;
+}
+
+.rain-drop:nth-child(13) {
+    left: 89%;
+    animation-delay: 0.35s;
+    animation-duration: 1.2s;
+}
+
+.rain-drop:nth-child(14) {
+    left: 95%;
+    animation-delay: 0.85s;
+    animation-duration: 1.5s;
+}
+
+/* Cyan accent drops */
+.rain-drop:nth-child(3n) {
+    background: linear-gradient(to bottom, transparent, #00d4ff, transparent);
+    width: 3px;
+}
+
+/* White bright drops */
+.rain-drop:nth-child(5n) {
+    background: linear-gradient(to bottom, transparent, #ffffff, transparent);
+    height: 10px;
+}
+
+@keyframes rain-fall {
+    0% {
+        top: -20px;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 100%;
+        opacity: 0;
+    }
+}
+
+/* Matrix code characters (pseudo elements) */
+.profile-animation-rain::before {
+    content: '01001010';
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    color: rgba(0, 255, 65, 0.3);
+    animation: rain-code-fade 3s ease-in-out infinite;
+}
+
+.profile-animation-rain::after {
+    content: '11010110';
+    position: absolute;
+    bottom: 15%;
+    right: 10%;
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    color: rgba(0, 255, 65, 0.3);
+    animation: rain-code-fade 3s ease-in-out infinite 1.5s;
+}
+
+@keyframes rain-code-fade {
+
+    0%,
+    100% {
+        opacity: 0.1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}

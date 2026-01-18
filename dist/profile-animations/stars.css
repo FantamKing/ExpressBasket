@@ -1,0 +1,189 @@
+/* ============================================
+   PROFILE ANIMATION: STARS
+   Floating and twinkling stars effect
+   ============================================ */
+
+.profile-animation-stars {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+    background: radial-gradient(ellipse at center, rgba(25, 25, 50, 0.3) 0%, transparent 70%);
+}
+
+.star {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.5);
+    animation: star-twinkle 2s ease-in-out infinite;
+}
+
+/* Star positions */
+.star:nth-child(1) {
+    left: 8%;
+    top: 15%;
+    animation-delay: 0s;
+}
+
+.star:nth-child(2) {
+    left: 20%;
+    top: 45%;
+    animation-delay: 0.5s;
+}
+
+.star:nth-child(3) {
+    left: 35%;
+    top: 10%;
+    animation-delay: 1s;
+}
+
+.star:nth-child(4) {
+    left: 50%;
+    top: 70%;
+    animation-delay: 0.3s;
+}
+
+.star:nth-child(5) {
+    left: 65%;
+    top: 25%;
+    animation-delay: 0.8s;
+}
+
+.star:nth-child(6) {
+    left: 80%;
+    top: 55%;
+    animation-delay: 1.3s;
+}
+
+.star:nth-child(7) {
+    left: 92%;
+    top: 20%;
+    animation-delay: 0.6s;
+}
+
+.star:nth-child(8) {
+    left: 15%;
+    top: 80%;
+    animation-delay: 1.1s;
+}
+
+.star:nth-child(9) {
+    left: 45%;
+    top: 35%;
+    animation-delay: 0.2s;
+}
+
+.star:nth-child(10) {
+    left: 70%;
+    top: 85%;
+    animation-delay: 0.9s;
+}
+
+.star:nth-child(11) {
+    left: 25%;
+    top: 60%;
+    animation-delay: 1.4s;
+}
+
+.star:nth-child(12) {
+    left: 88%;
+    top: 40%;
+    animation-delay: 0.4s;
+}
+
+/* Golden stars */
+.star:nth-child(odd) {
+    background: #ffd700;
+    box-shadow: 0 0 8px 3px rgba(255, 215, 0, 0.6);
+    width: 5px;
+    height: 5px;
+}
+
+/* Blue stars */
+.star:nth-child(3n) {
+    background: #87ceeb;
+    box-shadow: 0 0 8px 3px rgba(135, 206, 235, 0.6);
+}
+
+/* Pink stars */
+.star:nth-child(4n) {
+    background: #ff6b9d;
+    box-shadow: 0 0 8px 3px rgba(255, 107, 157, 0.6);
+    width: 3px;
+    height: 3px;
+}
+
+@keyframes star-twinkle {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+/* Shooting star */
+.profile-animation-stars::before {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #fff, transparent);
+    top: 20%;
+    right: -80px;
+    animation: shooting-star 4s linear infinite;
+    animation-delay: 2s;
+}
+
+@keyframes shooting-star {
+    0% {
+        right: -80px;
+        top: 10%;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    40% {
+        right: 120%;
+        top: 50%;
+        opacity: 0;
+    }
+
+    100% {
+        right: 120%;
+        top: 50%;
+        opacity: 0;
+    }
+}
+
+/* Floating animation for some stars */
+.star:nth-child(2n) {
+    animation: star-float 4s ease-in-out infinite;
+}
+
+@keyframes star-float {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: translateY(-5px) scale(1.1);
+        opacity: 1;
+    }
+}

@@ -1,22 +1,23 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Webcam from 'react-webcam';
 import * as faceapi from 'face-api.js';
+import { areModelsLoaded, preloadFaceModels } from '../../utils/faceModelPreloader';
 import { User, Lightbulb, Camera, Clock, CheckCircle, Shield, AlertCircle, Eye } from 'lucide-react';
 import './FaceCapture.css';
 
-// SPEED-OPTIMIZED: Fast face recognition for mobile and desktop
-// Goal: Faster than manual login - instant detection!
+// ULTRA-FAST: Maximum speed face recognition
+// Goal: Detect and verify face in under 2 seconds!
 const CONFIG = {
-    MIN_CONFIDENCE: 0.2,         // Lower threshold for faster detection
+    MIN_CONFIDENCE: 0.15,         // Very low threshold for instant detection
     STABILITY_FRAMES: 1,          // INSTANT - no waiting for stability
-    DEBOUNCE_TIME: 300,           // Fast retry on fail (was 600)
-    MIN_FACE_SIZE: 30,            // Detect smaller faces
-    MAX_FACE_SIZE: 700,           // Allow larger faces
-    CENTER_TOLERANCE: 0.55,       // Very forgiving centering
-    MULTI_CAPTURE_COUNT: 1,
-    DESCRIPTOR_SIMILARITY: 0.55,  // More tolerant matching
-    INPUT_SIZE: 160,              // Slightly larger for better accuracy (was 128)
-    EYE_OPEN_THRESHOLD: 0.15,     // Lower threshold
+    DEBOUNCE_TIME: 200,           // Very fast retry (was 300)
+    MIN_FACE_SIZE: 25,            // Detect smaller faces quickly
+    MAX_FACE_SIZE: 800,           // Allow very large faces
+    CENTER_TOLERANCE: 0.6,        // Very forgiving centering
+    MULTI_CAPTURE_COUNT: 1,       // Single capture
+    DESCRIPTOR_SIMILARITY: 0.6,   // More tolerant matching for speed
+    INPUT_SIZE: 128,              // FASTEST option for TinyFaceDetector
+    EYE_OPEN_THRESHOLD: 0.12,     // Lower threshold
     REQUIRE_EYES_OPEN: false,     // Don't require eyes check for speed
 };
 
@@ -61,39 +62,32 @@ const FaceCapture = ({ onFaceDetected, onError, onMultiAngleComplete, mode = 'lo
     const [isCapturing, setIsCapturing] = useState(false);
     const [captureCountdown, setCaptureCountdown] = useState(0);
 
-    // Load face-api models with caching optimization
-    // Models are cached by browser after first download (~6.8MB total)
+    // Load face-api models - uses preloaded models if available
+    // Models are preloaded when visiting /admin page for instant availability
     useEffect(() => {
         const loadModels = async () => {
             try {
-                // Check if models are already loaded (cached in memory)
-                const modelsAlreadyLoaded =
-                    faceapi.nets.tinyFaceDetector.isLoaded &&
-                    faceapi.nets.faceLandmark68Net.isLoaded &&
-                    faceapi.nets.faceRecognitionNet.isLoaded;
-
-                if (modelsAlreadyLoaded) {
-                    console.log('✅ Face-API models already in memory');
+                // Check if models were already preloaded
+                if (areModelsLoaded()) {
+                    console.log('✅ Face-API models already preloaded - instant start!');
                     setModelsLoaded(true);
                     setStatus('Ready. Waiting for camera...');
                     return;
                 }
 
-                setStatus('Loading AI models (first time may take a moment)...');
-                const MODEL_URL = '/models';
+                // Models not preloaded, load them now (fallback)
+                setStatus('Loading AI models...');
+                console.log('⏳ Models not preloaded, loading now...');
 
-                // Load models in parallel with progress tracking
-                const loadPromises = [
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
-                ];
+                const success = await preloadFaceModels();
 
-                await Promise.all(loadPromises);
-
-                setModelsLoaded(true);
-                setStatus('Models loaded. Waiting for camera...');
-                console.log('✅ Face-API models loaded successfully');
+                if (success) {
+                    setModelsLoaded(true);
+                    setStatus('Models loaded. Waiting for camera...');
+                    console.log('✅ Face-API models loaded successfully');
+                } else {
+                    throw new Error('Failed to load models');
+                }
             } catch (error) {
                 console.error('❌ Error loading models:', error);
                 setStatus('Error loading AI models. Check network connection.');
@@ -460,8 +454,14 @@ const FaceCapture = ({ onFaceDetected, onError, onMultiAngleComplete, mode = 'lo
                     onUserMedia={handleCameraReady}
                     onUserMediaError={handleCameraError}
                     className="webcam"
-                    // Force mirrored rendering for mobile consistency
-                    mirrored={false} // We handle mirroring in CSS
+                    // Let video display naturally from camera
+                    mirrored={false}
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                        // Brightness is handled by CSS for consistency
+                    }}
                 />
                 <canvas
                     ref={canvasRef}
