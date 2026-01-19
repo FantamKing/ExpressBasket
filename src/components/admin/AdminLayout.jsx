@@ -712,27 +712,50 @@ const AdminLayout = ({ children }) => {
                 }}>
                   {/* Avatar Frame */}
                   {admin.avatarFrame && (
-                    <div
-                      className={admin.avatarFrame !== 'custom' ? `header-avatar-frame frame-${admin.avatarFrame}` : ''}
-                      style={{
-                        position: 'absolute',
-                        top: '0',
-                        left: '0',
-                        right: '0',
-                        bottom: '0',
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        zIndex: 0,
-                        transformOrigin: 'center center',
-                        ...(admin.avatarFrame === 'custom' && admin.customFrameUrl ? {
-                          backgroundImage: `url(${admin.customFrameUrl})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          animation: 'frameSpinAnimation 3s linear infinite'
-                        } : {})
-                      }}
-                    ></div>
+                    <>
+                      {admin.avatarFrame === 'custom' && admin.customFrameUrl &&
+                        (admin.customFrameUrl.includes('.mp4') || admin.customFrameUrl.includes('.webm') || admin.customFrameUrl.includes('video')) ? (
+                        <video
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          style={{
+                            position: 'absolute',
+                            top: '0',
+                            left: '0',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            zIndex: 0,
+                            objectFit: 'cover'
+                          }}
+                          src={admin.customFrameUrl}
+                        />
+                      ) : (
+                        <div
+                          className={admin.avatarFrame !== 'custom' ? `header-avatar-frame frame-${admin.avatarFrame}` : ''}
+                          style={{
+                            position: 'absolute',
+                            top: '0',
+                            left: '0',
+                            right: '0',
+                            bottom: '0',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            zIndex: 0,
+                            transformOrigin: 'center center',
+                            ...(admin.avatarFrame === 'custom' && admin.customFrameUrl ? {
+                              backgroundImage: `url(${admin.customFrameUrl})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              animation: 'frameSpinAnimation 3s linear infinite'
+                            } : {})
+                          }}
+                        ></div>
+                      )}
+                    </>
                   )}
                   {/* Avatar */}
                   <div
@@ -1039,27 +1062,50 @@ const AdminLayout = ({ children }) => {
                 }}>
                   {/* Animated Avatar Frame */}
                   {admin.avatarFrame && (
-                    <div
-                      className={admin.avatarFrame !== 'custom' ? `header-avatar-frame frame-${admin.avatarFrame}` : ''}
-                      style={{
-                        position: 'absolute',
-                        top: '0',
-                        left: '0',
-                        right: '0',
-                        bottom: '0',
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '50%',
-                        zIndex: 0,
-                        transformOrigin: 'center center',
-                        ...(admin.avatarFrame === 'custom' && admin.customFrameUrl ? {
-                          backgroundImage: `url(${admin.customFrameUrl})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          animation: 'frameSpinAnimation 3s linear infinite'
-                        } : {})
-                      }}
-                    ></div>
+                    <>
+                      {admin.avatarFrame === 'custom' && admin.customFrameUrl &&
+                        (admin.customFrameUrl.includes('.mp4') || admin.customFrameUrl.includes('.webm') || admin.customFrameUrl.includes('video')) ? (
+                        <video
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          style={{
+                            position: 'absolute',
+                            top: '0',
+                            left: '0',
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '50%',
+                            zIndex: 0,
+                            objectFit: 'cover'
+                          }}
+                          src={admin.customFrameUrl}
+                        />
+                      ) : (
+                        <div
+                          className={admin.avatarFrame !== 'custom' ? `header-avatar-frame frame-${admin.avatarFrame}` : ''}
+                          style={{
+                            position: 'absolute',
+                            top: '0',
+                            left: '0',
+                            right: '0',
+                            bottom: '0',
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '50%',
+                            zIndex: 0,
+                            transformOrigin: 'center center',
+                            ...(admin.avatarFrame === 'custom' && admin.customFrameUrl ? {
+                              backgroundImage: `url(${admin.customFrameUrl})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              animation: 'frameSpinAnimation 3s linear infinite'
+                            } : {})
+                          }}
+                        ></div>
+                      )}
+                    </>
                   )}
                   <div
                     className="profile-avatar"
@@ -1890,25 +1936,43 @@ const AdminLayout = ({ children }) => {
                               justifyContent: 'center'
                             }}>
                               {/* Custom Frame */}
-                              <div
-                                style={{
-                                  position: 'absolute',
-                                  inset: '-4px',
-                                  borderRadius: '50%',
-                                  backgroundImage: `url(${admin.customFrameUrl})`,
-                                  backgroundSize: 'cover',
-                                  backgroundPosition: 'center',
-                                  animation: 'frameSpinAnimation 3s linear infinite',
-                                  padding: '3px'
-                                }}
-                              >
-                                <div style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  borderRadius: '50%',
-                                  background: 'var(--card-bg)'
-                                }}></div>
-                              </div>
+                              {admin.customFrameUrl.includes('.mp4') || admin.customFrameUrl.includes('.webm') || admin.customFrameUrl.includes('video') ? (
+                                <video
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                  style={{
+                                    position: 'absolute',
+                                    inset: '-4px',
+                                    width: 'calc(100% + 8px)',
+                                    height: 'calc(100% + 8px)',
+                                    borderRadius: '50%',
+                                    objectFit: 'cover'
+                                  }}
+                                  src={admin.customFrameUrl}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    position: 'absolute',
+                                    inset: '-4px',
+                                    borderRadius: '50%',
+                                    backgroundImage: `url(${admin.customFrameUrl})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    animation: 'frameSpinAnimation 3s linear infinite',
+                                    padding: '3px'
+                                  }}
+                                >
+                                  <div style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    borderRadius: '50%',
+                                    background: 'var(--card-bg)'
+                                  }}></div>
+                                </div>
+                              )}
                               {/* Avatar */}
                               <div style={{
                                 width: '48px',
@@ -2081,7 +2145,7 @@ const AdminLayout = ({ children }) => {
                               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                               </svg>
-                              <span><strong>Formats:</strong> GIF, PNG, JPG, SVG, WebP</span>
+                              <span><strong>Formats:</strong> GIF, PNG, JPG, SVG, WebP, MP4, WebM</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -2130,16 +2194,35 @@ const AdminLayout = ({ children }) => {
                             marginBottom: '12px',
                             border: '1px solid rgba(40, 167, 69, 0.3)'
                           }}>
-                            <div style={{
-                              width: '50px',
-                              height: '50px',
-                              borderRadius: '50%',
-                              backgroundImage: `url(${admin.customFrameUrl})`,
-                              backgroundSize: 'cover',
-                              backgroundPosition: 'center',
-                              animation: 'frameSpinAnimation 3s linear infinite',
-                              flexShrink: 0
-                            }}></div>
+                            {/* Frame preview - supports both image and video */}
+                            {admin.customFrameUrl.includes('.mp4') || admin.customFrameUrl.includes('.webm') || admin.customFrameUrl.includes('video') ? (
+                              <video
+                                src={admin.customFrameUrl}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                style={{
+                                  width: '50px',
+                                  height: '50px',
+                                  borderRadius: '50%',
+                                  objectFit: 'cover',
+                                  animation: 'frameSpinAnimation 3s linear infinite',
+                                  flexShrink: 0
+                                }}
+                              />
+                            ) : (
+                              <div style={{
+                                width: '50px',
+                                height: '50px',
+                                borderRadius: '50%',
+                                backgroundImage: `url(${admin.customFrameUrl})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                animation: 'frameSpinAnimation 3s linear infinite',
+                                flexShrink: 0
+                              }}></div>
+                            )}
                             <div style={{ flex: 1 }}>
                               <div style={{ fontSize: '12px', color: 'var(--text-color)', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#28a745" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -2262,7 +2345,7 @@ const AdminLayout = ({ children }) => {
                       <input
                         type="file"
                         id="customFrameInput"
-                        accept="image/gif,image/png,image/jpeg,image/webp,image/svg+xml"
+                        accept="image/gif,image/png,image/jpeg,image/webp,image/svg+xml,video/mp4,video/webm"
                         style={{ display: 'none' }}
                         onChange={(e) => {
                           const file = e.target.files[0];
@@ -2914,9 +2997,9 @@ const AdminLayout = ({ children }) => {
                           onChange={async (e) => {
                             const file = e.target.files[0];
                             if (file) {
-                              // Check file size (max 30MB)
-                              if (file.size > 30 * 1024 * 1024) {
-                                alert('File is too large. Maximum size is 30MB.');
+                              // Check file size (max 50MB)
+                              if (file.size > 50 * 1024 * 1024) {
+                                alert('File is too large. Maximum size is 50MB.');
                                 return;
                               }
 

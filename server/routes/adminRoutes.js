@@ -59,7 +59,7 @@ const frameStorage = new CloudinaryStorage({
         console.log('Uploading custom frame to Cloudinary:', file.originalname);
         return {
             folder: 'basket-avatar-frames',
-            allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp', 'svg'],
+            allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp', 'svg', 'mp4', 'webm'],
             resource_type: 'auto',
             public_id: `frame_${req.admin.id}_${Date.now()}`
         };
@@ -68,13 +68,13 @@ const frameStorage = new CloudinaryStorage({
 
 const frameUpload = multer({
     storage: frameStorage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit for frames
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit for frames (supports video)
     fileFilter: (req, file, cb) => {
-        const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+        const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'video/mp4', 'video/webm'];
         if (allowedMimes.includes(file.mimetype)) {
             cb(null, true);
         } else {
-            cb(new Error('Only jpg, png, gif, webp, and svg files are allowed for frames'), false);
+            cb(new Error('Only jpg, png, gif, webp, svg, mp4, and webm files are allowed for frames'), false);
         }
     }
 });

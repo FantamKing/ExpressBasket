@@ -77,8 +77,8 @@ app.set('io', io);
 // HTTP request logging for easier debugging in Render logs
 const morgan = require('morgan');
 app.use(morgan('combined'));
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(bodyParser.json({ limit: '60mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '60mb' }));
 app.use('/uploads', express.static(path.resolve(__dirname, './uploads')));
 
 // Connect to MongoDB (fail fast so admin/login works reliably)

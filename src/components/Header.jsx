@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
@@ -14,6 +14,22 @@ const Header = () => {
   const { user } = useUser();
   const cartCount = getCartCount();
   const isDark = theme === 'dark';
+
+  // Trigger initial animation on page load based on saved theme
+  useEffect(() => {
+    // Small delay to ensure the page has rendered first
+    const timer = setTimeout(() => {
+      const animation = isDark ? 'to-dark' : 'to-light';
+      setThemeAnimation(animation);
+
+      // Clear animation after it completes
+      setTimeout(() => {
+        setThemeAnimation(null);
+      }, 3000);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []); // Only run once on mount
 
   // Handle theme toggle with animation
   const handleThemeToggle = useCallback(() => {
@@ -53,13 +69,56 @@ const Header = () => {
               <div className="shooting-star star-16"></div>
             </>
           ) : (
-            // Sun Heat Waves for Light Mode
+            // Enhanced Sun Animation for Light Mode
             <>
+              {/* Core Sun Burst */}
+              <div className="sun-burst"></div>
+
+              {/* Rotating Sun Rays */}
+              <div className="sun-rays-container">
+                <div className="sun-ray ray-1"></div>
+                <div className="sun-ray ray-2"></div>
+                <div className="sun-ray ray-3"></div>
+                <div className="sun-ray ray-4"></div>
+                <div className="sun-ray ray-5"></div>
+                <div className="sun-ray ray-6"></div>
+                <div className="sun-ray ray-7"></div>
+                <div className="sun-ray ray-8"></div>
+                <div className="sun-ray ray-9"></div>
+                <div className="sun-ray ray-10"></div>
+                <div className="sun-ray ray-11"></div>
+                <div className="sun-ray ray-12"></div>
+              </div>
+
+              {/* Heat Waves */}
               <div className="heat-wave wave-1"></div>
               <div className="heat-wave wave-2"></div>
               <div className="heat-wave wave-3"></div>
               <div className="heat-wave wave-4"></div>
-              <div className="sun-burst"></div>
+
+              {/* Golden Particles */}
+              <div className="sun-particle particle-1"></div>
+              <div className="sun-particle particle-2"></div>
+              <div className="sun-particle particle-3"></div>
+              <div className="sun-particle particle-4"></div>
+              <div className="sun-particle particle-5"></div>
+              <div className="sun-particle particle-6"></div>
+              <div className="sun-particle particle-7"></div>
+              <div className="sun-particle particle-8"></div>
+              <div className="sun-particle particle-9"></div>
+              <div className="sun-particle particle-10"></div>
+
+              {/* Lens Flare Effect */}
+              <div className="lens-flare flare-1"></div>
+              <div className="lens-flare flare-2"></div>
+              <div className="lens-flare flare-3"></div>
+
+              {/* Sparkling Light Effects */}
+              <div className="sun-sparkle sparkle-1"></div>
+              <div className="sun-sparkle sparkle-2"></div>
+              <div className="sun-sparkle sparkle-3"></div>
+              <div className="sun-sparkle sparkle-4"></div>
+              <div className="sun-sparkle sparkle-5"></div>
             </>
           )}
         </div>

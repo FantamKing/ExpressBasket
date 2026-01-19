@@ -490,6 +490,360 @@
   border-color: rgba(255, 100, 50, 0.4);
 }
 
+/* === Rotating Sun Rays === */
+.sun-rays-container {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 500px;
+  height: 500px;
+  animation: sunRaysRotate 8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes sunRaysRotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sun-ray {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 4px;
+  background: linear-gradient(90deg,
+      rgba(255, 200, 50, 0.9) 0%,
+      rgba(255, 180, 50, 0.6) 30%,
+      rgba(255, 150, 50, 0.3) 60%,
+      transparent 100%);
+  transform-origin: left center;
+  border-radius: 0 50px 50px 0;
+  animation: sunRayPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes sunRayPulse {
+  0% {
+    opacity: 0.6;
+    width: 250px;
+  }
+
+  100% {
+    opacity: 1;
+    width: 350px;
+  }
+}
+
+.sun-ray.ray-1 {
+  transform: translateY(-50%) rotate(0deg);
+  animation-delay: 0s;
+}
+
+.sun-ray.ray-2 {
+  transform: translateY(-50%) rotate(30deg);
+  animation-delay: 0.1s;
+}
+
+.sun-ray.ray-3 {
+  transform: translateY(-50%) rotate(60deg);
+  animation-delay: 0.2s;
+}
+
+.sun-ray.ray-4 {
+  transform: translateY(-50%) rotate(90deg);
+  animation-delay: 0.15s;
+}
+
+.sun-ray.ray-5 {
+  transform: translateY(-50%) rotate(120deg);
+  animation-delay: 0.25s;
+}
+
+.sun-ray.ray-6 {
+  transform: translateY(-50%) rotate(150deg);
+  animation-delay: 0.05s;
+}
+
+.sun-ray.ray-7 {
+  transform: translateY(-50%) rotate(180deg);
+  animation-delay: 0.3s;
+}
+
+.sun-ray.ray-8 {
+  transform: translateY(-50%) rotate(210deg);
+  animation-delay: 0.12s;
+}
+
+.sun-ray.ray-9 {
+  transform: translateY(-50%) rotate(240deg);
+  animation-delay: 0.22s;
+}
+
+.sun-ray.ray-10 {
+  transform: translateY(-50%) rotate(270deg);
+  animation-delay: 0.08s;
+}
+
+.sun-ray.ray-11 {
+  transform: translateY(-50%) rotate(300deg);
+  animation-delay: 0.18s;
+}
+
+.sun-ray.ray-12 {
+  transform: translateY(-50%) rotate(330deg);
+  animation-delay: 0.28s;
+}
+
+/* === Golden Particles === */
+.sun-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 1) 0%, rgba(255, 180, 50, 0.8) 50%, transparent 100%);
+  border-radius: 50%;
+  animation: particleFloat 3s ease-in-out infinite;
+  box-shadow: 0 0 10px 2px rgba(255, 200, 50, 0.6);
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(0) scale(0);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1);
+  }
+
+  80% {
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translateY(-150px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.particle-1 {
+  top: 30%;
+  right: 15%;
+  animation-delay: 0s;
+  width: 6px;
+  height: 6px;
+}
+
+.particle-2 {
+  top: 25%;
+  right: 25%;
+  animation-delay: 0.3s;
+  width: 10px;
+  height: 10px;
+}
+
+.particle-3 {
+  top: 35%;
+  right: 10%;
+  animation-delay: 0.6s;
+  width: 5px;
+  height: 5px;
+}
+
+.particle-4 {
+  top: 20%;
+  right: 5%;
+  animation-delay: 0.2s;
+  width: 8px;
+  height: 8px;
+}
+
+.particle-5 {
+  top: 40%;
+  right: 20%;
+  animation-delay: 0.5s;
+  width: 7px;
+  height: 7px;
+}
+
+.particle-6 {
+  top: 15%;
+  right: 12%;
+  animation-delay: 0.8s;
+  width: 9px;
+  height: 9px;
+}
+
+.particle-7 {
+  top: 28%;
+  right: 8%;
+  animation-delay: 0.4s;
+  width: 6px;
+  height: 6px;
+}
+
+.particle-8 {
+  top: 45%;
+  right: 15%;
+  animation-delay: 0.7s;
+  width: 5px;
+  height: 5px;
+}
+
+.particle-9 {
+  top: 22%;
+  right: 18%;
+  animation-delay: 0.1s;
+  width: 8px;
+  height: 8px;
+}
+
+.particle-10 {
+  top: 38%;
+  right: 22%;
+  animation-delay: 0.9s;
+  width: 6px;
+  height: 6px;
+}
+
+/* === Lens Flare Effect === */
+.lens-flare {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: lensFlareGlow 1.5s ease-out forwards;
+}
+
+@keyframes lensFlareGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+.flare-1 {
+  top: 5%;
+  right: 8%;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(255, 255, 200, 0.8) 0%, rgba(255, 200, 100, 0.4) 40%, transparent 70%);
+  animation-delay: 0.1s;
+}
+
+.flare-2 {
+  top: 20%;
+  right: 20%;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, rgba(100, 200, 255, 0.6) 0%, rgba(150, 220, 255, 0.3) 50%, transparent 70%);
+  animation-delay: 0.3s;
+}
+
+.flare-3 {
+  top: 35%;
+  right: 30%;
+  width: 25px;
+  height: 25px;
+  background: radial-gradient(circle, rgba(255, 150, 200, 0.7) 0%, rgba(255, 200, 220, 0.3) 50%, transparent 70%);
+  animation-delay: 0.5s;
+}
+
+/* === Flying Birds === */
+.flying-bird {
+  position: absolute;
+  width: 20px;
+  height: 10px;
+  background: transparent;
+  animation: birdFly 2s ease-in-out forwards;
+}
+
+.flying-bird::before,
+.flying-bird::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 3px;
+  background: rgba(50, 50, 50, 0.7);
+  border-radius: 50%;
+  animation: wingFlap 0.3s ease-in-out infinite alternate;
+}
+
+.flying-bird::before {
+  left: 0;
+  transform-origin: right center;
+  transform: rotate(-20deg);
+}
+
+.flying-bird::after {
+  right: 0;
+  transform-origin: left center;
+  transform: rotate(20deg);
+}
+
+@keyframes wingFlap {
+  0% {
+    transform: rotate(-20deg);
+  }
+
+  100% {
+    transform: rotate(20deg);
+  }
+}
+
+@keyframes birdFly {
+  0% {
+    opacity: 0;
+    transform: translateX(100px) translateY(0);
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-150vw) translateY(-50px);
+  }
+}
+
+.bird-1 {
+  top: 15%;
+  right: 10%;
+  animation-delay: 0.2s;
+  animation-duration: 2.5s;
+}
+
+.bird-2 {
+  top: 12%;
+  right: 5%;
+  animation-delay: 0.5s;
+  animation-duration: 2.8s;
+  transform: scale(0.8);
+}
+
+.bird-3 {
+  top: 20%;
+  right: 8%;
+  animation-delay: 0.8s;
+  animation-duration: 2.2s;
+  transform: scale(0.6);
+}
+
 /* ========== Premium Orbital Theme Toggle ========== */
 .orbital-theme-toggle {
   position: relative;

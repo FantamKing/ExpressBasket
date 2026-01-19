@@ -57,6 +57,38 @@ const ThemeToggle = styled.button`
   }
 `;
 
+const BackButton = styled(Link)`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid ${props => props.theme === 'dark' ? '#374151' : '#e5e7eb'};
+  background: ${props => props.theme === 'dark' ? '#374151' : '#f9fafb'};
+  color: ${props => props.theme === 'dark' ? '#e5e7eb' : '#374151'};
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  
+  &:hover {
+    transform: scale(1.1) rotate(-10deg);
+    border-color: #10b981;
+    color: #10b981;
+    background: ${props => props.theme === 'dark' ? '#1f2937' : '#f0fdf4'};
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
 const AuthTabs = styled.div`
   display: flex;
   margin-bottom: 30px;
@@ -367,6 +399,12 @@ const LoginSignup = () => {
             </svg>
           )}
         </ThemeToggle>
+        <BackButton to="/" theme={theme} title="Back to Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </BackButton>
         <AuthTabs theme={theme}>
           <AuthTab
             $active={isLogin}

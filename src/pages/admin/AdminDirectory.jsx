@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from '../../utils/axios';
 import { useTheme } from '../../context/ThemeContext';
 import './AdminDirectory.css';
@@ -12,6 +12,10 @@ const AdminDirectory = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedAdmin, setSelectedAdmin] = useState(null);
     const [showProfileModal, setShowProfileModal] = useState(false);
+    const [showIntroAnimation, setShowIntroAnimation] = useState(false); // For fullscreen GIF intro
+    const [introRevealed, setIntroRevealed] = useState(true); // Avatar visible after GIF ends (true = visible)
+    const [firstLoopComplete, setFirstLoopComplete] = useState(false); // Track if first animation loop finished
+    const introTimeoutRef = useRef(null); // Ref to track the intro animation timeout
 
     const currentAdmin = JSON.parse(localStorage.getItem('admin') || '{}');
 
@@ -103,19 +107,94 @@ const AdminDirectory = () => {
             console.error('Error toggling like:', error);
         }
     };
+    // Function to parse GIF and get its actual duration
+    const getGifDuration = async (url) => {
+        try {
+            const response = await fetch(url);
+            const buffer = await response.arrayBuffer();
+            const data = new Uint8Array(buffer);
+
+            let duration = 0;
+            let i = 13; // Skip GIF header + Logical Screen Descriptor
+
+            // Check for Global Color Table
+            const gctFlag = (data[10] & 0x80) >> 7;
+            if (gctFlag) {
+                const gctSize = Math.pow(2, (data[10] & 0x07) + 1) * 3;
+                i += gctSize;
+            }
+
+            // Parse blocks to calculate total duration
+            while (i < data.length) {
+                if (data[i] === 0x21) { // Extension block
+                    if (data[i + 1] === 0xF9) { // Graphics Control Extension
+                        const delay = (data[i + 4] | (data[i + 5] << 8)) * 10;
+                        duration += delay || 100;
+                        i += 8;
+                    } else {
+                        i += 2;
+                        while (data[i] !== 0) i += data[i] + 1;
+                        i++;
+                    }
+                } else if (data[i] === 0x2C) { // Image block
+                    i += 10;
+                    const lctFlag = (data[i - 1] & 0x80) >> 7;
+                    if (lctFlag) i += Math.pow(2, (data[i - 1] & 0x07) + 1) * 3;
+                    i++;
+                    while (data[i] !== 0) i += data[i] + 1;
+                    i++;
+                } else if (data[i] === 0x3B) break; // Trailer
+                else i++;
+            }
+
+            return duration || 3000; // Fallback to 3 seconds
+        } catch (err) {
+            console.warn('Could not parse GIF duration:', err);
+            return 5000; // Fallback to 5 seconds on error
+        }
+    };
 
     const viewProfile = async (adminId) => {
+        // Clear any existing intro timeout to prevent race conditions
+        if (introTimeoutRef.current) {
+            clearTimeout(introTimeoutRef.current);
+            introTimeoutRef.current = null;
+        }
+
         // Find the admin to get their role for special loading animation
         const adminToLoad = admins.find(a => a._id === adminId);
         setLoadingAdminRole(adminToLoad?.role || null);
         setLoadingProfile(true);
         setShowProfileModal(true);
         setSelectedAdmin(null); // Clear previous data while loading
+        setIntroRevealed(true); // Reset to visible by default
+        setFirstLoopComplete(false); // Reset first loop tracking for new profile
         try {
             const response = await axios.get(`/admin/directory/${adminId}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
             });
-            setSelectedAdmin(response.data);
+            const adminData = response.data;
+
+            // If admin has a GIF/file animation, hide avatar and reveal after GIF ends
+            if (adminData.profileAnimation === 'file' && adminData.animationFileUrl) {
+                setIntroRevealed(false); // Hide avatar during GIF animation
+                setSelectedAdmin(adminData);
+
+                // Detect actual GIF duration and reveal avatar after it ends
+                getGifDuration(adminData.animationFileUrl).then(gifDuration => {
+                    console.log('🎬 GIF duration detected:', gifDuration, 'ms - will reveal avatar after this');
+
+                    // Set timeout to reveal avatar after GIF finishes
+                    introTimeoutRef.current = setTimeout(() => {
+                        console.log('✅ GIF finished - revealing avatar now');
+                        setIntroRevealed(true);
+                        introTimeoutRef.current = null;
+                    }, gifDuration);
+                });
+            } else {
+                // No GIF animation, show profile directly
+                setSelectedAdmin(adminData);
+            }
         } catch (error) {
             console.error('Error fetching profile:', error);
             setShowProfileModal(false);
@@ -189,22 +268,46 @@ const AdminDirectory = () => {
                             }}>
                                 {/* Avatar Frame */}
                                 {admin.avatarFrame && (
-                                    <div
-                                        className={admin.avatarFrame !== 'custom' ? `ad-avatar-frame frame-${admin.avatarFrame}` : ''}
-                                        style={{
-                                            position: 'absolute',
-                                            inset: '-4px',
-                                            borderRadius: '50%',
-                                            zIndex: 0,
-                                            clipPath: 'circle(50%)',
-                                            ...(admin.avatarFrame === 'custom' && admin.customFrameUrl ? {
-                                                backgroundImage: `url(${admin.customFrameUrl})`,
-                                                backgroundSize: 'cover',
-                                                backgroundPosition: 'center',
-                                                animation: 'frameSpinAnimation 3s linear infinite'
-                                            } : {})
-                                        }}
-                                    ></div>
+                                    <>
+                                        {/* Check if custom frame is video */}
+                                        {admin.avatarFrame === 'custom' && admin.customFrameUrl &&
+                                            (admin.customFrameUrl.includes('.mp4') || admin.customFrameUrl.includes('.webm') || admin.customFrameUrl.includes('video')) ? (
+                                            <video
+                                                autoPlay
+                                                loop
+                                                muted
+                                                playsInline
+                                                style={{
+                                                    position: 'absolute',
+                                                    inset: '-4px',
+                                                    width: 'calc(100% + 8px)',
+                                                    height: 'calc(100% + 8px)',
+                                                    borderRadius: '50%',
+                                                    zIndex: 0,
+                                                    objectFit: 'cover',
+                                                    clipPath: 'circle(50%)'
+                                                }}
+                                                src={admin.customFrameUrl}
+                                            />
+                                        ) : (
+                                            <div
+                                                className={admin.avatarFrame !== 'custom' ? `ad-avatar-frame frame-${admin.avatarFrame}` : ''}
+                                                style={{
+                                                    position: 'absolute',
+                                                    inset: '-4px',
+                                                    borderRadius: '50%',
+                                                    zIndex: 0,
+                                                    clipPath: 'circle(50%)',
+                                                    ...(admin.avatarFrame === 'custom' && admin.customFrameUrl ? {
+                                                        backgroundImage: `url(${admin.customFrameUrl})`,
+                                                        backgroundSize: 'cover',
+                                                        backgroundPosition: 'center',
+                                                        animation: 'frameSpinAnimation 3s linear infinite'
+                                                    } : {})
+                                                }}
+                                            ></div>
+                                        )}
+                                    </>
                                 )}
                                 <div
                                     className="ad-avatar"
@@ -267,7 +370,8 @@ const AdminDirectory = () => {
             {/* Profile View Modal */}
             {showProfileModal && (
                 <div className="ad-modal-overlay" onClick={() => !loadingProfile && setShowProfileModal(false)}>
-                    <div className="ad-modal" onClick={e => e.stopPropagation()}>
+                    <div className={`ad-modal ${selectedAdmin?.profileAnimation === 'file' ? 'has-gif-intro' : ''}`} onClick={e => e.stopPropagation()}>
+                        {/* Close button - CSS hides it during intro animation */}
                         <button className="ad-modal-close" onClick={() => setShowProfileModal(false)} disabled={loadingProfile}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -330,8 +434,37 @@ const AdminDirectory = () => {
                             </div>
                         )}
 
-                        {/* Profile Content - only show when loaded */}
-                        {selectedAdmin && (
+                        {/* Fullscreen GIF Intro Animation - Shows on TOP of everything first */}
+                        {selectedAdmin && showIntroAnimation && (
+                            <div
+                                className="intro-animation-overlay"
+                                onClick={() => setShowIntroAnimation(false)}
+                            >
+                                <div className="intro-animation-content">
+                                    {selectedAdmin.animationFileUrl && (selectedAdmin.animationFileUrl.includes('video') ||
+                                        selectedAdmin.animationFileUrl.endsWith('.mp4') ||
+                                        selectedAdmin.animationFileUrl.endsWith('.webm')) ? (
+                                        <video
+                                            src={selectedAdmin.animationFileUrl}
+                                            autoPlay
+                                            muted
+                                            playsInline
+                                            className="intro-animation-media"
+                                        />
+                                    ) : selectedAdmin.animationFileUrl ? (
+                                        <img
+                                            src={selectedAdmin.animationFileUrl}
+                                            alt=""
+                                            className="intro-animation-media"
+                                        />
+                                    ) : null}
+                                </div>
+                                <div className="intro-skip-hint">Click anywhere to skip</div>
+                            </div>
+                        )}
+
+                        {/* Profile Content - only show when loaded AND intro animation is done */}
+                        {selectedAdmin && !showIntroAnimation && (
                             <>
                                 {/* Profile Animation Background */}
                                 {selectedAdmin.profileAnimation && (
@@ -458,88 +591,94 @@ const AdminDirectory = () => {
                                                                         container.style.opacity = '1';
                                                                     }
                                                                 }, 600);
+                                                            } else if (selectedAdmin.animationLoopMode !== 'once' && !firstLoopComplete) {
+                                                                // For looping mode: after first play, reduce opacity to 10%
+                                                                setFirstLoopComplete(true);
+                                                                e.target.style.transition = 'opacity 0.8s ease-out';
+                                                                e.target.style.opacity = '0.1';
                                                             }
                                                         }}
                                                         style={{
                                                             width: '100%',
                                                             height: '100%',
                                                             objectFit: 'cover',
-                                                            opacity: selectedAdmin.animationOpacity || 0.7,
+                                                            opacity: firstLoopComplete ? 0.1 : (selectedAdmin.animationOpacity || 0.7),
                                                             transition: 'opacity 0.8s ease-out'
                                                         }}
                                                     />
                                                 ) : (
-                                                    /* GIF with Play Once support */
+                                                    /* GIF with Play Once and Loop with opacity reduction support */
                                                     <img
-                                                        key={selectedAdmin._id + '-img-' + (selectedAdmin.animationLoopMode || 'loop')}
+                                                        key={selectedAdmin._id + '-img-' + (selectedAdmin.animationLoopMode || 'loop') + '-' + firstLoopComplete}
                                                         src={selectedAdmin.animationFileUrl}
                                                         alt=""
                                                         ref={(el) => {
-                                                            // For GIFs with "Play Once" mode, detect actual GIF duration
-                                                            if (el && selectedAdmin.animationLoopMode === 'once' && !el.dataset.durationSet) {
-                                                                el.dataset.durationSet = 'true'; // Prevent multiple triggers
+                                                            if (!el) return;
 
-                                                                // Function to parse GIF and get duration
-                                                                const getGifDuration = async (url) => {
-                                                                    try {
-                                                                        const response = await fetch(url);
-                                                                        const buffer = await response.arrayBuffer();
-                                                                        const data = new Uint8Array(buffer);
+                                                            // Function to parse GIF and get duration
+                                                            const getGifDuration = async (url) => {
+                                                                try {
+                                                                    const response = await fetch(url);
+                                                                    const buffer = await response.arrayBuffer();
+                                                                    const data = new Uint8Array(buffer);
 
-                                                                        let duration = 0;
-                                                                        let i = 0;
+                                                                    let duration = 0;
+                                                                    let i = 0;
 
-                                                                        // Skip GIF header (6 bytes) + Logical Screen Descriptor (7 bytes)
-                                                                        i = 13;
+                                                                    // Skip GIF header (6 bytes) + Logical Screen Descriptor (7 bytes)
+                                                                    i = 13;
 
-                                                                        // Check for Global Color Table
-                                                                        const gctFlag = (data[10] & 0x80) >> 7;
-                                                                        if (gctFlag) {
-                                                                            const gctSize = Math.pow(2, (data[10] & 0x07) + 1) * 3;
-                                                                            i += gctSize;
-                                                                        }
+                                                                    // Check for Global Color Table
+                                                                    const gctFlag = (data[10] & 0x80) >> 7;
+                                                                    if (gctFlag) {
+                                                                        const gctSize = Math.pow(2, (data[10] & 0x07) + 1) * 3;
+                                                                        i += gctSize;
+                                                                    }
 
-                                                                        // Parse blocks
-                                                                        while (i < data.length) {
-                                                                            if (data[i] === 0x21) { // Extension block
-                                                                                if (data[i + 1] === 0xF9) { // Graphics Control Extension
-                                                                                    const delay = (data[i + 4] | (data[i + 5] << 8)) * 10; // Convert to ms
-                                                                                    duration += delay || 100; // Default 100ms if 0
-                                                                                    i += 8;
-                                                                                } else {
-                                                                                    i += 2;
-                                                                                    while (data[i] !== 0) {
-                                                                                        i += data[i] + 1;
-                                                                                    }
-                                                                                    i++;
-                                                                                }
-                                                                            } else if (data[i] === 0x2C) { // Image block
-                                                                                i += 10;
-                                                                                const lctFlag = (data[i - 1] & 0x80) >> 7;
-                                                                                if (lctFlag) {
-                                                                                    const lctSize = Math.pow(2, (data[i - 1] & 0x07) + 1) * 3;
-                                                                                    i += lctSize;
-                                                                                }
-                                                                                i++; // LZW minimum code size
+                                                                    // Parse blocks
+                                                                    while (i < data.length) {
+                                                                        if (data[i] === 0x21) { // Extension block
+                                                                            if (data[i + 1] === 0xF9) { // Graphics Control Extension
+                                                                                const delay = (data[i + 4] | (data[i + 5] << 8)) * 10; // Convert to ms
+                                                                                duration += delay || 100; // Default 100ms if 0
+                                                                                i += 8;
+                                                                            } else {
+                                                                                i += 2;
                                                                                 while (data[i] !== 0) {
                                                                                     i += data[i] + 1;
                                                                                 }
                                                                                 i++;
-                                                                            } else if (data[i] === 0x3B) { // Trailer
-                                                                                break;
-                                                                            } else {
-                                                                                i++;
                                                                             }
+                                                                        } else if (data[i] === 0x2C) { // Image block
+                                                                            i += 10;
+                                                                            const lctFlag = (data[i - 1] & 0x80) >> 7;
+                                                                            if (lctFlag) {
+                                                                                const lctSize = Math.pow(2, (data[i - 1] & 0x07) + 1) * 3;
+                                                                                i += lctSize;
+                                                                            }
+                                                                            i++; // LZW minimum code size
+                                                                            while (data[i] !== 0) {
+                                                                                i += data[i] + 1;
+                                                                            }
+                                                                            i++;
+                                                                        } else if (data[i] === 0x3B) { // Trailer
+                                                                            break;
+                                                                        } else {
+                                                                            i++;
                                                                         }
-
-                                                                        return duration || 3000; // Fallback to 3 seconds
-                                                                    } catch (err) {
-                                                                        console.warn('Could not parse GIF duration:', err);
-                                                                        return 5000; // Fallback to 5 seconds on error
                                                                     }
-                                                                };
 
-                                                                // Get actual duration and set timeout
+                                                                    return duration || 3000; // Fallback to 3 seconds
+                                                                } catch (err) {
+                                                                    console.warn('Could not parse GIF duration:', err);
+                                                                    return 5000; // Fallback to 5 seconds on error
+                                                                }
+                                                            };
+
+                                                            // For GIFs with "Play Once" mode
+                                                            if (selectedAdmin.animationLoopMode === 'once' && !el.dataset.durationSet) {
+                                                                el.dataset.durationSet = 'true';
+
                                                                 getGifDuration(selectedAdmin.animationFileUrl).then(gifDuration => {
                                                                     console.log('GIF duration detected:', gifDuration, 'ms');
 
@@ -548,7 +687,6 @@ const AdminDirectory = () => {
                                                                             el.style.transition = 'opacity 0.8s ease-out';
                                                                             el.style.opacity = '0';
 
-                                                                            // Show fallback animation after fade out
                                                                             setTimeout(() => {
                                                                                 el.style.display = 'none';
                                                                                 const container = document.getElementById('fallbackAnimationContainer');
@@ -556,15 +694,30 @@ const AdminDirectory = () => {
                                                                                     container.style.opacity = '0';
                                                                                     container.style.display = 'block';
                                                                                     container.style.transition = 'opacity 0.8s ease-in';
-                                                                                    container.offsetHeight; // Trigger reflow
+                                                                                    container.offsetHeight;
                                                                                     container.style.opacity = '1';
                                                                                 }
                                                                             }, 600);
                                                                         }
                                                                     }, gifDuration);
 
-                                                                    // Store timeout ID for cleanup
                                                                     el.dataset.timeoutId = hideTimeout;
+                                                                });
+                                                            }
+                                                            // For looping GIFs: reduce opacity after first loop
+                                                            else if (selectedAdmin.animationLoopMode !== 'once' && !firstLoopComplete && !el.dataset.loopTracked) {
+                                                                el.dataset.loopTracked = 'true';
+
+                                                                getGifDuration(selectedAdmin.animationFileUrl).then(gifDuration => {
+                                                                    console.log('GIF loop duration:', gifDuration, 'ms - will fade to 10% after first loop');
+
+                                                                    setTimeout(() => {
+                                                                        setFirstLoopComplete(true);
+                                                                        if (el) {
+                                                                            el.style.transition = 'opacity 0.8s ease-out';
+                                                                            el.style.opacity = '0.1';
+                                                                        }
+                                                                    }, gifDuration);
                                                                 });
                                                             }
                                                         }}
@@ -572,7 +725,7 @@ const AdminDirectory = () => {
                                                             width: '100%',
                                                             height: '100%',
                                                             objectFit: 'cover',
-                                                            opacity: selectedAdmin.animationOpacity || 0.7,
+                                                            opacity: firstLoopComplete ? 0.1 : (selectedAdmin.animationOpacity || 0.7),
                                                             transition: 'opacity 0.8s ease-out'
                                                         }}
                                                     />
@@ -631,29 +784,61 @@ const AdminDirectory = () => {
                                     </div>
                                 )}
 
-                                <div className="ad-modal-header">
+                                {/* Modal Header - fades in after GIF animation ends */}
+                                <div
+                                    className="ad-modal-header"
+                                    style={{
+                                        opacity: introRevealed ? 1 : 0,
+                                        visibility: introRevealed ? 'visible' : 'hidden',
+                                        transition: 'opacity 0.5s ease-in, visibility 0.5s ease-in'
+                                    }}
+                                >
                                     <div className="ad-modal-avatar-wrapper" style={{
                                         position: 'relative',
                                         overflow: 'visible'
                                     }}>
                                         {/* Modal Avatar Frame */}
                                         {selectedAdmin.avatarFrame && (
-                                            <div
-                                                className={selectedAdmin.avatarFrame !== 'custom' ? `ad-modal-avatar-frame frame-${selectedAdmin.avatarFrame}` : ''}
-                                                style={{
-                                                    position: 'absolute',
-                                                    inset: '-5px',
-                                                    borderRadius: '50%',
-                                                    zIndex: 0,
-                                                    clipPath: 'circle(50%)',
-                                                    ...(selectedAdmin.avatarFrame === 'custom' && selectedAdmin.customFrameUrl ? {
-                                                        backgroundImage: `url(${selectedAdmin.customFrameUrl})`,
-                                                        backgroundSize: 'cover',
-                                                        backgroundPosition: 'center',
-                                                        animation: 'frameSpinAnimation 3s linear infinite'
-                                                    } : {})
-                                                }}
-                                            ></div>
+                                            <>
+                                                {/* Check if custom frame is a video */}
+                                                {selectedAdmin.avatarFrame === 'custom' && selectedAdmin.customFrameUrl &&
+                                                    (selectedAdmin.customFrameUrl.includes('.mp4') || selectedAdmin.customFrameUrl.includes('.webm') || selectedAdmin.customFrameUrl.includes('video')) ? (
+                                                    <video
+                                                        autoPlay
+                                                        loop
+                                                        muted
+                                                        playsInline
+                                                        style={{
+                                                            position: 'absolute',
+                                                            inset: '-3px',
+                                                            width: 'calc(100% + 6px)',
+                                                            height: 'calc(100% + 6px)',
+                                                            borderRadius: '50%',
+                                                            zIndex: 0,
+                                                            objectFit: 'cover',
+                                                            clipPath: 'circle(50%)'
+                                                        }}
+                                                        src={selectedAdmin.customFrameUrl}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        className={selectedAdmin.avatarFrame !== 'custom' ? `ad-modal-avatar-frame frame-${selectedAdmin.avatarFrame}` : ''}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            inset: '-3px',
+                                                            borderRadius: '50%',
+                                                            zIndex: 0,
+                                                            clipPath: 'circle(50%)',
+                                                            ...(selectedAdmin.avatarFrame === 'custom' && selectedAdmin.customFrameUrl ? {
+                                                                backgroundImage: `url(${selectedAdmin.customFrameUrl})`,
+                                                                backgroundSize: 'cover',
+                                                                backgroundPosition: 'center',
+                                                                animation: 'frameSpinAnimation 3s linear infinite'
+                                                            } : {})
+                                                        }}
+                                                    ></div>
+                                                )}
+                                            </>
                                         )}
                                         <div
                                             className="ad-modal-avatar"
